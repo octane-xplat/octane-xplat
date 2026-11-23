@@ -1,0 +1,32 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/android-engine.ts",
+		"../src/apple-engine.ts",
+		"../src/error-map.ts",
+		"../src/index.web.ts",
+		"../src/session-core.ts",
+		"../src/speech-recognition.web.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

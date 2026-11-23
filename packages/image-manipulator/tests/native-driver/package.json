@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/image-manipulator-native-fixture",
+	"name": "@octane-xplat/image-manipulator-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

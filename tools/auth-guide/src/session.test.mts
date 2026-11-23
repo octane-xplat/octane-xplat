@@ -7,7 +7,7 @@ import ts from 'typescript-classic'
 import { createStore } from '../../../packages/ui/src/data/store.ts'
 
 const source = await readFile(
-  new URL('../../../packages/demos/src/auth-guide/session.ts', import.meta.url),
+  new URL('../../../examples/auth/session.ts', import.meta.url),
   'utf8',
 )
 
@@ -16,7 +16,7 @@ const output = ts.transpile(source, {
   target: ts.ScriptTarget.ES2022,
 })
 
-const exports: Partial<typeof import('../../../packages/demos/src/auth-guide/session.ts')> = {}
+const exports: Partial<typeof import('../../../examples/auth/session.ts')> = {}
 
 vm.runInNewContext(output, { exports, require: () => ({ createStore }) })
 

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/geofencing",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Region enter/exit monitoring for Octane xplat \u2014 CLLocationManager regions and GeofencingClient",
 	"keywords": [
 		"android",
@@ -49,6 +49,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target octane",
+		"test": "vitest run",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"typecheck": "node ../../scripts/typecheck.ts"
@@ -60,6 +61,7 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
+		"vitest": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

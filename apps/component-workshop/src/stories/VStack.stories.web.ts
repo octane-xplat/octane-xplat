@@ -1,5 +1,5 @@
 // Uses the maintained VStackShowcase example; do not copy its implementation here.
-import { VStackShowcase as Example } from '@xplat/astryx-sandbox/examples/vstack/VStackShowcase.tsrx'
+import { VStackShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/vstack/VStackShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,5 +1,5 @@
 // Uses the maintained TimerShowcase example; do not copy its implementation here.
-import { TimerShowcase as Example } from '@xplat/astryx-sandbox/examples/timer/TimerShowcase.tsrx'
+import { TimerShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/timer/TimerShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

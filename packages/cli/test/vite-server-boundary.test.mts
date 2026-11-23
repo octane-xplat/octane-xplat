@@ -60,8 +60,18 @@ test('native presets reject .server imports and erase named re-exports', async (
 
     makePackage(
       'octane',
-      { exports: { '.': './index.js', './universal/native': './universal/native.js' } },
-      { 'index.js': 'export {}', 'universal/native.js': 'export {}' },
+      {
+        exports: {
+          '.': './index.js',
+          './universal/native': './universal/native.js',
+          './compiler/vite': './compiler/vite.js',
+        },
+      },
+      {
+        'index.js': 'export {}',
+        'universal/native.js': 'export {}',
+        'compiler/vite.js': 'export const octane = () => []',
+      },
     )
 
     makePackage(
@@ -87,17 +97,27 @@ test('native presets reject .server imports and erase named re-exports', async (
       {
         exports: {
           '.': './index.js',
-          './compat/escape-props': './compat/escape-props.js',
-          './compat/native-core': './compat/native-core.js',
-          './intrinsics': './intrinsics.js',
+          './host': './host.js',
+          './core-provider': './provider.js',
         },
       },
       {
         'index.js': 'export {}',
-        'compat/escape-props.js': 'export const applyEscapeProps = () => "HOST_ESCAPE_SENTINEL"',
-        'compat/native-core.js': 'export {}',
-        'intrinsics.js': 'export {}',
+        'host.js': 'export {}',
+        'provider.js': `
+          export const nativeScriptDevImports = ['@octane-xplat/nativescript-octane']
+          export const createNativeScriptProvider = () => ({
+            config: { define: {}, plugins: [], resolve: { alias: [] }, build: { rollupOptions: {} } },
+            reusedCoreFiles: [],
+          })
+        `,
       },
+    )
+
+    makePackage(
+      '@octane-xplat/lib',
+      { exports: { './escape-props': './escape-props.js' } },
+      { 'escape-props.js': 'export const applyEscapeProps = () => "CORE_ESCAPE_SENTINEL"' },
     )
 
     makePackage(
@@ -124,6 +144,10 @@ test('native presets reject .server imports and erase named re-exports', async (
     writeFileSync(
       join(root, 'entry-escape.ts'),
       'export { applyEscapeProps } from "./native/escape-props"',
+    )
+    writeFileSync(
+      join(root, 'entry-core-escape.ts'),
+      'export { applyEscapeProps } from "@octane-xplat/lib/escape-props"',
     )
 
     const require = createRequire(import.meta.url)
@@ -167,13 +191,17 @@ test('native presets reject .server imports and erase named re-exports', async (
     assert.ok(chunks.some((entry) => entry.exports.includes('screen')))
     assert.ok(chunks.every((entry) => !entry.exports.includes('context')))
 
-    for (const preset of [
-      () => macos('production', { root, packaged: false, entry: join(root, 'entry-leak.ts') }),
-      () => linuxGtk('production', { root, entry: join(root, 'entry-leak.ts') }),
-    ]) {
-      const config = await preset()
-      // The real preset must redirect nested native helpers before resolution;
-      // this fixture deliberately has no native/escape-props source file.
+    const entry = join(root, 'entry-leak.ts')
+    const macOSComponentConfig = await macos('production', { root, packaged: false, entry })
+    const componentLibrary = macOSComponentConfig.build?.lib
+    assert.ok(componentLibrary)
+    assert.deepEqual(componentLibrary.formats, ['es'])
+
+    const desktop = [
+      [macOSComponentConfig, 'entry-core-escape.ts', /CORE_ESCAPE_SENTINEL/],
+      [await linuxGtk('production', { root, entry }), 'entry-escape.ts', /HOST_ESCAPE_SENTINEL/],
+    ] as const
+    for (const [config, escapeEntry, sentinel] of desktop) {
       const escapeBuild = await build({
         ...config,
         configFile: false,
@@ -182,11 +210,11 @@ test('native presets reject .server imports and erase named re-exports', async (
           ...config.build,
           write: false,
           minify: false,
-          lib: { ...config.build.lib, entry: join(root, 'entry-escape.ts') },
+          lib: { ...config.build.lib, entry: join(root, escapeEntry) },
         },
       })
 
-      assert.match(JSON.stringify(escapeBuild), /HOST_ESCAPE_SENTINEL/)
+      assert.match(JSON.stringify(escapeBuild), sentinel)
 
       await assert.rejects(
         build({

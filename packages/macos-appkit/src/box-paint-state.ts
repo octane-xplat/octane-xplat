@@ -5,11 +5,22 @@ import type {
   NSObject,
 } from '@octane-xplat/platform/macos'
 
-import type { AppKitView, PropBag } from './model'
+import type { AppKitView, ElementNode, PropBag } from './model'
 import type { BorderSide } from './box-geometry'
 import type { ParsedBoxShadow } from './shadow-paint'
 import type { BackgroundSpec } from './background-layers'
 import type { BgPainted } from './background-paint'
+import type { StyleSource } from './style-values'
+
+/** Host and style state the AppKit paint algorithms read and update. */
+export interface BoxPaintNode extends StyleSource {
+  view: AppKitView | null
+  lifecycle?: ElementNode['lifecycle']
+  appliedStyle?: PropBag
+  animatedStyle?: PropBag
+  styleBg?: unknown
+  bgApplied?: boolean
+}
 
 export interface BoxFrameLease {
   readonly view: AppKitView

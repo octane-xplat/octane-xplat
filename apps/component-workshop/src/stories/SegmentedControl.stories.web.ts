@@ -1,5 +1,5 @@
 // Uses the maintained SegmentedControlShowcase example; do not copy its implementation here.
-import { SegmentedControlShowcase as Example } from '@xplat/astryx-sandbox/examples/segmented/SegmentedControlShowcase.tsrx'
+import { SegmentedControlShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/segmented/SegmentedControlShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

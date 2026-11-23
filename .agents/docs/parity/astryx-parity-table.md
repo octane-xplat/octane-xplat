@@ -239,7 +239,7 @@ source audit. The preceding sections preserve the audited baseline.
 | 3 — column management               | Columns panel controls visibility/order/reset, honors `enableHiding:false`, and uses touch/keyboard move buttons.                                                                    | Implemented; reset restores initial visibility/order/sizing.                                                    |
 | 4 — resize/reorder                  | `ColumnDrag.tsrx` uses shared pan events, live column sizes, bounds, cancellation rollback, release-only order commits, and +/- alternatives; `direction` controls gesture sign.     | Implemented without adopting the browser-only table-core resize listener feature.                               |
 | 5 — bounded header ownership        | Header stays outside `VirtualList` body with `flexShrink=0`; grid/body expose stable IDs.                                                                                            | Existing structure retained and strengthened; outer-page sticky positioning and frozen columns remain deferred. |
-| 6 — evidence and documentation      | Maintained `packages/table/examples/interactive.tsrx`, control regression tests, leaf README, and `interactive-data-grid` recipe; coverage/verification recorded separately in Silo. | Verification results below; no publishing.                                                                      |
+| 6 — evidence and documentation      | Maintained `packages/table/tests/fixtures/probes/interactive.tsrx`, control regression tests, leaf README, and `interactive-data-grid` recipe; coverage/verification recorded separately in Silo. | Verification results below; no publishing.                                                                      |
 
 Native and web source typechecks, web/native package builds, packed-consumer
 Bundler/NodeNext checks, and 16 tests pass. Shared CSS validation has zero
@@ -295,7 +295,7 @@ Nonvisual runtime evidence:
   returned to scroll offset `344` after four height/width changes.
 
 The maintained cases live in `packages/ui/tests/virtual-list.*.tsrx` and
-`packages/table/examples/geometry.tsrx`. Focused unit coverage includes native
+`packages/table/tests/fixtures/probes/geometry.tsrx`. Focused unit coverage includes native
 layout-event spelling, invalid initial frames, disposal, same-range measurement
 updates, and AppKit native insertion order. Table tests/typechecks and web/native
 builds pass. These checks establish host geometry and synthetic handler behavior,
@@ -397,7 +397,7 @@ this bounded task. iOS/Android runtime accessibility remains unverified.
 The bounded UI Table now has grouped rows, detail expansion, tree data/state,
 row numbers/status, and web sticky columns. The sandbox targets exactly
 `ebd939b665361a078015377c0dfe50cc3c1d70a4`, independently of the separate
-0.7.1 parity harness. See [sandbox coverage](../../../apps/astryx-sandbox/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
+0.7.1 parity harness. See [sandbox coverage](https://github.com/octane-xplat/astryx-sandbox/blob/v0.1.0/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
 for route adaptations and open completion gates, and [table usage](../../../docs/app/tables.md)
 for public examples.
 

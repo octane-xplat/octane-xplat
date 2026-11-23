@@ -36,6 +36,11 @@ vi.mock('@nativescript/core', async () => ({
   Application: { on() {}, off() {} },
 }))
 
+vi.mock('@nativescript/core/animation-frame', () => ({
+  requestAnimationFrame: (callback: () => void) => globalThis.requestAnimationFrame(callback),
+  cancelAnimationFrame: (id: number) => globalThis.cancelAnimationFrame(id),
+}))
+
 vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({
   applyNativeModifiers: () => {},
 }))

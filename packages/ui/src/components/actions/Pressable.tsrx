@@ -1,22 +1,26 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { styleRecord } from '../../internal/layout/style-merge'
-import { useMemo } from 'octane'
+import { useContext, useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
 import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
+import {
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
+} from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useInteractionHost } from '../../gestures/host.tsrx'
 import { pressOptions } from '../../gestures/press-options'
-import { InteractionScopeProvider } from '../../gestures/context.tsrx'
+import { InteractionScopeContext, interactionScopeOutlet } from '../../gestures/context.tsrx'
 
 /** masonview, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
  *  silently dropped. Block flow preserves View's neutral content layout;
  *  tap/longPress are gesture events, they attach to any view. */
 export function Pressable(props: PressableProps): unknown @{
+  const scopes = useContext(InteractionScopeContext)
   const bindInput = useInteractionHost({
     ...props,
     gestures: props.disabled ? undefined : props.gestures,
@@ -62,8 +66,6 @@ export function Pressable(props: PressableProps): unknown @{
     })}
     accessibilityLiveRegion={props.accessibilityLiveRegion}
   >
-    <InteractionScopeProvider scope={props.interactionScope}>
-      {props.children}
-    </InteractionScopeProvider>
+    {interactionScopeOutlet(scopes, props.interactionScope, props.children)}
   </masonview>
 }

@@ -25,6 +25,9 @@ session.subscribe((event) => {
 const result = await session.stop() // { transcript, reason, error }
 ```
 
+For a complete start, stop, and cleanup flow, see the numbered
+[dictation walkthrough](../../examples/dictation/dictate-field.ts).
+
 Check `speechRecognition.supported` and `getAvailability()` before showing
 dictation UI — the session's result classifies failures as
 `permission-denied`, `language-unsupported`, `service-unavailable`,

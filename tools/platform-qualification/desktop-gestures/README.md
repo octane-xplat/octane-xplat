@@ -9,7 +9,7 @@ use text logs and existing hosts; no screenshots or new devices are required.
 Build the fixture with Bun 1.4.4 from the repository root:
 
 ```sh
-bunx turbo run build:windows-gestures --filter=@xplat/platform-qualification
+bunx turbo run build:windows-gestures --filter=@octane-xplat/platform-qualification
 ```
 
 On the existing Windows host, choose an owned disposable scratch directory.
@@ -45,7 +45,7 @@ original button again and checks that retired callbacks stay silent. It retains
 logs in scratch and closes the owned app. Copy stdout to a local log and verify it from the repository:
 
 ```sh
-bunx turbo run verify:windows-gestures --filter=@xplat/platform-qualification -- /absolute/path/windows-gate.log
+bunx turbo run verify:windows-gestures --filter=@octane-xplat/platform-qualification -- /absolute/path/windows-gate.log
 ```
 
 The gate checks logical-unit normalization using UIA physical bounds and native logical bounds,
@@ -71,7 +71,7 @@ rejects imports from the tested libraries' source checkouts. This qualifies
 packed contents; a frozen fresh dependency install is a separate gate.
 
 ```sh
-bun run turbo run build:desktop-components --filter=@xplat/platform-qualification -- gtk /absolute/owned/consumer
+bun run turbo run build:desktop-components --filter=@octane-xplat/platform-qualification -- gtk /absolute/owned/consumer
 ```
 
 Select `gtk`, `macos` or `windows`. The directory must not exist. Preserve its
@@ -106,8 +106,8 @@ On macOS, build the native host under a native-build reservation, end that
 reservation, then run input under a desktop-input reservation:
 
 ```sh
-bun run turbo run qualify:macos-components --filter=@xplat/platform-qualification -- build /absolute/owned/consumer
-caffeinate -u -t 35 bun run turbo run qualify:macos-components --filter=@xplat/platform-qualification -- input /absolute/owned/consumer
+bun run turbo run qualify:macos-components --filter=@octane-xplat/platform-qualification -- build /absolute/owned/consumer
+caffeinate -u -t 35 bun run turbo run qualify:macos-components --filter=@octane-xplat/platform-qualification -- input /absolute/owned/consumer
 ```
 
 The build creates an owned ad-hoc `.app` identity and a separate AX client. The

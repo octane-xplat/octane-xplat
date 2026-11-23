@@ -1,4 +1,4 @@
-import { RichTextEditorDemo as Example } from '@xplat/demos/RichTextEditorDemo.tsrx'
+import { RichTextEditorDemo as Example } from '@octane-xplat/demos/RichTextEditorDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

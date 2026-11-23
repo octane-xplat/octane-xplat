@@ -342,5 +342,5 @@ test('label padding stays out of the mason dict; collapse reads as display none'
   })
 
   assert.equal(styleDict(leaf('label', { visibility: 'collapse' })).display, 'none')
-  assert.equal(styleDict(leaf('label', { visibility: 'hidden' })).display, undefined)
+  assert.equal(styleDict(leaf('label', { visibility: 'hidden' })).display, 'block')
 })

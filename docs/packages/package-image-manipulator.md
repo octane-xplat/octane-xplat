@@ -58,7 +58,7 @@ export function AttachmentPreview({ result }: { result: ImageResult }) {
 ## Crop a selection
 
 `image-crop` reports selection geometry, not image files. Pass the natural
-rectangle from `toNaturalCrop` to the maintained [exportCrop helper](../../packages/image-manipulator/examples/crop.ts).
+rectangle from `toNaturalCrop` to the maintained [exportCrop helper](../../examples/media/crop-image.ts).
 Copy that helper into your app. It rounds the selection outward to whole image
 pixels and clips it to the source bounds. This continuation assumes `crop`,
 `viewportSize`, and `naturalSize` describe your current selection and image.
@@ -121,6 +121,9 @@ export async function toWebP(sourceUri: string) {
 }
 // The receiving owner calls releaseImage(result) after preview/upload finishes.
 ```
+
+See the numbered [WebP walkthrough](../../examples/media/encode-webp.ts) for
+the complete helper.
 
 Apple WebP encoding accepts dimensions up to 16,383 pixels per side and
 16,777,216 total pixels; larger frames reject. It preserves alpha, while lossy

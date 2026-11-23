@@ -64,8 +64,8 @@ Maintained regressions:
 
 | Check                                                               | Evidence                                                                                                                                                                     | Limit                                                                                         |
 | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [Subprocess and storage](../../packages/cli/test/dev-logs.test.mjs) | Real Node subprocesses tagged with all six platforms, post-exit reads, bounded rotation, filtered cursors, UTF-8, partial/long lines, run isolation and active-run retention | Platform tags exercise common capture code; they do not qualify device or native-host output. |
-| [CLI selection](../../packages/cli/test/agent-cli.test.mjs)         | CLI command dispatch, app/platform/run selection, pagination and reads without an agent host                                                                                 | Fixture apps; no native device.                                                               |
+| [Subprocess and storage](../../packages/cli/test/native-dev-logs.test.mts) | Real Node subprocesses tagged with all six platforms, post-exit reads, bounded rotation, filtered cursors, UTF-8, partial/long lines, run isolation and active-run retention | Platform tags exercise common capture code; they do not qualify device or native-host output. |
+| [CLI selection](../../tools/cli-go/cli.test.mts)                    | CLI command dispatch, app/platform/run selection, pagination and reads without an agent host                                                                                 | Fixture apps; no native device.                                                               |
 | [Browser client](../../packages/cli/test/dev-browser-logs.test.mts) | Serialized script execution, original console calls, uncaught/rejection listeners, object omission and authenticated delivery                                                | VM execution alone is not browser qualification.                                              |
 | [Development HTTP](../../packages/cli/test/dev-bridge.test.mts)     | Real HTTP authentication, validation and forwarding to process stderr                                                                                                        | No OS crash collection.                                                                       |
 
@@ -125,7 +125,7 @@ independent gap rather than a prerequisite for reading development output.
 The maintained Chromium qualification starts a real xplat dev process, loads
 its page, retrieves warnings/errors/rejections through the CLI after process
 exit, and checks that release HTML excludes forwarding. Run it locally after
-building the CLI; it uses the existing apps/web Playwright installation and
+building the CLI; it uses the existing tools/web-verification Playwright installation and
 captures no images. It is outside the ordinary test glob and PR checks:
 
 ```sh

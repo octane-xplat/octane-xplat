@@ -70,28 +70,55 @@ bun run turbo run test:layout:ios --filter=@octane-xplat/ui -- --device 91D40099
 bun run turbo run test:layout:android --filter=@octane-xplat/ui -- --device emulator-5556
 ```
 
-Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
-one packed web consumer smoke without launching desktop browsers. Stable CI
-adds the exhaustive non-browser packed consumers and full app/library starter
-journey on the `release/lockstep` pull request. See [release gates](releases.md)
-for their evidence requirements.
-The longer Playwright coverage runs locally across
-Chromium, Firefox, and WebKit with:
+## Manual end-to-end checks
+
+Run browser journeys, native app launches, and device-runtime tests on a
+developer machine or a reserved test host. CI runs unit and package checks
+and builds the web starter. Stable CI adds the packed consumer suites that
+run without a browser and builds the packed iOS and Android starter.
+See [release gates](releases.md) for the automated evidence requirements.
+
+Build the repository CLI before running the Playwright sweep. The packed
+consumer checks use it to work with installed tarballs.
 
 ```sh
-bun run turbo run test:e2e --filter=@xplat/verification
+bun run turbo run build:go --filter=@octane-xplat/cli
+bun run turbo run test:e2e --filter=@octane-xplat/verification
 ```
 
 The command installs Playwright's browser binaries when needed, then runs the
 web input/accessibility, SQLite worker, platform sheet, app smoke, optional
 service, and packed-consumer browser checks. It does not install operating
 system libraries; install Playwright's host dependencies if a local browser
-cannot launch. CI release evidence covers the `checks` job and native builds;
-it no longer implies that this local-only browser suite passed.
+cannot launch. The sweep includes the packed Web Host browser check. Run the
+packed Workshop browser check and the full starter workflow separately:
+
+```sh
+bun run turbo run test:packed --filter=@octane-xplat/workshop
+bun run check:consumer
+```
+
+The default `bun run test` skips the visual workspace. Run its browser suite
+explicitly using the [visual test setup](../../tools/visual/README.md):
+
+```sh
+bun run turbo run test --filter=@octane-xplat/visual
+```
+
+To build and launch the packed iOS starter, reserve the build and device
+resources and use the UDID of your selected, booted simulator:
+
+```sh
+VERIFY_IOS_DEVICE=DEVICE_UDID node scripts/with-target-lock.ts ios -- bun run check:consumer --native ios --smoke-ios
+```
+
+For simulated taps and text entry through the OS, use [Maestro](#mobile-end-to-end-tests-with-maestro).
+Use [on-device Vitest](#on-device-unit-tests-ns-test-vitest) for component and
+runtime behavior within the mobile harness.
 
 Probes are temporary by default; keep task-specific cases in gitignored
 `research/`. The runner in `tools/probe/` and `examples/probes/` are maintained tooling fixtures.
-`bun run probe` remains the runner entry point. Its host-side tests run through `@xplat/probe`’s `test` task, including
+`bun run probe` remains the runner entry point. Its host-side tests run through `@octane-xplat/probe`’s `test` task, including
 the Linux orchestration and evidence tests; running
 those tests does not launch a device or qualify a platform.
 Retain another probe only when it has an ongoing diagnostic purpose and a clear
@@ -112,8 +139,8 @@ Keep object-driver unit tests and synthesized probe dispatch for their own
 contracts; they do not establish a Maestro pass.
 
 ```sh
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target ios --device DEVICE_ID
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target ios --device DEVICE_ID
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_ID
 ```
 
 - Reserve host resources before native builds/device use when a broker is
@@ -135,8 +162,8 @@ bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --dev
   Mark unavailable targets unverified. Source inspection, mock runner tests,
   and docs builds are not mobile runtime evidence. The initial smoke flow
   remains unqualified until Maestro passes on Android and iOS.
-- CI can use the same runner with `--output`; collect JUnit/debug artifacts
-  only under the project's data-sharing policy. No Cloud upload is needed.
+- Use `--output` to retain local run results. Collect JUnit/debug artifacts
+  only under the project's data-sharing policy.
 
 ## Optional Argent checks
 
@@ -147,19 +174,23 @@ Discovery is not replay readiness, and Chromium DOM IDs take precedence.
 
 ## On-device unit tests (`ns test`, Vitest)
 
-`apps/mobile` runs `@nativescript/unit-test-runner` — Vitest orchestrates on
+`apps/harness` runs `@nativescript/unit-test-runner` — Vitest orchestrates on
 the host and a WebSocket bridge executes specs inside the real app runtime
 (V8/JSC + native bridge + UI layer). `ns test <platform>` runs
 `vitest run` with `NS_PLATFORM`/`NS_DEVICE`; the plugin launches
 `ns run <platform> --no-hmr --env.unitTesting`.
 
+Run the suite explicitly with your selected device. Prepare package builds and
+routes first. Reserve build and device resources around the target test command.
+
 ```sh
-bun run --filter @xplat/mobile test:ios -- --device DEVICE_UDID
-bun run --filter @xplat/mobile test:android -- --device DEVICE_ID
-# or directly: cd apps/mobile && NS_PLATFORM=ios npx vitest run
+bun run build:packages
+bun run turbo run gen --filter=@octane-xplat/app
+NODE_OPTIONS=--max-old-space-size=6144 node scripts/with-target-lock.ts ios -- bun run turbo run test:ios --filter=@octane-xplat/mobile --env-mode=loose -- --device DEVICE_UDID
+node scripts/with-target-lock.ts android -- bun run turbo run test:android --filter=@octane-xplat/mobile --env-mode=loose -- --device DEVICE_SERIAL
 ```
 
-- Specs live in `apps/mobile/src/**/*.spec.{ts,tsx,tsrx}`; the test entry
+- Specs live in `apps/harness/src/**/*.spec.{ts,tsx,tsrx}`; the test entry
   `src/test.ts` bundles them via `import.meta.glob` into the device registry.
   Keep the glob and `vitest.config.mts` `include` in sync — a spec the glob
   misses cannot load on device (the host reports "was not bundled").
@@ -195,15 +226,11 @@ bun run --filter @xplat/mobile test:android -- --device DEVICE_ID
   identity, resets only that identity on reuse, and verifies its process stops.
   This is a qualification command; configuration alone does not establish an
   Android pass. The mandatory all-package build/pack gates remain intact.
-- Stable CI: on the `release/lockstep` pull request, `native-ios-tests`
-  (`stable.yml`, macos-latest) boots an iPhone sim and runs the apps/mobile
-  suite inside `with-target-lock ios`. Stable evidence requires it; nightly
-  publication does not wait for it.
 - `connectTimeout` in `vitest.config.mts` covers `ns run`'s native build on
   first run — cold builds exceed the 120s default.
-- Xcode 27 caveat (this repo's CI lane): Simulator.app is gone, so
-  `ns run ios` can only target an already-booted simulator — `xcrun simctl
-boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
+- On Xcode installations without Simulator.app, boot the selected simulator
+  with `xcrun simctl boot <udid>` before passing `--device <udid>` to
+  `ns run ios`. `ios-sim-portable` 4.5.1
   (bundled in global CLI 9.1.1) cannot boot devices itself here.
   `xplat dev` and owned iOS session launches now prepare the selected simulator
   with `simctl boot` and `bootstatus -b` before invoking NativeScript, bypassing
@@ -259,7 +286,7 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 
 ## Public Text visibility regression
 
-`apps/mobile/src/tests/text-visibility.spec.tsrx` drives public signal-backed
+`apps/harness/src/tests/text-visibility.spec.tsrx` drives public signal-backed
 inline/class visibility and compiler-owned conditional blocks in simple and
 layered Screen/Grid layouts. It checks hidden slot retention, collapsed slot
 removal, changed hidden text, fresh remount identity, parent resize, heartbeat
@@ -275,8 +302,8 @@ configuration for this UI-only suite, allowing a separate test app id without
 editing service credentials. It does not qualify Firebase integration:
 
 ```sh
-NS_PLATFORM=ios NS_DEVICE=DEVICE_UDID bun run turbo run test:visibility --filter=@xplat/mobile
-NS_PLATFORM=android NS_DEVICE=DEVICE_ID bun run turbo run test:visibility --filter=@xplat/mobile -- --exclude src/tests/collapsed-text.spec.tsrx
+NS_PLATFORM=ios NS_DEVICE=DEVICE_UDID bun run turbo run test:visibility --filter=@octane-xplat/mobile
+NS_PLATFORM=android NS_DEVICE=DEVICE_ID bun run turbo run test:visibility --filter=@octane-xplat/mobile -- --exclude src/tests/collapsed-text.spec.tsrx
 ```
 
 The Android command selects the public suite; the legacy #45/#50 cases are
@@ -310,8 +337,8 @@ cases, and browser input separately from device qualification:
 ```sh
 bun run turbo run test --filter=@octane-xplat/ui -- src/gestures
 bun run turbo run test:gestures:native --filter=@octane-xplat/ui
-bun run turbo run test:gestures:web --filter=@xplat/probe
-bun run turbo run test:gestures:web --filter=@xplat/probe -- --packed
+bun run turbo run test:gestures:web --filter=@octane-xplat/probe
+bun run turbo run test:gestures:web --filter=@octane-xplat/probe -- --packed
 ```
 
 The browser task launches existing Chromium, Firefox and WebKit installations,
@@ -396,10 +423,10 @@ The iOS input and preview runners use the selected simulator. Run the checks
 inside the same reservation:
 
 ```sh
-bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
-IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
-bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
-IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+bun run turbo run test:layout-input --filter=@octane-xplat/platform-qualification -- android --device DEVICE_SERIAL
+IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-input --filter=@octane-xplat/platform-qualification -- ios --device DEVICE_UDID
+bun run turbo run test:layout-native --filter=@octane-xplat/platform-qualification -- android --device DEVICE_SERIAL
+IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-native --filter=@octane-xplat/platform-qualification -- ios --device DEVICE_UDID
 ```
 
 The iOS content runner opens and dismisses the context menu through simulator
@@ -414,8 +441,8 @@ The command uses a registered effect and fails if its content cannot attach.
 Do not replace it with an unregistered effect's unmodified-content fallback.
 
 ```sh
-bun run turbo run test:shader-content --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
-bun run turbo run test:shader-content --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+bun run turbo run test:shader-content --filter=@octane-xplat/platform-qualification -- android --device DEVICE_SERIAL
+bun run turbo run test:shader-content --filter=@octane-xplat/platform-qualification -- ios --device DEVICE_UDID
 ```
 
 This check requires the same existing-device/build reservation and creates no

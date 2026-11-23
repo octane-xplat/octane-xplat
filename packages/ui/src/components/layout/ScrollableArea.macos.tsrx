@@ -6,7 +6,11 @@ import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import { layoutChildProps } from './layout-child'
 import { spacingStep } from './spacing'
 import { useDirection } from '../../internal/platform/internationalization'
-import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
+import {
+  scrollableAreaMetrics,
+  scrollableAreaNativeView,
+  type ScrollableAreaHost,
+} from './scrollable-area-metrics.macos'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
@@ -48,6 +52,9 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
   const padding = spacingStep(props.padding)
 
   const viewport = useRef<NSScrollView | null>(null)
+  const bindViewport = useCallback((view: ScrollableAreaHost | null) => {
+    viewport.current = scrollableAreaNativeView(view)
+  }, [])
   const handle = useMemo(() => scrollableAreaHandle(viewport, () => liveDirection.current), [])
 
   useImperativeHandle(props.ref, () => handle, [props.ref])
@@ -60,7 +67,7 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     }
   }, [])
 
-  const viewportProps = area.getViewportProps({ ref: viewport, onLayoutChanged: measureViewport })
+  const viewportProps = area.getViewportProps({ ref: bindViewport, onLayoutChanged: measureViewport })
   const contentProps = area.getContentProps()
 
   <scrollview

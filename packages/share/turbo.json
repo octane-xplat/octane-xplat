@@ -1,0 +1,8 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/sharing/share-content.ts"]
+		}
+	}
+}

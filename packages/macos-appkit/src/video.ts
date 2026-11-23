@@ -224,7 +224,26 @@ export function makeVideoView(): AVPlayerView {
 }
 
 export function updateVideoView(node: import('./model').ElementNode, props: Record<string, any>) {
-  const view = node.view as any
+  syncVideoView(node.view as AVPlayerView, props, (name, payload, current) => {
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+      return
+    }
+    const handler = current[name]
+    if (handler) {
+      try {
+        node.container.root!.eventScope('discrete', () => handler(payload))
+      } catch (error) {
+        console.error('[macos-event] video handler failed', error)
+      }
+    }
+  })
+}
+
+export function syncVideoView(
+  view: AVPlayerView,
+  props: Record<string, any>,
+  emit: (name: string, payload: Record<string, any>, current: Record<string, any>) => void,
+) {
   let state = states.get(view)
 
   if (!state) {
@@ -239,22 +258,8 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
       started: false,
       generation: 0,
       emit(name: string, payload: any) {
-        if (
-          states.get(view) !== created ||
-          node.lifecycle === 'disposing' ||
-          node.lifecycle === 'disposed'
-        ) {
-          return
-        }
-
-        const handler = created.props[name]
-
-        if (handler) {
-          try {
-            node.container.root!.eventScope('discrete', () => handler(payload))
-          } catch (error) {
-            console.error('[macos-event] video handler failed', error)
-          }
+        if (states.get(view) === created) {
+          emit(name, payload, created.props)
         }
       },
     }

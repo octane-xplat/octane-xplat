@@ -1,5 +1,5 @@
 // Uses the maintained TokenizerShowcase example; do not copy its implementation here.
-import { TokenizerShowcase as Example } from '@xplat/astryx-sandbox/examples/tokenizer/TokenizerShowcase.tsrx'
+import { TokenizerShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/tokenizer/TokenizerShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

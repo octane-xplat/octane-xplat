@@ -1,5 +1,5 @@
 // Uses the maintained PopoverShowcase example; do not copy its implementation here.
-import { PopoverShowcase as Example } from '@xplat/astryx-sandbox/examples/popover/PopoverShowcase.tsrx'
+import { PopoverShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/popover/PopoverShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

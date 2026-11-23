@@ -1,4 +1,4 @@
-import { DEMOS } from '@xplat/demos'
+import { DEMOS } from '@octane-xplat/demos'
 import type { Area, CaseSpec } from './types'
 
 import { CORE_CASES } from './core-cases'
@@ -89,7 +89,7 @@ export const RETAINED_CASES: readonly CaseSpec[] = DEMOS.map((demo) => ({
   id: 'fixture.' + demo.id,
   title: demo.title,
   area: areaFor(demo.id),
-  owner: '@xplat/demos',
+  owner: '@octane-xplat/demos',
   expected:
     'Complete the fixture’s interactions, check its visible outputs, and verify cleanup after closing. Mounting alone is not a pass.',
   suite: 'manual',
@@ -118,7 +118,7 @@ const manual = (
   expected,
   suite: 'manual',
   fixture: 'demo',
-  owner: '@xplat/app',
+  owner: '@octane-xplat/app',
   tags: ['external qualification'],
   instructions: [
     'Open the qualification fixture. Follow its checks using the required host and input tooling.',

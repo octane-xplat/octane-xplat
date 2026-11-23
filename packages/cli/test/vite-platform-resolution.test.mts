@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
-import { nativeRelativeResolution } from '../dist/vite.js'
+import { nativeCanonicalPackageIds, nativeRelativeResolution } from '../dist/vite.js'
 
 // An unsuffixed relative import must prefer the platform leaf over the shared
 // default — the ns platform resolver only knows .ios/.android, so `./svg`
@@ -162,4 +162,84 @@ describe('nativeRelativeResolution', () => {
       assert.equal(resolve('./screen.ios.tsrx', join(dir, 'main.ts'), {}), null)
       assert.equal(resolve('./theme.css', join(dir, 'main.ts'), {}), null)
     }))
+})
+
+// @nativescript/vite's bare-package resolvers keep the `<app>/node_modules`
+// symlink spelling while `preserveSymlinks: false` resolves subpath imports
+// to the real store path — one package, two module ids, double evaluation
+// (mason-core's Style property registration threw at iOS launch).
+describe('nativeCanonicalPackageIds', () => {
+  const canonical = nativeCanonicalPackageIds().resolveId.handler
+
+  const stub = (result) => {
+    const calls = []
+
+    return {
+      calls,
+      ctx: {
+        resolve: async (source, importer, options) => {
+          calls.push([source, importer, options])
+          return result
+        },
+      },
+    }
+  }
+
+  const makeLinkedPackage = () => {
+    const root = track(mkdtempSync(join(tmpdir(), 'xplat-canonical-')))
+    const storePkg = join(root, 'store', 'pkg')
+
+    mkdirSync(storePkg, { recursive: true })
+    writeFileSync(join(storePkg, 'index.ios.js'), '')
+    mkdirSync(join(root, 'app', 'node_modules'), { recursive: true })
+    symlinkSync('../../store/pkg', join(root, 'app', 'node_modules', 'pkg'))
+
+    return { storePkg, linkPkg: join(root, 'app', 'node_modules', 'pkg') }
+  }
+
+  it('canonicalizes a bare package resolved to its symlink spelling', async () => {
+    const { storePkg, linkPkg } = makeLinkedPackage()
+    const stubResolved = {
+      id: vitePath(join(linkPkg, 'index.ios.js')) + '?v=1',
+      attributes: { custom: true },
+    }
+    const { ctx, calls } = stub(stubResolved)
+
+    const result = await canonical.call(ctx, 'pkg', '/app/src/main.ts', { isEntry: true })
+
+    assert.deepEqual(result, {
+      ...stubResolved,
+      id: vitePath(realpathSync(join(storePkg, 'index.ios.js'))) + '?v=1',
+    })
+    assert.equal(calls.length, 1)
+    assert.equal(calls[0][2].skipSelf, true)
+  })
+
+  it('leaves an already-real resolution untouched', async () => {
+    const { storePkg } = makeLinkedPackage()
+    const stubResolved = { id: vitePath(realpathSync(join(storePkg, 'index.ios.js'))) }
+    const result = await canonical.call(stub(stubResolved).ctx, 'pkg', '/app/src/main.ts', {})
+
+    assert.equal(result, stubResolved)
+  })
+
+  it('ignores relative, absolute, virtual, and builtin specifiers', async () => {
+    const { ctx, calls } = stub({ id: '/x.js' })
+
+    for (const source of ['./x', '/x', '\0virtual', 'virtual:x', 'node:fs']) {
+      assert.equal(await canonical.call(ctx, source, '/app/src/main.ts', {}), null)
+    }
+
+    assert.equal(calls.length, 0)
+  })
+
+  it('passes through unresolved, external, and non-file results', async () => {
+    assert.equal(await canonical.call(stub(null).ctx, 'pkg', '/app/main.ts', {}), null)
+
+    const external = { id: 'pkg', external: true }
+    assert.equal(await canonical.call(stub(external).ctx, 'pkg', '/app/main.ts', {}), external)
+
+    const missing = { id: '/nonexistent/pkg-xyz/index.ios.js' }
+    assert.equal(await canonical.call(stub(missing).ctx, 'pkg', '/app/main.ts', {}), missing)
+  })
 })

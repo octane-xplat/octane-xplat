@@ -29,35 +29,12 @@ reports changes as `add`, `edit`, or `remove` with the affected index.
 The `config` carries its field definitions, so `filters` and `onChange`
 only accept field, operator, and value combinations the config declares —
 `PowerSearchFilterFor<typeof config>` names that union, and a hand-built
-`PowerSearchConfig` keeps the loose `PowerSearchFilter`. The following
-component fragment assumes you supply `books` to display the filtered
-records.
+`PowerSearchConfig` keeps the loose `PowerSearchFilter`. Use `applyFilters` to
+filter local data. This continuation uses the configuration, filters, and books
+from the [book-search walkthrough](../../examples/search/filter-books.tsx).
 
 ```tsx
-import { PowerSearch, Text, createPowerSearchConfig } from '@octane-xplat/ui'
-import { useState } from 'octane'
-
-const { config, applyFilters } = createPowerSearchConfig([
-  { key: 'title', type: 'string', label: 'Title' },
-  { key: 'year', type: 'number', label: 'Year' },
-] as const)
-
-function SearchBooks({ books }: { books: { title: string; year: number }[] }) {
-  const [filters, setFilters] = useState<
-    ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
-  >([])
-
-  return (
-    <>
-      <PowerSearch config={config} filters={filters} onChange={setFilters} />
-      <Text>
-        {applyFilters(filters, books)
-          .map((book) => book.title)
-          .join(', ')}
-      </Text>
-    </>
-  )
-}
+const visibleBooks = applyFilters(filters, books)
 ```
 
 ## Field definitions and local filtering

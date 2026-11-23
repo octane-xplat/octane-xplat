@@ -39,6 +39,7 @@ export class PanelModel {
   readonly backends$ = createStore<readonly BackendRef[]>([])
   readonly logs$ = createStore<readonly LogLine[]>([])
   readonly runs$ = createStore<ReadonlyMap<string, ActionRun>>(new Map())
+  readonly motionRates$ = createStore<ReadonlyMap<string, number>>(new Map())
   readonly logTarget$ = createStore<string | null>(null)
 
   private conn: DevtoolsConnection | null = null
@@ -59,6 +60,7 @@ export class PanelModel {
     this.logs$.set([])
     this.runs$.set(new Map())
     this.logTarget$.set(null)
+    this.motionRates$.set(new Map())
 
     const conn = connectDevtools(record, socket ? { socket } : {})
 
@@ -86,6 +88,17 @@ export class PanelModel {
     })
 
     conn.subscribe((message) => {
+      if (
+        message.channel === 'xplat-motion' &&
+        message.from === 'app' &&
+        isMotionState(message.data)
+      ) {
+        const rates = new Map(this.motionRates$.getSnapshot())
+
+        rates.set(message.session, message.data.rate)
+        this.motionRates$.set(rates)
+      }
+
       if (message.channel === 'xplat-actions' && isOutcome(message.data)) {
         const actionId = this.requests.get(message.data.outcome.requestId)
 
@@ -114,6 +127,16 @@ export class PanelModel {
    *  through it instead of opening their own. */
   get connection(): DevtoolsConnection | null {
     return this.conn
+  }
+
+  requestMotionRate(session: SessionSnapshot, rate?: number) {
+    return (
+      this.conn?.sendToApp('xplat-motion', session.sessionId, {
+        type: rate === undefined ? 'get' : 'set',
+        requestId: nextRequestId(++this.requestCounter),
+        rate,
+      }) ?? false
+    )
   }
 
   invoke(session: SessionSnapshot, actionId: string) {
@@ -177,4 +200,17 @@ function nextRequestId(counter: number): string {
   return typeof crypto?.randomUUID === 'function'
     ? crypto.randomUUID()
     : `req-${Date.now()}-${counter}`
+}
+
+function isMotionState(value: unknown): value is { type: 'state'; rate: number } {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    'type' in value &&
+    value.type === 'state' &&
+    'rate' in value &&
+    typeof value.rate === 'number' &&
+    value.rate > 0 &&
+    value.rate <= 1
+  )
 }

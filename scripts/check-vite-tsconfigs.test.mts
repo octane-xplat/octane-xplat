@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 
 const checker = new URL('./check-vite-tsconfigs.ts', import.meta.url).pathname
@@ -10,6 +10,11 @@ const checker = new URL('./check-vite-tsconfigs.ts', import.meta.url).pathname
 const GENERATED_REFERENCES = {
   files: [],
   references: [{ path: './node_modules/.cache/xplat-typecheck/web.json' }],
+}
+
+const TRACKED_REFERENCES = {
+  files: [],
+  references: [{ path: './xplat-typecheck/web.json' }],
 }
 
 const PINNED_CONFIG = `import { defineConfig } from 'vite'
@@ -28,8 +33,10 @@ function audit(packages) {
       mkdirSync(dir, { recursive: true })
 
       for (const [file, contents] of Object.entries(files)) {
+        const target = join(dir, file)
+        mkdirSync(dirname(target), { recursive: true })
         writeFileSync(
-          join(dir, file),
+          target,
           typeof contents === 'string' ? contents : JSON.stringify(contents),
         )
       }
@@ -86,6 +93,26 @@ test('an unpinned config on a generated-references package fails', () => {
 
   assert.equal(result.status, 1, result.stdout + result.stderr)
   assert.match(result.stderr, /UNPINNED: .*unpinned\/vite\.config\.ts/)
+})
+
+test('a missing tracked program reference still requires the pin', () => {
+  const result = audit({
+    'stale-ref': {
+      'package.json': manifest('vite build'),
+      'tsconfig.json': TRACKED_REFERENCES,
+      'vite.config.ts': `import { defineConfig } from 'vite'\nexport default defineConfig({ build: {} })\n`,
+    },
+    'present-ref': {
+      'package.json': manifest('vite build'),
+      'tsconfig.json': TRACKED_REFERENCES,
+      'xplat-typecheck/web.json': {},
+      'vite.config.ts': `import { defineConfig } from 'vite'\nexport default defineConfig({ build: {} })\n`,
+    },
+  })
+
+  assert.equal(result.status, 1, result.stdout + result.stderr)
+  assert.match(result.stderr, /UNPINNED: .*stale-ref\/vite\.config\.ts/)
+  assert.doesNotMatch(result.stderr, /present-ref/)
 })
 
 test('a pin naming a missing manifest fails', () => {

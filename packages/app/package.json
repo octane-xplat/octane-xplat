@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/app",
+	"name": "@octane-xplat/app",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -28,7 +28,7 @@
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
-		"@xplat/demos": "workspace:*",
+		"@octane-xplat/demos": "workspace:*",
 		"@octane-xplat/lexical": "workspace:*",
 		"@octane-xplat/image-crop": "workspace:*",
 		"@octane-xplat/image-manipulator": "workspace:*"

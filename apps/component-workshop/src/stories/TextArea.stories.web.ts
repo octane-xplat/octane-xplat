@@ -1,5 +1,5 @@
 // Uses the maintained TextAreaShowcase example; do not copy its implementation here.
-import { TextAreaShowcase as Example } from '@xplat/astryx-sandbox/examples/textarea/TextAreaShowcase.tsrx'
+import { TextAreaShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/textarea/TextAreaShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

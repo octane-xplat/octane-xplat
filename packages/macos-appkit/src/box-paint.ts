@@ -4,8 +4,8 @@ import {
   NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
 
-import type { ElementNode, PropBag } from './model'
-import type { BoxPaintState, BoxFrameLease } from './box-paint-state'
+import type { PropBag } from './model'
+import type { BoxPaintNode, BoxPaintState, BoxFrameLease } from './box-paint-state'
 import { createBorderPaint } from './border-paint'
 import { createShadowPaint } from './shadow-paint'
 import { createBackgroundPaint } from './background-paint'
@@ -21,8 +21,8 @@ export function createBoxPaint() {
   const background = createBackgroundPaint()
   const transform = createTransformPaint()
   const outlines = createOutlines()
-  const boxPaintStates = new WeakMap<ElementNode, BoxPaintState>()
-  const retiringPaint = new WeakSet<ElementNode>()
+  const boxPaintStates = new WeakMap<BoxPaintNode, BoxPaintState>()
+  const retiringPaint = new WeakSet<BoxPaintNode>()
   const OUTLINE_PROPS = new Set([
     'outline',
     'outlineWidth',
@@ -45,7 +45,7 @@ export function createBoxPaint() {
     )
   }
 
-  function livePaintNode(node: ElementNode): boolean {
+  function livePaintNode(node: BoxPaintNode): boolean {
     return (
       node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && !retiringPaint.has(node)
     )
@@ -86,7 +86,7 @@ export function createBoxPaint() {
     }
   }
 
-  function observeBoxFrame(node: ElementNode, state: BoxPaintState) {
+  function observeBoxFrame(node: BoxPaintNode, state: BoxPaintState) {
     const view = state.view
     const owner: BoxFrameLease = { view, active: true, ready: false }
 
@@ -185,7 +185,7 @@ export function createBoxPaint() {
     }
   }
 
-  function syncFrameLease(node: ElementNode, state: BoxPaintState) {
+  function syncFrameLease(node: BoxPaintNode, state: BoxPaintState) {
     if (!state.current()) {
       return
     }
@@ -205,7 +205,7 @@ export function createBoxPaint() {
     }
   }
 
-  function acquirePaint(node: ElementNode): BoxPaintState | undefined {
+  function acquirePaint(node: BoxPaintNode): BoxPaintState | undefined {
     if (!node.view || !livePaintNode(node)) {
       return
     }
@@ -265,7 +265,7 @@ export function createBoxPaint() {
     return state
   }
 
-  function syncGeometry(node: ElementNode) {
+  function syncGeometry(node: BoxPaintNode) {
     const state = boxPaintStates.get(node)
 
     if (state && state.view !== node.view && livePaintNode(node)) {
@@ -320,7 +320,7 @@ export function createBoxPaint() {
     }
   }
 
-  function applyBoxStyle(node: ElementNode, previous: PropBag, next: PropBag) {
+  function applyBoxStyle(node: BoxPaintNode, previous: PropBag, next: PropBag) {
     if (!livePaintNode(node) || !node.view) {
       return
     }
@@ -404,7 +404,7 @@ export function createBoxPaint() {
     syncFrameLease(node, state)
   }
 
-  function syncProjection(node: ElementNode) {
+  function syncProjection(node: BoxPaintNode) {
     const state = boxPaintStates.get(node)
 
     if (!state?.current() || state.syncing) {
@@ -427,11 +427,11 @@ export function createBoxPaint() {
     }
   }
 
-  function borderSpecForNode(node: ElementNode) {
+  function borderSpecForNode(node: BoxPaintNode) {
     return boxPaintStates.get(node)?.borderSpec
   }
 
-  function disposePaintState(node: ElementNode, state: BoxPaintState) {
+  function disposePaintState(node: BoxPaintNode, state: BoxPaintState) {
     if (!state.active) {
       return
     }
@@ -471,7 +471,7 @@ export function createBoxPaint() {
     failures.throwIfFailed()
   }
 
-  function dispose(node: ElementNode) {
+  function dispose(node: BoxPaintNode) {
     const state = boxPaintStates.get(node)
 
     if (state) {

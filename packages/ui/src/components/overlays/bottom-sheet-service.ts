@@ -98,8 +98,7 @@ export function openBottomSheetWithOwner(
     // hosting inputs (e.g. the demo 'In sheet' todo add row) are covered
     // otherwise.
     const unbindKeyboard = bindKeyboard()
-
-    attachTapToBlur(host)
+    const untapToBlur = attachTapToBlur(host)
 
     let finished = false
     // RootLayout notifies 'closed' from inside its own close(), before the
@@ -118,6 +117,7 @@ export function openBottomSheetWithOwner(
       finished = true
       active.delete(entry)
       unbindKeyboard()
+      untapToBlur()
       unbindTheme()
       detents.detach()
       root.unmount?.()

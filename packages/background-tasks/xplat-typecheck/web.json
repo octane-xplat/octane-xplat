@@ -1,0 +1,36 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/background-work/refresh.ts",
+		"../src/index.web.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/background-tasks": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/platform": [
+				"../../platform/types/generated/index.d.ts"
+			]
+		},
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

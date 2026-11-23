@@ -1,0 +1,277 @@
+# Build, compatibility, and releases
+
+## Build a consumer app
+
+Use the app's enabled scripts. Web production builds do not qualify native
+runtime behavior, and an unsigned simulator build is not a signed release.
+Read the [toolchain guide](../../../docs/start/toolchain.md) before native
+setup or distribution work.
+
+## Generic syntax in TSRX
+
+If a generic arrow reports JSX parse errors, use a named generic function.
+For an optional generic callback, use a callable type alias. The installed
+TSRX checker and CLI lint parser reject some otherwise valid TSX forms;
+[the toolchain note](../toolchain.md) records the exact
+observed forms and version. This does not change the callback's public type.
+
+```ts
+function identity<Value>(value: Value): Value { return value }
+type Operation = <Value>(value: Value) => Value
+type Options = { run?: Operation }
+```
+
+## Builds
+
+```sh
+# From the app directory; use only scripts present in package.json.
+bun run build
+bun run build:ios
+bun run build:android
+```
+
+Keep the supplied catalog and managed patches together. The compatibility
+manifest, installed package versions, and doctor/upgrade output own the current
+version set; exact pins copied into prose go stale. Within this repository,
+workspace dependencies use `"workspace:*"` and packages declare every import.
+`xplat` is a native Go executable — the TypeScript and Nim implementations are
+removed, and the executable embeds neither Node nor Bun. Repository
+installs require Bun 1.4.4; Node is an installed prerequisite for the CLI's
+explicit JavaScript workers. Consumer starters select Bun or pnpm at create time
+(`bun create` vs `pnpm create`, or `--package-manager`); pnpm projects keep
+catalogs, overrides, patches, `allowBuilds`, and the hoisted linker in
+`pnpm-workspace.yaml`. `xplat add`, `xplat patches`, and development/build
+commands select either manager from the project.
+Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
+consumer bundlers still compile framework runtime source.
+
+Keep the app's existing CLI Vite imports during native migration. Small Vite
+exports and bounded Node workers remain in `@octane-xplat/cli`; the published
+tarball retains that curated closure with optional engine peers.
+Apps may instead choose `@octane-xplat/build`, whose preset paths/options match.
+Keep compiler engines declared in the project and use the installed catalog for
+native command coverage. Go is the sole CLI implementation — native commands
+never fall back to a TypeScript CLI, and a native executable embeds neither
+Node nor Bun. See
+[project build plugins](../../../docs/packages/package-build.md).
+
+```ts
+import { native } from '@octane-xplat/cli/vite'
+// Optional separate package: import { native } from '@octane-xplat/build/vite'
+// Desktop presets use the corresponding /macos/vite or /linux-gtk/vite subpath.
+```
+
+```sh
+bun run xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
+```
+
+Mason core is the only supported iOS/Android layout engine. Scaffolded apps
+declare the core beta through `catalog:xplat`; `xplat upgrade` replaces full
+MasonKit and legacy `@triniwiz` pins, and doctor rejects them until it runs.
+`native` resolves the canonical renderer's unchanged `nativescript-masonkit`
+imports, including /style, to the app's declared engine under the isolated
+linker: core on mobile, full MasonKit in the Windows preview. The private
+Windows harness pins full MasonKit 1.0.0-beta.129 for foreign-text wrapping and
+frame measurement; do not substitute `masontext` to work around Label layout.
+The bounded x64 evidence is in [Windows text wrapping](../../../docs/platform/windows-setup.md#text-wrapping).
+Windows still requires full MasonKit: the managed registry core betas lack Windows artifacts. The
+Mason fork can now assemble a Windows-bearing local package, but a local
+tarball does not change those registry pins. Keep `xplat upgrade`, doctor and
+the harness on full MasonKit until the qualification and delivery gates clear. Core has an independent beta release track;
+see the
+[extraction design](../../design/mason-core-extraction.md) for limits.
+
+Core's iOS static framework shares native FontManager through
+`@nativescript/font-manager`. Keep a directly declared plugin on the release's
+managed pin; `xplat upgrade` aligns it when present. NativeScript handles the
+linking, and native dependency updates require an application rebuild.
+
+```sh
+bun run xplat upgrade
+bun run build:ios
+```
+
+```json
+{
+  "dependencies": {
+    "@octane-xplat/nativescript-mason-core": "catalog:xplat"
+  }
+}
+```
+
+## Package validation in the framework repository
+
+UI runtime exports ship authored source with generated declaration entrypoints;
+the app compiler selects platform leaves. Node tooling ships JavaScript,
+including CLI tooling, Bamboo configuration/Vite helpers, the Lingui extractor,
+and UI parity helpers. Node-loaded exports and their local imports must ship JavaScript:
+Node does not strip TypeScript inside `node_modules`. Keep runtime source exports
+for the app compiler. Check each package's export map rather than
+assuming one publish format for the repository. Packed-consumer checks establish
+installed-package behavior that workspace source checks cannot.
+
+For repository Android plugins, keep Java sources and checked-in AARs aligned.
+Inspect an AAR changed by a native build before discarding it; the audio
+package's packed-consumer check catches known stale bridge methods. See the
+[artifact maintenance note](../toolchain.md).
+
+```sh
+# Repository root: prepare declared package outputs and check exports.
+bun run build:packages
+bun run check:pack
+bun run turbo run test:packed --filter=@octane-xplat/updates
+bun run check:consumer --no-build --quick
+```
+
+For native patch delivery, run the dedicated tarball and registry-style install
+checks. They verify starter-local patch files and every generated
+native patch reference. A checkout's version may still name the previous release;
+after local dependency upgrades, registry consumers need the next published
+lockstep set rather than that checkout's unchanged version number.
+
+```sh
+bun run turbo run pack:check test:packed --filter=create-octane-xplat
+```
+
+`--no-build` skips package builds and packing lifecycle hooks; prepare and
+check packages first, as shown above. The quick consumer gate uses isolated
+tarballs and compilation. Full consumer journeys and browser checks have
+different costs and prerequisites; consult
+[release validation](../releases.md) before selecting them.
+
+The generic declaration gate pairs runtime and type exports. Keep separate
+packed-consumer checks for pure type facades or Node tooling with mixed export
+formats; see the [checker boundary](../../../docs/packages/package-tsrx-typegen.md#publish-checks).
+
+In this repository, UI's common declaration entrypoints own their public type
+exports. Keep platform runtime barrels focused on values instead of repeating
+those type lists. GTK uses the common public declarations too; its runtime
+export equality is checked separately against the generated GTK barrel. See the
+[repository toolchain contract](../toolchain.md).
+
+## Build a reusable library
+
+Use the [component-library guide](../../../docs/app/component-libraries.md)
+and creator's `--template library` for web/iOS/Android source packages. Keep
+public props/exports aligned, declare app runtimes as peers, and regenerate
+ignored declarations before linked consumers check types. A link may resolve
+a second physical Octane copy even at the same version; qualify resolution
+through the app and finish with a real tarball. Do not treat plain TypeScript
+type acceptance as source compilation or native runtime qualification.
+tsrx-typegen needs an explicit type on every export (for example `): JSX.Element`); it neither infers across files nor type-checks, so keep `typecheck` in the loop.
+
+```sh
+bun create octane-xplat travel-controls --template library --name @acme/travel-controls
+# In the generated package:
+bun run typegen
+bun run test:packed
+```
+
+The repository's focused non-browser qualification packs the creator/framework,
+installs an independent library and consuming web app, checks plain TypeScript
+conditions and compiles the installed library into production output:
+
+```sh
+bun run turbo run test:library --filter=create-octane-xplat
+```
+
+## Linked native source packages
+
+Pin `@nativescript/core` to the app's own install in the native tsconfig when
+any dependency resolves to an external `link:`/`file:`/`portal:` checkout.
+Without the mapping, framework source and app code typecheck against two
+physical core copies and `View`/`Page`/`Color` gain incompatible
+private-member identities (issue #66). Generated native apps carry the
+mapping; `xplat doctor` warns when a linked app lacks it and no longer counts
+the checkout's private copies as duplicate runtimes.
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@nativescript/core": ["./node_modules/@nativescript/core"],
+      "@nativescript/core/*": ["./node_modules/@nativescript/core/*"]
+    }
+  }
+}
+```
+
+Keep the canonical NativeScript Vite patch set when developing against source
+packages that also expose compiled tooling subpaths. Both 8.0.20 and 8.0.21
+need the collector repair; a patch for one version does not cover the other.
+The vendor collector must
+classify the requested entry under the native bundler's conditions; a compiled
+sibling export does not make the source root vendorable. Keep those roots in
+the framework transform pipeline. See the
+[mixed-export limitation](../toolchain.md) and its
+maintained collector/bundler regression before removing the patch or adding
+vendor exclusions.
+
+```json
+{ "exports": { ".": "./src/index.ts", "./parity": "./dist/parity/index.js" } }
+```
+
+## CI evidence and publishing
+
+A green `main` push records `ci` evidence, which gates the docs deploy, the
+tsrx-typegen release, and lockstep publication. Stable qualification runs on
+the bot-maintained `release/lockstep` pull request in `Stable CI`; its
+tree-keyed evidence lets a clean merge publish without rerunning the heavy
+lanes. Nightlies publish on a daily schedule when publishable files changed.
+CI runs package and build checks, including native compilation in Stable CI.
+Invoke [E2E and device-runtime checks](../testing.md#manual-end-to-end-checks)
+explicitly on a developer machine or reserved test host. The PR-only recipe
+and link hygiene job is separate from release eligibility.
+The [release reference](../releases.md) owns the current gate list,
+evidence requirements, trusted publishing, and new-package bootstrap procedure.
+
+Do not hand-bump versions, hand-publish real releases, or edit the generated
+`CHANGELOG.md` / `FIXLOG.md`. Conventional Commits determine version bumps;
+selected Markdown files determine release notes. For meaningful user-facing
+features or breaking changes, add `.changelog/*.md`; use
+`.changelog/fixes/*.md` only for fixes to bugs a stable release already
+shipped. Internal-only work needs no entry.
+Follow the [authoring contract](../releases.md#write-a-release-note)
+for the note format, plain wording, minimal API snippets, and official docs
+links. Optional frontmatter `hype` (integer 0–100, default 50) ranks reader
+excitement: higher scores lead within each release and log, with filename ties.
+It does not change version bumps or release selection.
+The one-time package stub/trust bootstrap is an explicit exception covered by
+the release reference; it is not a general release workflow.
+
+## Task graph
+
+Use existing root and package scripts so declaration dependencies and caches
+remain ordered. Do not substitute a broad repository typecheck for the required
+touched-package/dependents filter. Read the
+[toolchain reference](../toolchain.md) for task definitions and
+[platform TypeScript programs](../platform-typechecking.md) for per-target
+resolution and ambient types.
+
+```sh
+bun run turbo run typecheck --filter=...@octane-xplat/ui
+```
+
+## Native TypeScript and declaration generation
+
+TypeScript 7.1 uses a content mapper for TSRX configs — apps name
+`octane-xplat`, libraries name `@octane-xplat/cli` (the mapper is their
+declared tool, not an app dependency). Use `xplat typecheck` /
+`tsc --runExternalCode` for checks. Import TSRX modules with explicit `.tsrx`, without a
+platform tag. The environment checker and build select the matching
+implementation. See [platform files](platform-leaves.md).
+Generate declarations from that unsuffixed contract: point each
+`tsrx-typegen.json` entrypoint `source` at the unsuffixed file and never add
+per-platform or per-target declarations. Only a platform-only subpath with no
+unsuffixed module uses its platform file.
+`tsrx-typegen` emits with its own TypeScript 7.1 `tsc --runExternalCode`
+through the project's declared content mapper, adding `outputExtensions` in a
+generated config; its `typescript-classic` alias only parses configs, rewrites
+specifiers and runs `--pack-check`.
+
+NativeScript build helpers still need the classic API for config parsing and
+NativeClass lowering. Keep the managed `typescript-classic` alias in native
+apps; the canonical Vite loader patch selects it. The project checker remains
+native TypeScript. Manual `exports-md` calls also need a classic compiler cwd;
+use `packages/tsrx-typegen` with absolute source/declaration paths.

@@ -17,7 +17,7 @@ bun run probe run examples/probes/counter.tsrx --targets web,ios,android,macos,l
 ```
 
 The doctor reports prerequisites and device IDs. Web needs Playwright Chromium
-(`bun run --cwd apps/web playwright install chromium`). iOS needs Xcode, a
+(`bun run --cwd tools/web-verification playwright install chromium`). iOS needs Xcode, a
 booted simulator, and Ruby's `xcodeproj` gem. Android needs an authorized device,
 the SDK, and a compatible JDK (the runner selects JDK 21 on macOS). Mobile builds
 need the NativeScript CLI on PATH. For the local macOS emulator setup, see the
@@ -175,7 +175,7 @@ exercise a locally built package for an isolated experiment. The
 and target limits.
 
 Use `--resources /absolute/path/to/App_Resources` for a case's native resources.
-The default comes from `apps/mobile/App_Resources`; Google Services credentials
+The default comes from `apps/harness/App_Resources`; Google Services credentials
 are excluded. Plugins requiring credentials or custom application/build
 configuration need that setup separately; a simple case cannot establish their
 integration just by importing them. Dependency changes may require reinstalling

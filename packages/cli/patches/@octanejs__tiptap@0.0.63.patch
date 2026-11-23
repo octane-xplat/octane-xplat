@@ -1,3 +1,30 @@
+diff --git a/src/Context.tsrx b/src/Context.tsrx
+index de578ae3f4c3c15c7277f9a08100f22771dba6cd..671dd6297e1b41886f108e9f55f4fdf3fde6b1c9 100644
+--- a/src/Context.tsrx
++++ b/src/Context.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @tiptap/react 3.28.0 Context.tsx. Octane contexts intentionally
+ // have no `.Consumer`; the compatibility component below implements the same
+ // render-prop contract with useContext instead.
+diff --git a/src/EditorContent.tsrx b/src/EditorContent.tsrx
+index faa51caa59128efdf7eb640c1479cfee4e01eaf6..b3882a9e6410a83ceee99dd01db3dcb55cc84322 100644
+--- a/src/EditorContent.tsrx
++++ b/src/EditorContent.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // DOM lifecycle and portal-registry bridge ported from @tiptap/react 3.28.0.
+ import type { Editor } from '@tiptap/core';
+ import {
+diff --git a/src/Tiptap.tsrx b/src/Tiptap.tsrx
+index 7da08d789bbbbc6c6a0a6cb7b0748448b77b9163..f5fdac3b789903f944c535dec1f37692efbb052c 100644
+--- a/src/Tiptap.tsrx
++++ b/src/Tiptap.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @tiptap/react 3.28.0 Tiptap.tsx. Refs remain ordinary props in
+ // Octane, and the compound Tiptap.Content component needs no forwardRef layer.
+ import type { Editor } from '@tiptap/core';
 diff --git a/src/useEditor.ts b/src/useEditor.ts
 index c30a55e..f550fce 100644
 --- a/src/useEditor.ts

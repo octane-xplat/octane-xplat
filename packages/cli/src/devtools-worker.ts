@@ -2,14 +2,14 @@
 import { Console } from 'node:console'
 import { lstatSync, realpathSync, statSync, writeFileSync, renameSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, join, sep, basename } from 'node:path'
+import { dirname, join, sep, basename, isAbsolute } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 // The devtools package may be a direct project install or ride inside the
 // octane-xplat umbrella (Bun isolated layouts hide transitive deps from the
 // project root). Walk ancestors for either anchor and resolve desktop-node
 // through the anchor's own package so each layout's visibility rules apply.
-export function devtoolsEntry(project: string): string {
+export function devtoolsEntry(project: string, subpath = 'desktop-node'): string {
   for (let at = project; ; at = dirname(at)) {
     for (const anchor of ['@octane-xplat/devtools', 'octane-xplat']) {
       const host = join(at, 'node_modules', anchor)
@@ -34,7 +34,7 @@ export function devtoolsEntry(project: string): string {
 
       try {
         root = dirname(realpathSync(require.resolve('@octane-xplat/devtools/package.json')))
-        entry = realpathSync(require.resolve('@octane-xplat/devtools/desktop-node'))
+        entry = realpathSync(require.resolve(`@octane-xplat/devtools/${subpath}`))
       } catch (error) {
         if (error.code === 'MODULE_NOT_FOUND' || error.code === 'ERR_MODULE_NOT_FOUND') {
           continue // an octane-xplat without the devtools dep — keep looking
@@ -45,7 +45,7 @@ export function devtoolsEntry(project: string): string {
 
       if (!entry.startsWith(root + sep) || !statSync(entry).isFile()) {
         throw new Error(
-          'Reinstall @octane-xplat/devtools: its desktop launcher must remain inside the selected package',
+          'Reinstall @octane-xplat/devtools: its entry must remain inside the selected package',
         )
       }
 
@@ -58,6 +58,24 @@ export function devtoolsEntry(project: string): string {
   }
 
   throw new Error('Install octane-xplat in the selected project: bun add -D octane-xplat')
+}
+
+export async function devtoolsWebOperation(request: Record<string, unknown>) {
+  const project = realpathSync(process.cwd())
+  const outDir = request.outDir
+
+  if (
+    typeof outDir !== 'string' ||
+    !isAbsolute(outDir) ||
+    !/^staging-[a-f0-9]{32}$/.test(basename(outDir)) ||
+    !lstatSync(outDir).isDirectory()
+  ) {
+    throw new Error('Invalid DevTools browser build directory')
+  }
+
+  const { buildDevtoolsWeb } = await import(pathToFileURL(devtoolsEntry(project, 'web-build')).href)
+  await buildDevtoolsWeb(project, outDir)
+  return { version: 1 }
 }
 
 // A receipt admits the operation; it never claims host or panel readiness.

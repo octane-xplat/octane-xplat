@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 )
 
 func TestDevtoolsCommandRejectsNonDarwinHost(t *testing.T) {
@@ -54,14 +53,14 @@ func TestDevtoolsCommandWorkerRequestShape(t *testing.T) {
 	if _, err := exec.LookPath("node"); err != nil {
 		t.Skip("Node project runtime unavailable")
 	}
-	project, err := osfs.Canonical(t.TempDir())
+	root, err := osfs.Canonical(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = os.WriteFile(filepath.Join(project, "package.json"), []byte(`{"name":"devtools-consumer","xplat":{"targets":{"macos":{}}}}`), 0600); err != nil {
+	if err = os.WriteFile(filepath.Join(root, "package.json"), []byte(`{"name":"devtools-consumer","xplat":{"targets":{"macos":{}}}}`), 0600); err != nil {
 		t.Fatal(err)
 	}
-	cliRoot := filepath.Join(project, "node_modules", "@octane-xplat", "cli")
+	cliRoot := filepath.Join(root, "node_modules", "@octane-xplat", "cli")
 	if err = os.MkdirAll(cliRoot, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -78,10 +77,15 @@ renameSync(req.serviceStateFile+'.next',req.serviceStateFile);`
 	if err = os.WriteFile(filepath.Join(cliRoot, "worker.js"), []byte(worker), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err = Command(context.Background(), map[string]any{"project": project}); err != nil {
+	release, err := project.LockProjectOutputs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer release()
+	if err = Command(context.Background(), map[string]any{"project": root, "build-panels": true}); err != nil {
 		t.Fatalf("devtools command with stubbed engine: %v", err)
 	}
-	captured, err := os.ReadFile(filepath.Join(project, "captured-request.json"))
+	captured, err := os.ReadFile(filepath.Join(root, "captured-request.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,56 +102,46 @@ renameSync(req.serviceStateFile+'.next',req.serviceStateFile);`
 	if err = json.Unmarshal(captured, &request); err != nil {
 		t.Fatal(err)
 	}
-	if request.Protocol != "octane-build-worker" || request.Version != 1 || request.Operation != "devtools-desktop" || request.Project != project || request.Target != "macos" {
+	if request.Protocol != "octane-build-worker" || request.Version != 1 || request.Operation != "devtools-desktop" || request.Project != root || request.Target != "macos" {
 		t.Fatalf("invalid devtools worker request: %+v", request)
 	}
 	if filepath.Base(request.ServiceStateFile) != "service.json" || filepath.Base(request.ResourceRoot) != "resources" || filepath.Dir(request.ResourceRoot) != filepath.Dir(request.ServiceStateFile) {
 		t.Fatalf("invalid native-owned service paths: %+v", request)
 	}
-	if !strings.HasPrefix(request.ProfileRoot, project+string(filepath.Separator)) || !strings.HasPrefix(filepath.Base(request.ProfileRoot), ".xplat-go-profile-") {
+	if !strings.HasPrefix(request.ProfileRoot, root+string(filepath.Separator)) || !strings.HasPrefix(filepath.Base(request.ProfileRoot), ".xplat-go-profile-") {
 		t.Fatalf("macOS devtools must receive an owned compiler profile: %q", request.ProfileRoot)
 	}
 }
 
-func TestDevtoolsCommandDoesNotRequireProjectOutputsLock(t *testing.T) {
-	if hostGOOS != "darwin" {
-		t.Skip("the service worker path is exercised only on the macOS host")
-	}
+func TestDevtoolsDefaultRunsWithoutProjectToolchain(t *testing.T) {
+	previousHost := hostGOOS
+	previousLaunch := launchReleasedApp
+	t.Cleanup(func() {
+		hostGOOS = previousHost
+		launchReleasedApp = previousLaunch
+	})
+	hostGOOS = "darwin"
 	root, err := osfs.Canonical(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = os.WriteFile(filepath.Join(root, "package.json"), []byte(`{"name":"devtools-consumer","xplat":{"targets":{"macos":{}}}}`), 0600); err != nil {
+	if err = os.WriteFile(filepath.Join(root, "package.json"), []byte(`{"name":"devtools-consumer","xplat":{"targets":{"web":{}}}}`), 0600); err != nil {
 		t.Fatal(err)
 	}
-	cliRoot := filepath.Join(root, "node_modules", "@octane-xplat", "cli")
-	if err = os.MkdirAll(cliRoot, 0700); err != nil {
-		t.Fatal(err)
+	var selected string
+	launchReleasedApp = func(_ context.Context, project string) error {
+		selected = project
+		return nil
 	}
-	if err = os.WriteFile(filepath.Join(cliRoot, "package.json"), []byte(`{"name":"@octane-xplat/cli","exports":{"./worker":"./worker.js"}}`), 0600); err != nil {
-		t.Fatal(err)
-	}
-	if err = os.WriteFile(filepath.Join(cliRoot, "worker.js"), []byte(`// unused; runWorker is stubbed`), 0600); err != nil {
-		t.Fatal(err)
-	}
-	previous := runWorker
-	called := false
-	runWorker = func(_ context.Context, _, _, _, _ string, _ map[string]any, _ time.Duration, _, _, _ *os.File) (project.WorkerResult, error) {
-		called = true
-		return project.WorkerResult{}, nil
-	}
-	defer func() { runWorker = previous }()
-	// A live `xplat dev` in the same app holds this lock for its lifetime;
-	// devtools must still run — it never writes project outputs.
 	release, err := project.LockProjectOutputs(root)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer release()
 	if err = Command(context.Background(), map[string]any{"project": root}); err != nil {
-		t.Fatalf("devtools must run while project outputs are locked: %v", err)
+		t.Fatal(err)
 	}
-	if !called {
-		t.Fatal("devtools command did not reach the service worker")
+	if selected != root {
+		t.Fatalf("expected selected project %q, got %q", root, selected)
 	}
 }

@@ -4,7 +4,7 @@ import { BottomSheet, Button, HStack, Table, Text, TextInput, Switch, View } fro
 
 import { useStore } from '@octane-xplat/ui/data'
 import { NavigationFixture } from './NavigationFixture.tsrx'
-import { RENDER } from '@xplat/demos'
+import { RENDER } from '@octane-xplat/demos'
 import type { CaseSpec, MountedFixture } from './types'
 import { acquireFixtureResource, fixtureResources } from './resources'
 

@@ -1,0 +1,40 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/payments/checkout.ts",
+		"../src/backend-types.ts",
+		"../src/backend.web.ts",
+		"../src/client.ts",
+		"../src/index.web.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"../src/use-stripe.tsx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/stripe": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

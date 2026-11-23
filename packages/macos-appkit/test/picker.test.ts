@@ -139,6 +139,7 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
         }),
       },
       buttonActionTarget: {},
+      deps: { actions: { buttonActionTarget: {}, actionHandlers: handlers } },
       nextActionId: 1,
       actionHandlers: handlers,
       console: { error: (message: string) => errors.push(message) },

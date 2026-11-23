@@ -49,13 +49,16 @@ for (const platform of ['ios', 'android', 'visionos', 'windows']) {
       invocation(selected, env, args)
       assert.equal(buildTarget(), platform)
       assert.equal(css().api.platform, platform)
+
       const plugin = boundary()
       const warnings = []
+
       plugin.configResolved({ command: 'serve', root: '/app', environments: {} })
       plugin.moduleParsed.call(
         { warn: (message) => warnings.push(message) },
         { id: '/app/file.web.ts' },
       )
+
       assert.equal(warnings.length, 1, 'boundary must reject the web leaf on a native target')
     }
   })

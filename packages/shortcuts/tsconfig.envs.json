@@ -1,9 +1,12 @@
 {
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"paths": { "@octane-xplat/shortcuts": ["../src/index.ts"] }
+	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"]
+			"include": ["src/**/*.ts", "../../examples/keyboard-shortcuts/workspace.ts"]
 		},
 		"macos": {
 			"files": ["src/index.macos.ts"]

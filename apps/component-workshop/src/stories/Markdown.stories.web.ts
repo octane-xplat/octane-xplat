@@ -1,5 +1,5 @@
 // Uses the maintained MarkdownShowcase example; do not copy its implementation here.
-import { MarkdownShowcase as Example } from '@xplat/astryx-sandbox/examples/markdown/MarkdownShowcase.tsrx'
+import { MarkdownShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/markdown/MarkdownShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

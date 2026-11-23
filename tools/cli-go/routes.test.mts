@@ -517,7 +517,7 @@ test('watch invalidation cancels slow baking before the latest source is publish
 
 test(
   'copied real application route trees match the Node renderer',
-  { skip: !existsSync(join(root, 'apps/web')) },
+  { skip: !existsSync(join(root, 'apps/harness')) },
   () => {
     const tracked = spawnSync('git', ['ls-files', '-z', '**/xplat.routes.json'], {
       cwd: root,

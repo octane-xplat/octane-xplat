@@ -17,6 +17,7 @@ const liquidGlassClass = source.slice(
   source.indexOf('class LiquidGlassView'),
   source.indexOf('\nclass ActionBarHost'),
 )
+const makeGlass = liquidGlassClass + '\n' + fn('mountGlassBackdrop') + '\n' + fn('makeLiquidGlass')
 
 class NSView {
   subviews: any[] = []
@@ -93,7 +94,7 @@ test('liquidglass declares native-view and containment capabilities', () => {
 test('makeLiquidGlass pins a glass material behind grid children', () => {
   const context = makeContext()
   const { makeLiquidGlass } = runSlice(
-    liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
+    makeGlass + '\n;({ makeLiquidGlass })',
     context,
   )
 
@@ -123,7 +124,7 @@ test('a frame change queues the host layout reconcile', () => {
   context.queueLayoutReconcile = (container: any, node: any) => calls.push([container, node])
 
   const { makeLiquidGlass } = runSlice(
-    liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
+    makeGlass + '\n;({ makeLiquidGlass })',
     context,
   )
 
@@ -143,7 +144,7 @@ test('the host layout dispatches to the registered behavior for the node', () =>
     type === 'liquidglass' ? { layout: (node: any) => calls.push(node) } : undefined
 
   const { makeLiquidGlass } = runSlice(
-    liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
+    makeGlass + '\n;({ makeLiquidGlass })',
     context,
   )
 

@@ -36,7 +36,7 @@ afterEach(() => {
 describe('findHmrScopeGaps', () => {
   it('only reports workspace packages whose shippable source can join the app bundles', () => {
     const ws = tmp('xplat-hmr-ws-')
-    const app = join(ws, 'apps/mobile')
+    const app = join(ws, 'apps/harness')
 
     makePkg(ws, { name: 'ws', workspaces: ['apps/*', 'packages/*'] })
     makePkg(app, {
@@ -92,7 +92,7 @@ describe('findHmrScopeGaps', () => {
   })
 
   it('keeps every reachable workspace package inside the repository app scope', () => {
-    const app = join(dirname(fileURLToPath(import.meta.url)), '../../../apps/mobile')
+    const app = join(dirname(fileURLToPath(import.meta.url)), '../../../apps/harness')
 
     assert.deepEqual(findHmrScopeGaps(app), [])
   })
@@ -101,7 +101,7 @@ describe('findHmrScopeGaps', () => {
 describe('inspectCompatibility', () => {
   it('does not count an engine installed privately for an optional peer as a second app engine', () => {
     const ws = tmp('xplat-engine-ws-')
-    const app = join(ws, 'apps/mobile')
+    const app = join(ws, 'apps/harness')
 
     makePkg(ws, {
       name: 'ws',
@@ -155,7 +155,7 @@ describe('inspectCompatibility', () => {
   })
 
   it('passes the repository app compiler-peer and engine checks', () => {
-    const app = join(dirname(fileURLToPath(import.meta.url)), '../../../apps/mobile')
+    const app = join(dirname(fileURLToPath(import.meta.url)), '../../../apps/harness')
     const rows = inspectCompatibility(app, { node: process.version, bun: '1.4.4' })
 
     assert.equal(

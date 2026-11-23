@@ -5,7 +5,7 @@ import { build } from 'vite'
 import { macos } from '../../cli/src/macos/vite.ts'
 
 export async function buildMacOSBarrel(
-  root = resolve(dirname(fileURLToPath(import.meta.url)), '../../../apps/macos'),
+  root = resolve(dirname(fileURLToPath(import.meta.url)), '../../../tools/macos-verification'),
   specifier = '@octane-xplat/ui',
 ) {
   const entry = resolve(root, 'ui-macos-barrel-fixture.ts')

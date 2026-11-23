@@ -579,6 +579,20 @@ export function computeCascade(
     if (value != null) {
       style[name] = value
       inheritedKeys.delete(name)
+
+      // CSS `gap` expands to row/column longhands at every tier; keep the
+      // inline shorthand expanded too so a class-level `row-gap`/`column-gap`
+      // cannot outrank a Local `gap` when Mason prefers the longhands.
+      if (name === 'gap') {
+        const parts = typeof value === 'string' ? value.trim().split(/\s+/) : null
+        const rowGap = parts?.length === 2 ? parts[0] : value
+        const columnGap = parts?.length === 2 ? parts[1] : value
+
+        style.rowGap = rowGap
+        style.columnGap = columnGap
+        inheritedKeys.delete('rowGap')
+        inheritedKeys.delete('columnGap')
+      }
     }
   }
 

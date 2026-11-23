@@ -7,8 +7,8 @@
 > rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
 > · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
-Current checks are `bun run lint`, `bun run turbo run typecheck --filter=@xplat/web`,
-`bun run turbo run typecheck --filter=@xplat/mobile`, and `bun run test` from the repository root. The lint
+Current checks are `bun run lint`, `bun run turbo run typecheck --filter=@octane-xplat/web`,
+`bun run turbo run typecheck --filter=@octane-xplat/mobile`, and `bun run test` from the repository root. The lint
 lane uses Oxlint plus the TSRX companion pass; the ESLint and `packages/core`
 references below describe the original test plan. A fresh run is required
 before treating any historical smoke count as evidence for this checkout.
@@ -135,19 +135,19 @@ owner; the canonical Octane and NativeScript patches carry the fixes.
 Run the component checks with:
 
 ```sh
-bun run turbo run test:native --filter=@octane-xplat/ui
-bun run turbo run test --filter=@xplat/web
+pnpm --dir packages/ui test:native
+bun run --cwd tools/web-verification test
 ```
 
 For a fresh browser runtime pass, start this worktree's server with
-`cd apps/web && bunx vite --host 127.0.0.1 --port 4327 --strictPort`, then run
-`node apps/web/scripts/data-smoke.ts http://127.0.0.1:4327`.
+`bun run --cwd apps/harness web --host 127.0.0.1 --port 4327 --strictPort`, then run
+`pnpm exec node tools/web-verification/scripts/data-smoke.ts http://127.0.0.1:4327`.
 The dedicated HTML entry avoids changing the navigation harness. The intentional
 throw is one expected browser `pageerror`; universal native roots instead
 report it to `onUncaughtError` without a dropped-event warning.
 
 For native builds, prepare a fresh directory for each target with
-`node apps/mobile/scripts/prepare-data-probe.ts research/data-probe-ios`
+`node apps/harness/scripts/prepare-data-probe.ts research/data-probe-ios`
 (use another directory for Android). It uses this worktree's installed modules
 and app resources, declares only data-probe dependencies, and refuses to overwrite
 an existing directory. From the repository root, build with
@@ -155,8 +155,9 @@ an existing directory. From the repository root, build with
 or the corresponding Android command and directory; set
 `JAVA_HOME=$(/usr/libexec/java_home -v 21)` for Android. Invoking the installed
 NativeScript CLI from outside the workspace avoids the package manager
-treating the isolated probe directory as an unregistered workspace package. Hold the shared advisory
-lock at `/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` throughout
+treating the isolated probe directory as an unregistered workspace package. Hold the shared advisory lock —
+`scripts/with-native-target-lock.py` or `scripts/with-target-lock.ts`, both of
+which contend on `$TMPDIR/octane-xplat-target-locks/<target>.lock` — throughout
 each build and device session. Install/launch `org.octanexplat.datareadiness`
 with `simctl` on an existing booted iOS simulator or `adb` on Android. Do not
 reset the shared harness or its data.
@@ -193,7 +194,7 @@ the data files pass their scoped lint checks.
 ## e2e reality check
 
 - Web: Playwright is straightforward. **Verified:** `pnpm smoke`
-  in `apps/web` — builds dist, serves via `vite preview`, drives headless
+  in `tools/web-verification` — builds dist, serves via `vite preview`, drives headless
   Chromium: App mounts, `onClick`→state, tab switch, chip→real-path
   route write, pane render, popstate restore, deep-link boot, sheet-stub
   call, zero pageerrors — 14/14. Runtime evidence for the web target —

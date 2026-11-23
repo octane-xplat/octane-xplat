@@ -23,7 +23,7 @@ test('readable native hosts apply and clear help/value descriptions and element 
       set accessibilityElement(value: boolean) {
         element = value
       },
-      setAccessibilityLabel: (value: string) => {
+      set accessibilityLabel(value: string) {
         label = value
       },
     }

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useId, useRef } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from '../../props'
 

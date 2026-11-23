@@ -32,3 +32,10 @@ export function scrollableAreaMetrics(
     y: document && !flipped ? maxY - y : y,
   }
 }
+import type { NSScrollView } from '@octane-xplat/platform/macos'
+
+export type ScrollableAreaHost = NSScrollView | { nativeViewProtected: NSScrollView | null }
+
+export function scrollableAreaNativeView(view: ScrollableAreaHost | null): NSScrollView | null {
+  return view && 'nativeViewProtected' in view ? view.nativeViewProtected : view
+}

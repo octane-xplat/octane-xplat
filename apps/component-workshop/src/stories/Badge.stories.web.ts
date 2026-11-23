@@ -1,5 +1,5 @@
 // Uses the maintained BadgeShowcase example; do not copy its implementation here.
-import { BadgeShowcase as Example } from '@xplat/astryx-sandbox/examples/badge/BadgeShowcase.tsrx'
+import { BadgeShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/badge/BadgeShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

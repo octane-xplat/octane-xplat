@@ -4,7 +4,7 @@
 > adapter are removed. Compatibility sections below preserve implementation
 > history; they are not supported workflows. Use the
 > [canonical guide](../../../docs/app/navigation.md),
-> [current plan](../../plans/routing-api.md) and
+> the routing plan and
 > [qualification commands](../navigation-checks.md).
 
 Decision #118 implements the routing plan with familiarity and type safety as
@@ -65,9 +65,9 @@ routePatternPath('items/[id]') // '/items/:id'
 
 Presentation and transition are independent. Keep legacy calls as migration
 adapters while the new contract lands; do not mark a design requirement as
-runtime-qualified until its maintained checks have actually run. The full
-[implementation plan](../../plans/routing-api.md) owns feature scope and proof
-criteria, including Windows runtime verification being unavailable in this task.
+runtime-qualified until its maintained checks have actually run. The routing
+implementation plan owns feature scope and proof criteria, including Windows
+runtime verification being unavailable in this task.
 
 The renderer-free `routing/core` entry now exposes programmatic inference and
 preparation. A plain search parser or Standard Schema v1 validator distinguishes
@@ -353,9 +353,11 @@ manifests retain their flat screen props during migration.
 
 ```ts
 // Inside a platform host's commit(command):
-const { route, content, flow } = command
-if (!route || !content) throw new Error('Expected prepared render content')
-if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+function commit(command: any) {
+  const { route, content, flow } = command
+  if (!route || !content) throw new Error('Expected prepared render content')
+  if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+}
 ```
 
 `browser-router-host.web.ts` and `ClientRouteOutlet.web.tsrx` provide the internal
@@ -371,7 +373,7 @@ resolved promise from a previous mount.
 const platform = createBrowserRouterHost()
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 A modal owns a separate bound flow. Navigating within it keeps that flow;
@@ -394,7 +396,7 @@ await modalNavigation.push({ to: '/settings' })
 await modalNavigation.dismiss()
 ```
 
-On 2026-10-19, `pnpm --filter @xplat/web smoke:routing` passed 11 assertions in
+On 2026-10-19, `pnpm --filter @octane-xplat/web smoke:routing` passed 11 assertions in
 headless Chromium from production-built CSR output. Assertions inspect the DOM
 immediately after awaited navigation, use browser pointer activation, preserve
 DOM/local state through refresh, replace an entry, traverse Back/Forward, and
@@ -436,12 +438,20 @@ queuing navigation does not count as commitment. Refresh keeps the Page and
 component state. Missing callbacks fail within a bounded timeout, without
 claiming to undo work already accepted by NativeScript.
 
+Native `RouteOutlet` uses a single NativeScript grid host. It measures
+the routed content, including a `Screen` with its own `RootLayout`, and
+holds the zero-size view used to find the declaring Page. A NativeScript
+`ContentView` accepts one renderer child.
+The driver rejects a competing child before detaching it from its current
+parent. App code mounting siblings into a `ContentView` must wrap them in a
+layout.
+
 ```tsx
 // Internal native fixture; default client facade migration is still pending.
 const platform = createNativeRouterHost({ getFrame: () => frame })
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 Owner removal releases routed content and returns the Frame to the declaring
@@ -490,7 +500,7 @@ releases its entries.
 const platform = createRenderRouterHost()
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<RenderRouteOutlet host={platform}><BaseScreen /></RenderRouteOutlet>
+const outlet = <RenderRouteOutlet host={platform}><BaseScreen /></RenderRouteOutlet>
 ```
 
 On 2026-10-19 the maintained iOS release fixture passed 57 assertions, extending
@@ -567,7 +577,7 @@ universal type identities. Published peer bounds are unchanged; this evidence
 qualifies the installed 0.11.0 setup.
 
 ```sh
-bun run turbo run test:routing --filter=@xplat/macos
+bun run turbo run test:routing --filter=@octane-xplat/macos
 ```
 
 Qualification used the repository's ObjC Mason facade, shipped prebuilt as
@@ -627,7 +637,7 @@ the default public client has not migrated.
 const platform = createNativeModalRouterHost({ getFrame })
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 Back at a modal's first step returns `at-base`; it does not dismiss the surface.
@@ -900,7 +910,7 @@ available for the default client's unfinished migration; this does not make
 legacy params-only callbacks structured automatically.
 
 The following excerpt uses `fileModule` from the maintained
-[browser fixture](../../../apps/web/tests/fixtures/routing-contract/fixture.web.tsrx).
+[browser fixture](../../../tools/web-verification/tests/fixtures/routing-contract/fixture.web.tsrx).
 
 ```ts
 // These named functions are the actual module exports from the route-file glob.

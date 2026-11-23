@@ -1,19 +1,20 @@
 research/
 packages/linux-gtk-renderer/platforms/linux/runtime/
 node_modules/
+/examples/web-rendering/dist/
 dist/
 dist-app/
-apps/macos/artifacts/
+tools/macos-verification/artifacts/
+apps/harness/artifacts/
 dist-democheck/
 .ns-vite-build/
 parity-report/
-apps/mobile/platforms/
+apps/harness/platforms/
 .DS_Store
 TASK.md
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
-apps/linux/host/.build/
 
 # Declaration build outputs; handwritten entry points and overrides stay tracked.
 packages/**/types/generated/
@@ -24,11 +25,11 @@ packages/app/src/styled-system/
 **/routes.gen.manifest.json
 
 # Generated release navigation reports and build logs.
-apps/mobile/navigation-results/
-apps/mobile/navigation-project/platforms/
-apps/mobile/navigation-project/package-lock.json
-apps/mobile/navigation-project/src/default-routes.gen.*
-apps/macos/test/default-routes.gen.*
+apps/harness/navigation-results/
+apps/harness/navigation-project/platforms/
+apps/harness/navigation-project/package-lock.json
+apps/harness/navigation-project/src/default-routes.gen.*
+tools/macos-verification/test/default-routes.gen.*
 
 # Native Maestro smoke app build outputs.
 apps/maestro/platforms/
@@ -55,7 +56,7 @@ packages/*/platforms/android/*.aar
 /tools/desktop-support/*.json
 /tools/desktop-support/*.tsv
 
-# Generated from public declarations by @xplat/docs#api.
+# Generated from public declarations by @octane-xplat/docs#api.
 /docs/api/
 
 # Starter patch copies generated from packages/cli/patches by sync-patches.ts.

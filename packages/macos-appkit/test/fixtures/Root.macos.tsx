@@ -73,8 +73,16 @@ export default function Root() {
         <contentview style={{ width: 52, height: 18 }} />
         <contentview style={{ width: 32, height: 24 }} />
       </rootlayout>
-      <rootlayout id="root-percent" style={{ width: 200, height: 80, padding: 10 }}>
-        <contentview id="root-percent-child" style={{ width: '50%', height: '50%' }} />
+      <rootlayout id="root-percent" style={{ width: phase === 0 ? 200 : 240, height: 80, padding: 10 }}>
+        <contentview
+          id="root-percent-child"
+          style={{
+            width: '50%',
+            height: '50%',
+            justifySelf: phase === 1 ? 'end' : undefined,
+            alignSelf: phase === 1 ? 'end' : undefined,
+          }}
+        />
         <proxyviewcontainer style={{ gridRow: '8', gridColumn: '10' }}>
           <contentview id="root-projected" />
         </proxyviewcontainer>

@@ -50,8 +50,14 @@
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"env": ["XPLAT_UI_TEST_TARGET"]
 		},
+		"bench:render": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["XPLAT_UI_BENCH_*"]
+		},
 		"typecheck": {
 			"dependsOn": ["^typegen", "typecheck:scripts"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/accessibility/AccessibleTripForm.tsx", "../../examples/auth/AccountScreen.tsx", "../../examples/auth/session.ts", "../../examples/payments/PurchaseScreen.tsx", "../../examples/payments/purchases.ts", "../../examples/storage/**", "../../examples/motion/imperative.tsrx", "../../examples/clipboard/copy-text.tsrx", "../../examples/keyboard/hardware.web.tsrx", "../../examples/keyboard/keyboard-space.tsrx"],
 			"outputs": []
 		},
 		"typecheck:scripts": {

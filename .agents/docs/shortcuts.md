@@ -106,7 +106,7 @@ input or IMEs.
 ```sh
 SHORTCUTS_MACOS_HOST=skymac.local \
   goddard-agent resource run --json '{"resources":{"exclusive":["device:skymac"],"desktop_input":1},"purpose":"AppKit shortcut queue"}' \
-  -- bun run turbo run test:shortcuts-runtime --filter=@xplat/macos
+  -- bun run turbo run test:shortcuts-runtime --filter=@octane-xplat/macos
 ```
 
 The WinUI runner uses a compiled NativeScript Windows runtime directory on the

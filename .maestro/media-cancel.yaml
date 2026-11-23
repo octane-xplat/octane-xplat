@@ -1,0 +1,48 @@
+# Drives the mediaProbe screen (launch argument) through real QBImagePickerController
+# cancellation: the Cancel bar button exercises the plugin's didCancel delegate, which
+# must settle pickImage() → null and pickImages() → empty per the media contract.
+# Deterministic runs pre-grant photos (xcrun simctl privacy <device> grant photos
+# org.nativescript.xplat.maestro); the optional Allow taps cover a cold-granted state.
+appId: ${APP_ID}
+---
+- launchApp:
+    arguments:
+      mediaProbe: '1'
+- assertVisible: 'Media pick probe'
+- tapOn:
+    id: 'pick-one'
+- tapOn:
+    text: 'Allow Full Access'
+    optional: true
+- tapOn:
+    text: 'Allow Access to All Photos'
+    optional: true
+- tapOn:
+    text: 'Allow'
+    optional: true
+- extendedWaitUntil:
+    visible: 'Cancel'
+    timeout: 15000
+- tapOn: 'Cancel'
+- extendedWaitUntil:
+    visible: 'single: null'
+    timeout: 15000
+- tapOn:
+    id: 'pick-many'
+- tapOn:
+    text: 'Allow Full Access'
+    optional: true
+- tapOn:
+    text: 'Allow Access to All Photos'
+    optional: true
+- tapOn:
+    text: 'Allow'
+    optional: true
+- extendedWaitUntil:
+    visible: 'Cancel'
+    timeout: 15000
+- tapOn: 'Cancel'
+- extendedWaitUntil:
+    visible: 'multi: count:0'
+    timeout: 15000
+- stopApp

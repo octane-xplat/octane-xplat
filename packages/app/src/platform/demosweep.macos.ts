@@ -1,6 +1,8 @@
 import { router } from '@octane-xplat/ui/routing'
+import { NSScrollView } from '@octane-xplat/platform/macos'
 
 type MacOSDebug = {
+  findId(id: string): unknown
   snapshot(): { labels: string[]; buttons: string[]; pressables: (string | undefined)[] }
   metrics(): { mountedRowCount: number }
   pressId(id: string): void
@@ -47,6 +49,24 @@ async function run(): Promise<void> {
   }
 
   const has = (text: string) => debug.snapshot().labels.some((label) => label.includes(text))
+  const listIsWindowed = (total: number) => {
+    const list = debug.findId('vlist')
+    if (!(list instanceof NSScrollView)) {
+      return false
+    }
+
+    const viewport = Number(list.contentView.bounds.size.height)
+    const surface = Number(list.window?.contentView?.bounds.size.height ?? 0)
+    const content = Number(list.documentView?.frame.size.height ?? 0)
+    const { mountedRowCount } = debug.metrics()
+    return (
+      viewport > 0 &&
+      viewport <= surface + 0.5 &&
+      content > viewport &&
+      mountedRowCount > 0 &&
+      mountedRowCount < total
+    )
+  }
   const demoCases: {
     id: string
     title: string
@@ -158,17 +178,16 @@ async function run(): Promise<void> {
       }
 
       if (mounted && demo.id === 'vlist') {
-        const mountedRows = debug.metrics().mountedRowCount
-
+        const windowed = await waitFor(() => listIsWindowed(500))
         assert(
-          'AppKit VirtualList windows 500 rows (' + mountedRows + ' mounted)',
-          mountedRows > 0 && mountedRows < 500,
+          'AppKit VirtualList windows 500 rows (' + debug.metrics().mountedRowCount + ' mounted)',
+          windowed,
         )
 
         debug.pressId('vl-drop')
         assert(
           'shared List removes a dropped row',
-          await waitFor(() => has('499 rows') && debug.metrics().mountedRowCount < 500),
+          await waitFor(() => has('499 rows') && listIsWindowed(499)),
         )
       }
 

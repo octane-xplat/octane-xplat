@@ -1,6 +1,6 @@
 {
 	"name": "octane-xplat",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "The supported Octane Xplat development toolchain",
 	"license": "MIT",
 	"type": "module",
@@ -47,7 +47,7 @@
 		"@octane-xplat/tweaks": "workspace:*",
 		"@octanejs/vite-plugin": "0.6.0",
 		"@tsrx/oxc": "0.23.0",
-		"typescript": "7.1.0-beta",
+		"typescript": "7.1.0-dev.20261121.1",
 		"vite": "8.3.6"
 	},
 	"devDependencies": {

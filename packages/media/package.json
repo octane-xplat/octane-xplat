@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/media",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Image picking and OS camera capture for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",
@@ -48,7 +48,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test": "node --test tests/*.test.mts",
+		"test": "node --test tests/*.test.mts && vitest run",
 		"test:packed": "node tests/packed-consumer.mts",
 		"test:macos-runtime": "node tests/macos-runtime.mts",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
@@ -71,7 +71,9 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
-		"typescript-classic": "catalog:"
+		"typescript-classic": "catalog:",
+		"jsdom": "catalog:",
+		"vitest": "catalog:"
 	},
 	"peerDependencies": {
 		"@octane-xplat/nativescript-octane": "workspace:*",

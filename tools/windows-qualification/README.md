@@ -17,15 +17,16 @@ and reserving the host. A retry of the same build uses the installed package;
 it does not need a new clone or native build. Keep per-run scripts and results
 under the disposable scratch path shown below.
 
-Build the dedicated host from the repository root on Windows:
+Build the qualification entry through the shared app from the repository root on Windows:
 
 ```powershell
 $env:XPLAT_WINDOWS_QUALIFICATION = '1'
 $sourceCommit = (git rev-parse HEAD).Trim()
-bun run turbo run build:windows --filter=@xplat/windows --concurrency=1
+bun run turbo run build:windows --filter=@octane-xplat/mobile --concurrency=1
 ```
 
-This selects `apps/windows/src/qualification/index.ts` and package identity
+The shared app selects its isolated Windows toolchain. The environment flag
+selects `apps/harness/windows/qualification/index.ts` and package identity
 `org.octanexplat.windows61`. The bundle embeds its Git commit and whether the
 source worktree was dirty when Vite loaded the configuration. NativeScript's
 application-directory output must then be packaged, signed and installed as an

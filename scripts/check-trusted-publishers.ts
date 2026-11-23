@@ -11,7 +11,7 @@
 // it per package is an exact check of the publish gate. The minted tokens are
 // discarded; nothing is published here.
 //
-// Usage: node scripts/check-trusted-publishers.mjs [package-name ...]
+// Usage: node scripts/check-trusted-publishers.ts [package-name ...]
 //   No args = check every publishable package except tsrx-typegen.
 // Optional TRUSTED_PUBLISHERS_CACHE persists successful checks for 24 hours.
 // Only package names, timestamps, and the registry/workflow/job scope are stored.

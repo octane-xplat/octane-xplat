@@ -102,7 +102,7 @@ void bad
 }
 
 const extraFiles = {
-  'send-reminder.ts': readFileSync(join(packageRoot, 'tests/send-reminder.ts'), 'utf8'),
+  'send-reminder.ts': readFileSync(join(repoRoot, 'examples/notifications/send-reminder.ts'), 'utf8'),
 }
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects

@@ -1,0 +1,42 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../macos-appkit/src/host-globals.d.ts",
+		"../src/index.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/keyboard": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/ui": [
+				"../node_modules/@octane-xplat/ui/types/generated/index.d.ts"
+			],
+			"octane": [
+				"../node_modules/octane/dist/index.d.ts"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"octane/tsrx-boundary": [
+				"../node_modules/octane/dist/tsrx-boundary.d.ts"
+			]
+		},
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

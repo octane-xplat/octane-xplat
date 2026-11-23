@@ -65,7 +65,7 @@ function backend(path, persistent = true) {
 }
 
 function guide(openDatabase, supported = true) {
-  return load('../examples/packing-list.ts', {
+  return load('../../../examples/storage/packing-list.ts', {
     '@octane-xplat/sqlite': { openDatabase, supported },
   })
 }

@@ -181,13 +181,35 @@ The `dev:*` scripts exist for every platform enabled at create time —
 on a simulator, emulator, or connected device. Once it
 opens, try the same checklist actions you tried in the browser.
 
-To launch multiple platforms together instead, stop the existing development
-commands with Ctrl+C and run `bun run xplat dev`. It offers a choice of available
-targets. Choose one device with `--device` and its identifier from
-`bun run xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
-boot through `simctl`, so the Simulator desktop app is optional.
+Use `--emulator` to run on one virtual device without looking up its ID.
+Xplat can boot an available iOS simulator, even with the Simulator desktop app
+closed. On Android, start the emulator first so Xplat can discover it through
+`adb`. Physical phones and tablets are excluded from this selection.
 
 ```sh
+bun run xplat dev ios --emulator
+bun run xplat dev android --emulator
+```
+
+With no platform argument, `--emulator` considers both configured mobile
+platforms. Xplat uses the only available match or, when several match, the
+only one already running. If the choice is still ambiguous, Xplat lists the
+matching IDs and stops. If no virtual device matches, check the simulators
+installed in Xcode or start an Android emulator for the platform you chose.
+
+```sh
+bun run xplat dev --emulator
+bun run xplat targets --json
+```
+
+Stop the current development command with Ctrl+C before switching targets.
+Use `--device` to select an exact ID from `xplat targets` or the ambiguity
+error. To choose multiple platforms, use `--targets` (short form `-t`) or run
+`xplat dev` in a terminal to choose from a list. Use only one of
+`--emulator`, `--device`, and `--targets` in each command.
+
+```sh
+bun run xplat dev
 bun run xplat dev macos
 bun run xplat dev ios --device DEVICE_UDID
 bun run xplat dev android --device DEVICE_SERIAL
@@ -195,7 +217,6 @@ bun run xplat dev -t web,ios
 ```
 
 Replace `DEVICE_UDID` or `DEVICE_SERIAL` with the exact device identifier.
-Use either a single selection (with optional `--device`) or `--targets`.
 
 ## See a shared edit in running targets
 
@@ -426,14 +447,23 @@ desktop setup and are separate from creating your first browser or phone app.
 
 ## Experimental AppKit target
 
-The CLI can also run the in-repository experimental macOS AppKit Node-API app
-with `bun run xplat dev macos` and package it with
-`bun run xplat build --targets macos`. Packaged apps are universal: one `.app`
-runs on Apple Silicon and Intel Macs. You can package on either kind of Mac,
-and apps with native leaves build on either kind too — the metadata generator
-loads the Command Line Tools `libclang` for the build host's architecture. This target is
-not part of the scaffolded starter. See the
-[target guide](spec.md#choose-your-targets) for release support boundaries.
+The experimental `macos` target runs NativeScript Core on AppKit, the native
+macOS window and control framework. Set up the app with the
+[macOS renderer guide](../packages/package-macos-appkit.md#configure-an-app),
+then run these commands from its project folder:
+
+```sh
+bun run xplat doctor
+bun run xplat dev --targets macos
+bun run xplat build --targets macos
+```
+
+The build produces a universal `.app` and `.dmg` for Apple Silicon and Intel
+Macs. Either architecture can be a build host. Apps that compile native
+libraries need Xcode Command Line Tools for the build host's architecture.
+The macOS target needs its own configuration alongside the scaffolded
+web and phone targets. See the [target guide](spec.md#choose-your-targets)
+for release support boundaries.
 `xplat.targets.macos.package` in the app manifest supplies the app name, bundle identifier, executable name, version, minimum macOS version, Vite
 config, and production bundle path. An optional `icon` path selects an `.icns`
 file inside the app project for the packaged app icon. `entitlements` is also
@@ -449,7 +479,7 @@ The `.app` uses system JavaScriptCore and bundles no Node executable or JS
 engine binary; `xplat dev` runs the Vite watcher in Node while the AppKit app
 and Octane HMR run in the JavaScriptCore host. See
 the [macOS experiment
-notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
 for signing, notarization, and icon setup.
 
 ```json
@@ -480,7 +510,7 @@ app's name and icon in the Dock and Cmd-Tab. It reuses `package.productName`
 and `package.icon`; without a product name, it uses the root package's `name`.
 To customize development without configuring a release, add `productName` and
 an app-root-relative `.icns` path to `xplat.targets.macos.dev`. Restart the dev
-command after changing these settings. This applies to AppKit and WKWebView.
+command after changing these settings.
 
 ```json
 {
@@ -503,21 +533,16 @@ command after changing these settings. This applies to AppKit and WKWebView.
 The development bundle is removed when the command exits and is not installed
 for Spotlight. Use the packaged `.app` for a lasting installation.
 
-For AppKit rendering, install `@octane-xplat/macos-appkit` and use
-`macos` from `@octane-xplat/cli/macos/vite` to register the compiler,
-platform resolution, and compatibility aliases. `runMacOSApp` from
-`@octane-xplat/macos-appkit/host` runs the app for you — startup, the main
-window, and platform services; the app owns its custom fonts, and the
-renderer defaults to Apple's system font.
-See the [renderer setup](../packages/package-macos-appkit.md) for dependencies,
-Vite and TypeScript configuration, and the root lifecycle.
+Use the `macos` Vite preset to load the compiler and the AppKit provider for
+NativeScript Core. See the [renderer setup](../packages/package-macos-appkit.md)
+for dependencies, TypeScript options, and the app entry point.
 
 ```js
 // vite.package.config.mjs — AppKit build.
 import { defineConfig } from 'vite'
 import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig((env) => macos(env, { entry: 'src/main.mjs' }))
+export default defineConfig(({ mode }) => macos(mode, { entry: 'src/main.ts' }))
 ```
 
 Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or
@@ -531,18 +556,20 @@ language boundaries, and verification limits.
 { "dev": { "viteConfig": "vite.dev.config.mjs", "bundleFile": "dist/dev/main.cjs" } }
 ```
 
-The in-repository app runs the shared `@xplat/app` harness through
+The in-repository app runs the shared `@octane-xplat/app` harness through
 `@octane-xplat/ui`'s `macos` package condition; its Vite config does not alias
 the UI package root. An adapted sweep covers the Home shell, Apps gallery,
 nine demos, and Test/probe surface. The AppKit renderer implements a bounded
 set of components and style tokens, while missing host services report
 `unsupported` or `unavailable`. This verifies the in-repository harness, not
-general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
 for the measured boundary.
 
 ### Desktop hosting boundary
 
-Desktop WebView app hosting has been removed. macOS apps use the experimental native AppKit renderer. Apps that retain DOM screens can run in a browser. The local WebView used by [rich text editing](../app/rich-text.md#macos-appkit-editing) remains owned by the editor package.
+Use the AppKit target for native Mac screens and the web target for DOM
+screens that run in a browser. The [macOS rich text editor](../app/rich-text.md#macos-appkit-editing)
+uses its own embedded WebView within the native app.
 
 ## Experimental Windows target
 

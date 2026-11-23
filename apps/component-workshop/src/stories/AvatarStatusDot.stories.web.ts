@@ -1,5 +1,5 @@
 // Uses the maintained AvatarStatusDotShowcase example; do not copy its implementation here.
-import { AvatarStatusDotShowcase as Example } from '@xplat/astryx-sandbox/examples/avatarstatusdot/AvatarStatusDotShowcase.tsrx'
+import { AvatarStatusDotShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/avatarstatusdot/AvatarStatusDotShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

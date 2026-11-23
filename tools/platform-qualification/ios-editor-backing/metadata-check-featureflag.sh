@@ -5,7 +5,7 @@
 # into the clang argument section, at the position OTHER_CFLAGS occupies in
 # build-step-metadata-generator.py (after framework search paths, before
 # preprocessor defines and -fmodules). In the real build the -Xclang pair
-# arrives via OTHER_CFLAGS in apps/mobile/App_Resources/iOS/build.xcconfig;
+# arrives via OTHER_CFLAGS in apps/harness/App_Resources/iOS/build.xcconfig;
 # the -D could equally ride GCC_PREPROCESSOR_DEFINITIONS.
 #
 # -fmodule-feature makes the SDK 27 modulemap's _c_standard_library_obsolete

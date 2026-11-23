@@ -11,8 +11,8 @@
 				"src/**/*.ts",
 				"src/**/*.tsrx",
 				"test/types.ts",
-				"example/*.ts",
-				"example/*.tsrx"
+				"../../examples/web-rendering/*.ts",
+				"../../examples/web-rendering/*.tsrx"
 			],
 			"compilerOptions": {
 				"types": [

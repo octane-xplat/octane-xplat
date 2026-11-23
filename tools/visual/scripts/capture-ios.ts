@@ -41,7 +41,7 @@ if (!webOnly && !process.argv.includes('--reserved')) {
   process.exit(result.status ?? 1)
 }
 
-const mobilePackage = JSON.parse(readFileSync(join(repository, 'apps/mobile/package.json')))
+const mobilePackage = JSON.parse(readFileSync(join(repository, 'apps/harness/package.json')))
 const visualPackage = JSON.parse(readFileSync(join(root, 'package.json')))
 const manifest = {
   runId: randomUUID(),
@@ -211,7 +211,7 @@ function run(command, args, cwd, extra = {}) {
 }
 
 let originalProject
-const projectPath = join(repository, 'apps/mobile/platforms/ios/mobile.xcodeproj/project.pbxproj')
+const projectPath = join(repository, 'apps/harness/platforms/ios/mobile.xcodeproj/project.pbxproj')
 let bootedByUs = false
 let phase = 'launch'
 
@@ -239,7 +239,7 @@ try {
       execFileSync('xcrun', ['simctl', 'bootstatus', device, '-b'])
     }
 
-    await run('bun', ['run', 'turbo', 'run', 'gen', '--filter=@xplat/app'], repository)
+    await run('bun', ['run', 'turbo', 'run', 'gen', '--filter=@octane-xplat/app'], repository)
     phase = 'ios-build'
     // Changing the config's environment-selected ID does not update an already
     // materialized Xcode project. Limit the override to this generated app target.
@@ -247,7 +247,7 @@ try {
       await run(
         'bun',
         ['run', 'ns', 'prepare', 'ios', '--env.unitTesting'],
-        join(repository, 'apps/mobile'),
+        join(repository, 'apps/harness'),
         {
           XPLAT_VLIST_APP_ID: process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat',
         },
@@ -274,7 +274,7 @@ try {
     await run(
       'bun',
       ['run', 'ns', 'build', 'ios', '--env.unitTesting'],
-      join(repository, 'apps/mobile'),
+      join(repository, 'apps/harness'),
       {
         XPLAT_VLIST_APP_ID: 'org.nativescript.xplat.visual',
       },
@@ -284,7 +284,7 @@ try {
     await run(
       'bun',
       ['run', 'vitest', 'run', 'src/tests/visual/capture.ios.spec.tsrx'],
-      join(repository, 'apps/mobile'),
+      join(repository, 'apps/harness'),
       {
         NS_PLATFORM: 'ios',
         NS_DEVICE: device,

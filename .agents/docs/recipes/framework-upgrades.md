@@ -39,7 +39,7 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC4: [Ownership and Windows profiles](../../../docs/packages/package-cli.md#compatible-versions), [library development](../../../packages/create/library-template/README.md#develop-and-check), and [workspace/profile tests](../../../tools/cli-go/updates.test.mts).
 - AC5: [Installed checks and duplicate runtime paths](../../../docs/packages/package-cli.md#compatible-versions) and [installed-graph tests](../../../tools/cli-go/updates.test.mts).
 - AC6: [Post-upgrade checks](../../../docs/start/toolchain.md#upgrade-framework-packages) and [target support](../../../docs/start/spec.md#choose-your-targets).
-- AC7: [Core engine choice](../../../docs/packages/package-cli.md#compatible-versions), [native preset](../../../docs/packages/package-cli.md#native-vite-preset), [compatibility regressions](../../../tools/cli-go/updates.test.mts), and the [shared FontManager runtime regression](../../../apps/mobile/src/tests/font-manager-coinstallation.spec.tsrx).
+- AC7: [Core engine choice](../../../docs/packages/package-cli.md#compatible-versions), [native preset](../../../docs/packages/package-cli.md#native-vite-preset), [compatibility regressions](../../../tools/cli-go/updates.test.mts), and the [shared FontManager runtime regression](../../../apps/harness/src/tests/font-manager-coinstallation.spec.tsrx).
 
 - AC8: [Patches with Bun and pnpm](../../../docs/packages/package-cli.md#framework-patches), [lockfile and conflict tests](../../../packages/cli/test/patches-bun.test.mts), and [real frozen-install tests](../../../packages/cli/test/patches-bun.test.mts).
 

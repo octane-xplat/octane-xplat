@@ -1,12 +1,10 @@
 import type { UniversalRoot } from 'octane/universal/native'
 import {
-  CABasicAnimation,
   NSAppearance,
   NSApplication,
   NSColor,
   NSEvent,
   NSNotificationCenter,
-  NSNumber,
   NSView,
   NSWindow,
   NativeClass,
@@ -50,7 +48,6 @@ export interface SurfaceOptions {
   dark?: boolean | null
   label?: string
   purpose?: 'info' | 'form' | 'required' | string
-  transitionKey?: unknown
   zoom?: boolean
   canDismiss?: (path: string) => boolean | void
   onDismiss?: () => void
@@ -90,7 +87,6 @@ interface SurfaceEntry {
   closedPromise: Promise<unknown>
   stops?: number[]
   stop?: number
-  didRender?: boolean
   drag?: { y: number; height: number } | null
   layout(): void
   update(options: Partial<SurfaceOptions>): void
@@ -191,7 +187,9 @@ export function installPresentationBridge(
 
   bridge.presentSurface = (initial) => {
     const owner = initial.owner?.native ?? initial.owner
-    const nativeWindow = owner?.window ?? NSApplication.sharedApplication.keyWindow
+    const app = NSApplication.sharedApplication
+    const nativeWindow =
+      owner?.window ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject ?? null
     const host = nativeWindow?.contentView
 
     if (!host || typeof initial.component !== 'function') {
@@ -345,11 +343,6 @@ export function installPresentationBridge(
           return
         }
 
-        const transition =
-          entry.didRender &&
-          entry.options.kind === 'sheet' &&
-          options.transitionKey !== entry.options.transitionKey
-
         const hadFocus =
           inside(nativeWindow.firstResponder, panel) ||
           inside(nativeWindow.firstResponder?.delegate, panel) ||
@@ -369,7 +362,6 @@ export function installPresentationBridge(
         }
 
         entry.layout()
-        entry.didRender = true
         if (entry.presented && hadFocus && entry.options.modal) {
           queueMicrotask(() => {
             const top = [...entries]
@@ -384,15 +376,6 @@ export function installPresentationBridge(
               nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
             }
           })
-        }
-
-        if (transition && typeof CABasicAnimation !== 'undefined') {
-          const animation = CABasicAnimation.animationWithKeyPath('opacity')
-
-          animation.fromValue = NSNumber.numberWithDouble(0.65)
-          animation.toValue = NSNumber.numberWithDouble(1)
-          animation.duration = 0.18
-          panel.layer.addAnimationForKey(animation, 'xplat-sheet-switch')
         }
 
         if (entry.options.kind === 'lightbox') {

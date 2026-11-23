@@ -35,7 +35,7 @@ bun install
 To run the browser example:
 
 ```sh
-bun run --filter @xplat/docs dev
+bun run --filter @octane-xplat/docs dev
 ```
 
 Open `http://localhost:5300/demo.html?demo=goal-counter`. You should see **Goal counter**'s task
@@ -46,11 +46,11 @@ On macOS, iOS requires Xcode and an available simulator. Android requires the An
 and an emulator or connected device. From the repository root, choose one:
 
 ```sh
-bun run --filter @xplat/mobile demos:ios
+bun run --filter @octane-xplat/mobile demos:ios
 ```
 
 ```sh
-bun run --filter @xplat/mobile demos:android
+bun run --filter @octane-xplat/mobile demos:android
 ```
 
 In the **Docs demos** native menu, select **Goal counter** and repeat the task above.

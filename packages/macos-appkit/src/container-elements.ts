@@ -1,5 +1,6 @@
 import { FailureCollector } from './failures.ts'
 import { effectiveStyle } from './style-values.ts'
+import { mountGlassBackdrop } from './glass-backdrop'
 import type { Registry } from './registry'
 import type { Layout } from './layout'
 import type { TextElements } from './text-elements'
@@ -14,9 +15,6 @@ import {
   type NSObject,
   NSView,
   NSViewFrameDidChangeNotification,
-  NSVisualEffectBlendingMode,
-  NSVisualEffectMaterial,
-  NSVisualEffectView,
   NativeClass,
 } from '@octane-xplat/platform/macos'
 
@@ -553,24 +551,7 @@ export function createContainerElements(deps: Dependencies) {
 
     node.glassGeometryObserver = observer
 
-    const backdrop = NSVisualEffectView.alloc().initWithFrame({
-      origin: { x: 0, y: 0 },
-      size: { width: 140, height: 28 },
-    })
-
-    // UnderWindowBackground is the platform glass material — the reliable,
-    // appearance-following analog of iOS's clear glass. Within-window blending
-    // needs content behind the view inside the same window and would render no
-    // effect in the common empty-window case.
-    node.glassBackdrop = backdrop
-    backdrop.material = NSVisualEffectMaterial.UnderWindowBackground
-    backdrop.blendingMode = NSVisualEffectBlendingMode.Behind
-    backdrop.translatesAutoresizingMaskIntoConstraints = false
-    view.addSubview(backdrop)
-    backdrop.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
-    backdrop.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
-    backdrop.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
-    backdrop.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+    node.glassBackdrop = mountGlassBackdrop(view)
     return view
   }
 

@@ -11,8 +11,9 @@ the packages and documentation. Internal implementation notes live in
 
 Choose a workspace's directory by its primary purpose:
 
-- `apps/` contains runnable UI applications: platform hosts, websites, sandboxes,
-  and demo or test apps that exercise real screens and app flows.
+- `apps/` contains runnable UI applications: websites, sandboxes, and demo or
+  test apps that exercise real screens and app flows. A cross-platform app owns
+  its target entry points and platform configuration in one app workspace.
 - `tools/` contains private repository tooling and supporting services: comparison
   runners, visual regression tooling, feedback collection, and update distribution.
   Embedded UI fixtures do not make a tool an app.
@@ -22,6 +23,8 @@ Choose a workspace's directory by its primary purpose:
 Keep new operational services and verification runners in `tools/`, even when
 they have a development server or deployment command. Keep package names stable
 when moving existing workspaces so package-name filters continue to work.
+The shared harness owns its platform entries in one app; isolated toolchains may
+live under `tools/` when a target needs incompatible dependencies.
 
 ## Script ownership
 
@@ -43,6 +46,11 @@ inventories, logs, and captures in ignored local storage; do not commit them.
 Guidance carries durable conclusions and lookup instructions, not run histories.
 Repository formatters and linters ignore `.agents/`; documentation and recipe
 checks still validate their respective contracts.
+
+For instructional code, start at [examples](examples/README.md). Group walkthroughs
+in category folders and explain their steps with numbered comments. Public guides
+show what readers can build and link to the walkthroughs; API declarations own
+the complete reference.
 
 Maintain agent guidance in the same change that alters the behavior it describes.
 When adding or revising material:
@@ -67,11 +75,12 @@ Consult the relevant study before researching an external system. Update the
 canonical study when new evidence changes its findings; keep our decisions,
 implementation contracts, and upstream limitations in this framework repository.
 
-Use an existing local clone, by default `~/dev/prior-art`, outside framework
-worktrees. If it is absent and you have private-repository access, clone it:
+Use the separate local clone at `research/prior-art/` in the framework worktree.
+The `research/` directory is ignored by the framework repository. If the clone
+is absent and you have private-repository access, clone it:
 
 ```sh
-gh repo clone octane-xplat/prior-art ~/dev/prior-art
+gh repo clone octane-xplat/prior-art research/prior-art
 ```
 
 Read that repository's `AGENTS.md` before editing. Commit research independently
@@ -92,6 +101,8 @@ working agreements and detail moved out of this entry point.
 | Locate packages, harnesses, or design records            | [Repository orientation](.agents/docs/repository.md)                                                                                         |
 | Find source, callers, or change impact                   | [Source context](.agents/docs/source-context.md)                                                                                             |
 | Implement components or platform variants                | [Implementation invariants](.agents/docs/architecture.md)                                                                                    |
+| Check or resolve platform files                          | [Platform typechecking](.agents/docs/platform-typechecking.md)                                                                                |
+| Find guidance for a specific API or platform task        | [Contributor guides](.agents/docs/README.md#contributor-guides)                                                                               |
 | Build, install dependencies, patch upstream, or lint     | [Toolchain](.agents/docs/toolchain.md)                                                                                                       |
 | Use shared hosts or create temporary host artifacts      | [Temporary host files](.agents/docs/host-artifacts.md)                                                                                       |
 | Investigate one case or add lasting test coverage        | [Probes and tests](.agents/docs/testing.md)                                                                                                  |
@@ -236,12 +247,9 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   the reader's path, reconcile canonical guidance, and run `bun run check:docs`
   and `bun run check:doc-examples`. Mechanical checks do not replace reviewing
   setup, API correctness, lifecycle, platform claims, and observable results.
-- When public APIs or documented behavior change, review the affected guidance
-  in [the Octane skill](.agents/skills/octane-xplat/SKILL.md), including its
-  references, examples, limitations, and links. Update stale information in the
-  same change. Add guidance when it changes an agent's decisions or prevents a
-  consequential mistake; preserve task-based progressive disclosure using the
-  [skill maintenance guidance](.agents/docs/documentation.md#octane-skill-maintenance).
+- When public APIs or documented behavior change, review the affected
+  contributor notes, public guides, and starter skill. Update stale guidance
+  in the same change using [guidance maintenance](.agents/docs/documentation.md#guidance-maintenance).
 - Log meaningful expectation mismatches in Silo's `feedback_observations` when
   they happen; keep reports local and preserve the original expectation. See
   [local feedback](.agents/docs/exploration.md#local-framework-feedback).
@@ -268,11 +276,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   Keep agent-facing distinctions in the relevant skill reference and repository
   concepts in `.agents/docs/`; do not maintain a standalone glossary. Prefer
   familiar words in release notes.
-- PR CI stays lightweight: the `checks` job must not install browser engines
-  (Playwright/Chromium) or run device emulation. Browser-driven tests
-  (`@xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,
-  `optional-services` browsers) are excluded or flagged there — keep them
-  out of the PR gate and run them locally.
+- Invoke E2E and device-runtime checks explicitly on a developer machine or
+  reserved test host. Keep browser engines, device emulation, and app launches
+  out of all CI workflows, including stable release qualification. CI runs
+  unit/component tests, package checks, and build-only native checks. See
+  [manual test commands](.agents/docs/testing.md#manual-end-to-end-checks).
 
 <!-- graft:start -->
 

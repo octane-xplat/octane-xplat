@@ -1,5 +1,5 @@
 // Uses the maintained MobileNavToggleShowcase example; do not copy its implementation here.
-import { MobileNavToggleShowcase as Example } from '@xplat/astryx-sandbox/examples/mobilenavtoggle/MobileNavToggleShowcase.tsrx'
+import { MobileNavToggleShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/mobilenavtoggle/MobileNavToggleShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,0 +1,28 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/observability/reporting.web.ts",
+		"../src/index.web.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

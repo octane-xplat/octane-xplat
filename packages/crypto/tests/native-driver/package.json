@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/crypto-native-fixture",
+	"name": "@octane-xplat/crypto-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

@@ -24,10 +24,10 @@ playback safely when replacing it or removing the screen.
 ## Documentation
 
 - AC5: [Pan recovery](../../../docs/app/animation-gestures.md#observe-imperative-animation-results), [compiled shared pan tests](../../../packages/ui/src/components/layout/pan.web.test.tsrx), and [trusted browser input](../../../tools/visual/src/ui-pan.web.test.tsrx).
-- AC1: [Imperative animation](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [maintained example](../../../packages/ui/examples/AnimationDemo.tsrx).
-- AC2: [Controller lifecycle](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../../../apps/macos/test/animation-fixture.macos.tsx).
+- AC1: [Imperative animation](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [maintained example](../../../examples/motion/imperative.tsrx).
+- AC2: [Controller lifecycle](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../../../tools/macos-verification/test/animation-fixture.macos.tsx).
 - AC3: [AppKit behavior](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [verification limits](../notes/animation-notes.md#appkit-imperative-animation).
 
-- AC4: [Observable outcomes and migration](../../../docs/app/animation-gestures.md#observe-imperative-animation-results) and [visible example](../../../packages/ui/examples/AnimationDemo.tsrx).
+- AC4: [Observable outcomes and migration](../../../docs/app/animation-gestures.md#observe-imperative-animation-results) and [visible example](../../../examples/motion/imperative.tsrx).
 
 - AC3 scheduling: [shared display-link ownership](../notes/animation-notes.md#appkit-imperative-animation) and [nonvisual native fixture](../../../packages/macos-appkit/test/fixtures/animation-frames.ts) cover scheduling separately from visual frame pacing and OS input.

@@ -62,7 +62,7 @@ revealWhenLoaded(page)
 
 On a fully closed release launch, the launch image remains while that Page is
 created. The helper dismisses it when the Page reports that it loaded. The
-[maintained helper](../../packages/splash-screen/examples/startup.mobile.ts) uses the same code. Development
+[maintained helper](../../examples/startup/splash-screen.mobile.ts) uses the same code. Development
 hosts may have already drawn their placeholder before app modules load; use
 a cold release launch to qualify this workflow.
 

@@ -14,7 +14,8 @@ vi.mock('@nativescript/core', async () => ({
   isIOS: false,
   isAndroid: true,
   ScrollView: class ScrollView {},
-  Application: {},
+  Application: { on() {}, off() {} },
+  Screen: { mainScreen: { widthDIPs: 390, heightDIPs: 844 } },
   Utils: { openUrl: () => {} },
 }))
 

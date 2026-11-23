@@ -542,10 +542,16 @@ unsuffixed native default. `.linux` files belonged to the retired WebKitGTK app 
 and are unreachable inside a GTK bundle — see the capability inventory for
 why the two suffixes must not collide.
 
-`/** @jsxImportSource @octane-xplat/jsx */` on line 1 of `.gtk.tsx` /
-`.gtk.tsrx` files that contain JSX — the shared native contract is the JSX
-source for every native target; the `gtk` customConditions entry binds the
-GTK host element type. There is no renderer-owned `jsx-runtime` export.
+GTK `.tsx` leaves inherit the native JSX types from the project config. In
+`.gtk.tsrx` leaves that use host elements, put the shared JSX comment on the
+first line. The program's `gtk` condition selects the GTK host element type.
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx */
+export function GtkStatus() {
+  return <label text="Ready" />
+}
+```
 
 ## Bundle + run
 

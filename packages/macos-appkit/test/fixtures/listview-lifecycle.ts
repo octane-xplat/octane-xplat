@@ -67,7 +67,8 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   await settle()
   check(
     texts(row0) === 'A:0' && row0.bindingContext === 'A',
-    'ListView renderItem/bindingContext failed',
+    'ListView renderItem/bindingContext failed: ' +
+      JSON.stringify({ text: texts(row0), item: row0.bindingContext, label: !!label0 }),
   )
 
   check(
@@ -96,7 +97,11 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   await settle()
   check(
     texts(factoryCell) === 'Factory' && factoryHosts[0].bindingContext === 'bound0',
-    'ListView default factory precedence/binding failed',
+    'ListView default factory precedence/binding failed: ' +
+      JSON.stringify({
+        text: texts(factoryCell),
+        hosts: factoryHosts.map((host) => host.bindingContext),
+      }),
   )
 
   const loading = listViewEvents.find(
@@ -107,7 +112,13 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
     loading?.object === first &&
       loading.view === row0 &&
       Object.getOwnPropertyDescriptor(loading, 'view')?.writable === false,
-    'ListView readonly itemLoading payload failed',
+    'ListView readonly itemLoading payload failed: ' +
+      JSON.stringify({
+        events: listViewEvents.map((event) => [event.eventName, event.index]),
+        object: loading?.object === first,
+        view: loading?.view === row0,
+        writable: loading && Object.getOwnPropertyDescriptor(loading, 'view')?.writable,
+      }),
   )
 
   // Native action/delegate bridge evidence; this does not exercise OS input.

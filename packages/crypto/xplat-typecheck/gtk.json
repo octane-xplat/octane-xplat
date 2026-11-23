@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../linux-gtk-renderer/src/host-globals.d.ts",
+		"../src/index.linux.ts",
+		"./isolation-gtk.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/crypto": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".gtk",
+			""
+		],
+		"customConditions": [
+			"gtk",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/media-library-native-fixture",
+	"name": "@octane-xplat/media-library-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

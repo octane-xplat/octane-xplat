@@ -30,16 +30,16 @@ space through form and overlay lifecycles.
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
 - AC2: [Sizing a multiline field](../../../docs/app/text-entry.md#size-a-multiline-field), [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#platform-limits).
 - AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md).
-- AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
+- AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../examples/keyboard/form.tsrx), and the maintained [motion example](../../../examples/keyboard/avoiding.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#platform-limits).
-- AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mts), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mts).
-- AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
+- AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../examples/keyboard/keyboard-space.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mts), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mts).
+- AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields), [TextInput sizes](../../../docs/app/text-entry.md#control-a-field), and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 - AC8: [Component input contracts](../../../docs/app/components.md#inputs), [UI API migrations](../../../docs/app/ui-api-migrations.md#empty-values-and-time-domains), and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
 ## macOS verification
 
-Run `bun run --filter @xplat/macos test:text-controls` for the maintained
-[AppKit fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx). It checks
+Run `bun run --filter @octane-xplat/macos test:text-controls` for the maintained
+[AppKit fixture](../../../tools/macos-verification/test/text-controls-fixture.macos.tsx). It checks
 text-control handles and responder callbacks, secure-mode updates while focused,
 and submit dispatch distinct from text changes. Multiline action Return uses
 `done`/`send`; other Return actions remain newlines. The fixture dispatches

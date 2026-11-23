@@ -40,6 +40,8 @@ function fixture() {
     source.indexOf('\nfunction applyProps('),
   )
 
+  const buttonActionTarget = {}
+  const actionHandlers = new Map()
   const api = runSlice(
     constants +
       '\n' +
@@ -79,9 +81,10 @@ function fixture() {
       NSMenuItem: {
         alloc: () => ({ initWithTitleActionKeyEquivalent: (title: string) => ({ title }) }),
       },
-      buttonActionTarget: {},
+      buttonActionTarget,
+      deps: { actions: { buttonActionTarget, actionHandlers } },
       nextActionId: 1,
-      actionHandlers: new Map(),
+      actionHandlers,
       setControlAction: (_node: any, handler: any) => {
         view.callback = handler
       },
@@ -233,6 +236,8 @@ test('ListPicker production ownership moves its native host between parents and 
     },
   })
 
+  const buttonActionTarget = {}
+  const actionHandlers = new Map()
   const api = runSlice(
     [
       'parentReference',

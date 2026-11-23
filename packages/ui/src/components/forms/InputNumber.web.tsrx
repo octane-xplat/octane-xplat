@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { InputNumberProps } from '../../props'
-import { useSize } from '../layout/size-context'
 import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import { useFieldControlProps } from './field-context'
 import { TextInput } from './TextInput.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
@@ -13,7 +13,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  adds a reset affordance. `hasNumberSteppers` gates the buttons
  *  (default shown). */
 export function InputNumber(props: InputNumberProps): JSX.Element @{
-  const size = useSize(props.size, 'md')
+  const { size } = useFieldControlProps(props)
   const [internal, setInternal] = useState(props.defaultValue)
   const controlled = props.value !== undefined
   const value = controlled ? props.value : internal
@@ -83,6 +83,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element @{
     <TextInput
       className="vx-inputnumber-field"
       keyboardType="decimal"
+      size={size}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       placeholder={props.placeholder}

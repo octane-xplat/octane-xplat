@@ -1,0 +1,48 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/forms/trip-form.tsrx",
+		"../src/index.ts",
+		"../src/use-field.tsrx",
+		"../src/use-form-store.tsrx",
+		"../src/use-form.tsrx",
+		"../tests/fixtures/lifecycle.tsrx",
+		"../tests/types.tsrx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/form": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/ui": [
+				"../node_modules/@octane-xplat/ui/types/generated/index.d.ts"
+			],
+			"octane": [
+				"../node_modules/octane/dist/index.d.ts"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"octane/tsrx-boundary": [
+				"../node_modules/octane/dist/tsrx-boundary.d.ts"
+			]
+		},
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

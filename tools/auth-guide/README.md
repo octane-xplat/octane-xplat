@@ -25,7 +25,7 @@ physical devices and production. It is not a general application backend.
 From the framework repository root:
 
 ```sh
-bun run turbo run test typecheck --filter=@xplat/auth-guide
+bun run turbo run test typecheck --filter=@octane-xplat/auth-guide
 bun run turbo run test typecheck --filter=@octane-xplat/auth
 ```
 
@@ -35,8 +35,8 @@ They use no real tenant or user credentials. The auth package separately checks
 the maintained Auth0 adapter and the underlying hosted-client lifecycle.
 The tests do not establish real provider, OS-dialog or secure-storage behavior.
 
-Copy `src/api.ts` and `src/serve.ts` into an independent Node project with
+Copy `examples/auth/server/api.ts` and `examples/auth/server/serve.ts` from the repository root into an independent Node project with
 `jose@6` to use the server outside the monorepo; the guide gives the complete
 configuration and launch commands. The example account UI and session controller
-live in `packages/demos/src/auth-guide`; they are app-owned example files,
+live in `examples/auth`; they are app-owned example files,
 not a supported framework API.

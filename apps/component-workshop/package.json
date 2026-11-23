@@ -1,5 +1,5 @@
 {
-  "name": "@xplat/component-workshop",
+  "name": "@octane-xplat/component-workshop",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,6 +8,7 @@
     "build": "node scripts/build.ts",
     "typecheck": "node ../../scripts/typecheck.ts",
     "test:coverage": "node scripts/coverage.ts",
+    "test": "node scripts/packed-sandbox.mts",
     "test:browser": "node scripts/browser.ts",
     "verify:deployment": "node scripts/verify-deployment.ts"
   },
@@ -36,7 +37,7 @@
     "@octane-xplat/tiptap": "workspace:*",
     "@octane-xplat/ui": "workspace:*",
     "@octane-xplat/video": "workspace:*",
-    "@xplat/demos": "workspace:*",
+    "@octane-xplat/demos": "workspace:*",
     "octane": "catalog:"
   },
   "devDependencies": {
@@ -45,7 +46,7 @@
     "@octane-xplat/workshop": "workspace:*",
     "@octanejs/vite-plugin": "catalog:",
     "@tsrx/content-mapper": "catalog:",
-    "@xplat/astryx-sandbox": "workspace:*",
+    "@octane-xplat/astryx-sandbox": "git+https://github.com/octane-xplat/astryx-sandbox.git#aabfe55398acd82722e5be73b6c121c173759a28",
     "playwright": "1.63.0",
     "typescript": "catalog:",
     "vite": "catalog:"

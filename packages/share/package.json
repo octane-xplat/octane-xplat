@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/share",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Native share sheet for Octane xplat \u2014 matching web + NativeScript + AppKit implementations",
 	"keywords": [
 		"android",
@@ -43,6 +43,7 @@
 		"access": "public"
 	},
 	"scripts": {
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.examples.json",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mts",

@@ -3,9 +3,12 @@ import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
 import type { GeolocationImpl, GeolocationPosition } from './types'
 
+type NativeStatus = 'granted' | 'denied' | 'undetermined' | 'unsupported'
+
 declare const XplatGeolocation: {
   isAvailable(): boolean
-  ensure(completion: (result: 'granted' | 'denied' | 'unsupported') => void): void
+  getStatus(completion: (result: NativeStatus) => void): void
+  ensure(completion: (result: NativeStatus) => void): void
   positionTimeoutMaximumAgeCompletion(
     highAccuracy: boolean,
     timeout: number,
@@ -54,18 +57,25 @@ const impl: GeolocationImpl = {
   },
 }
 
-// The native seam carries only ensure() — probing may prompt.
-const ensure = (): Promise<PermissionResponse> =>
-  !available()
-    ? Promise.resolve({ status: 'unsupported', granted: false, canAskAgain: false })
+const response = (raw: string): PermissionResponse => {
+  const status: NativeStatus = ['granted', 'denied', 'undetermined'].includes(raw)
+    ? (raw as NativeStatus)
+    : 'unsupported'
+
+  return {
+    status,
+    granted: status === 'granted',
+    canAskAgain: status === 'granted' || status === 'undetermined',
+  }
+}
+
+// getStatus() is the non-prompting read; ensure() may prompt. A stale bridge
+// without getStatus reports unsupported rather than prompting on a read.
+const permission = (method: 'getStatus' | 'ensure'): Promise<PermissionResponse> =>
+  !available() || typeof XplatGeolocation[method] !== 'function'
+    ? Promise.resolve(response('unsupported'))
     : new Promise((resolve) => {
-        XplatGeolocation.ensure((status) =>
-          resolve({
-            status,
-            granted: status === 'granted',
-            canAskAgain: status === 'granted',
-          }),
-        )
+        XplatGeolocation[method]((status) => resolve(response(status)))
       })
 
 /** Geolocation service — single-shot position fixes. */
@@ -74,8 +84,8 @@ export const geolocation: Permissioned<GeolocationImpl> = {
     return available()
   },
   isAvailable: async () => available(),
-  getPermissions: ensure,
-  requestPermissions: ensure,
+  getPermissions: () => permission('getStatus'),
+  requestPermissions: () => permission('ensure'),
   ...impl,
 }
 

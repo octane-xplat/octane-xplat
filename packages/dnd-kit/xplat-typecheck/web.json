@@ -1,0 +1,34 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/index.web.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

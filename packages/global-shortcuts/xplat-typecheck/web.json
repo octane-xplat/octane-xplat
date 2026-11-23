@@ -1,0 +1,37 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/keyboard-shortcuts/global-quick-entry.ts",
+		"../src/accelerator.ts",
+		"../src/backend-types.ts",
+		"../src/backend-unsupported.ts",
+		"../src/index.web.ts",
+		"../src/registry.ts",
+		"../src/reserved.ts",
+		"../src/types.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/global-shortcuts": [
+				"../src/index.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

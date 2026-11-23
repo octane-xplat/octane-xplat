@@ -1,5 +1,5 @@
 // AppKit macOS font registration for generated icon fonts. Mirrors the
-// harness font loader in apps/macos/src/fonts.ts: write/locate the TTF,
+// harness font loader in apps/harness/macos/src/fonts.ts: write/locate the TTF,
 // create CTFontDescriptors through CoreText, then hand them to the renderer's
 // family registry (`registerFontFamily`).
 //

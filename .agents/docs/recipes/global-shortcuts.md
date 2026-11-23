@@ -24,6 +24,6 @@ exit.
 
 ## Documentation
 
-- AC1: [Install and try](../../../docs/packages/package-global-shortcuts.md#install-and-try), [support check](../../../docs/packages/package-global-shortcuts.md#check-support-first), [cleanup](../../../docs/packages/package-global-shortcuts.md#clean-up), [workspace example](../../../packages/global-shortcuts/examples/quick-entry.ts).
+- AC1: [Install and try](../../../docs/packages/package-global-shortcuts.md#install-and-try), [support check](../../../docs/packages/package-global-shortcuts.md#check-support-first), [cleanup](../../../docs/packages/package-global-shortcuts.md#clean-up), [workspace example](../../../examples/keyboard-shortcuts/global-quick-entry.ts).
 - AC2: [Choose the keys](../../../docs/packages/package-global-shortcuts.md#choose-the-keys), [parser tests](../../../packages/global-shortcuts/tests/accelerator.test.ts).
 - AC3: [Handle refusals](../../../docs/packages/package-global-shortcuts.md#handle-refusals), [platform limits](../../../docs/packages/package-global-shortcuts.md#platform-support-and-limits), [registry tests](../../../packages/global-shortcuts/tests/registry.test.ts).

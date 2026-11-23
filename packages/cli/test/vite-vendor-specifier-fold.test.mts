@@ -41,7 +41,7 @@ const makePlugin = (nodeModulesDir, name, pkgJson) => {
 }
 
 const makeApp = (workspaceRoot) => {
-  const app = join(workspaceRoot, 'apps/mobile')
+  const app = join(workspaceRoot, 'apps/harness')
 
   mkdirSync(join(app, 'node_modules'), { recursive: true })
   writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'mobile' }))

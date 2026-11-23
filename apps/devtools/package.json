@@ -6,7 +6,9 @@
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "xplat dev macos",
-		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
+		"dev:web": "vite --config vite.preview.config.mjs",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+		"build:release": "node build-release.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
@@ -32,6 +34,15 @@
 				"dev": {
 					"viteConfig": "vite.dev.config.mjs",
 					"bundleFile": "dist/dev/app.cjs"
+				},
+				"package": {
+					"productName": "Octane Xplat DevTools",
+					"bundleIdentifier": "org.octane-xplat.devtools",
+					"executableName": "XplatDevTools",
+					"version": "1.0.0",
+					"minimumSystemVersion": "13.5",
+					"viteConfig": "vite.release.config.mjs",
+					"bundleFile": "dist/package-build/main.cjs"
 				}
 			}
 		}

@@ -339,7 +339,7 @@ test('real installed framework source is searchable and readable without Node', 
       '--project',
       root,
       '--app',
-      'apps/web',
+      'apps/harness',
       '--corpus',
       'framework',
       '--package',
@@ -362,7 +362,7 @@ test('real installed framework source is searchable and readable without Node', 
 
   const read = spawnSync(
     binary,
-    ['code', 'read', '--ref', hit.ref, '--project', root, '--app', 'apps/web', '--json'],
+    ['code', 'read', '--ref', hit.ref, '--project', root, '--app', 'apps/harness', '--json'],
     { encoding: 'utf8', timeout: 10000, env: { ...process.env, PATH: '' } },
   )
 

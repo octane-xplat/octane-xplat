@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
-import { createVideoGeometry } from '../examples/video-geometry'
-import type { VideoGeometrySpec } from '../examples/video-geometry'
+import { createVideoGeometry } from '../../../examples/motion/video-geometry'
+import type { VideoGeometrySpec } from '../../../examples/motion/video-geometry'
 const original: VideoGeometrySpec = {
   overlay: { x: 0, y: 0, width: 400, height: 800 },
   media: { x: 0, y: 200, width: 400, height: 400 },

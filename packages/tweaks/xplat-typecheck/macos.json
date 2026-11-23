@@ -1,0 +1,33 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../macos-appkit/src/host-globals.d.ts",
+		"../src/devtools/Panel.tsrx",
+		"../src/devtools/icons.ts",
+		"../src/devtools/index.ts",
+		"../src/devtools/model.ts",
+		"../src/devtools/styles-panel.ts",
+		"../src/devtools/styles.ts",
+		"../src/devtools/use-panel-content.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"types": [
+			"node"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

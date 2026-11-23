@@ -1,5 +1,5 @@
 {
-  "name": "@xplat/tailwind-qualification",
+  "name": "@octane-xplat/tailwind-qualification",
   "private": true,
   "type": "module",
   "scripts": {

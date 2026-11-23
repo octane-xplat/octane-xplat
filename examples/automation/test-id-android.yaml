@@ -1,16 +1,19 @@
 steps:
+  # 1. Launch the Android fixture and check its stable identifiers.
   - launch: { android: org.nativescript.xplat.laurencetestid }
   - assert: { visible: { id: counter.value } }
   - assert: { visible: { id: screen.controls } }
   - assert: { visible: { id: counter.group } }
   - assert: { visible: { id: message.notes } }
   - assert: { visible: { id: message.search } }
+  # 2. Exercise the counter, text entry, and setting.
   - tap: { id: counter.increment }
   - await: { visible: { text: 'Count: 1' }, timeout: 5000 }
   - type: { into: { id: message.entry }, text: '42' }
   - await: { visible: { text: 'Message: 42' }, timeout: 5000 }
   - tap: { id: settings.enabled }
   - await: { visible: { text: 'Enabled: true' }, timeout: 5000 }
+  # 3. Rebind an item, then check the old and new identifiers.
   - tap: { id: items.rebind }
   - assert: { hidden: { id: item.a.open } }
   - assert: { visible: { id: item.b.open } }
@@ -18,6 +21,7 @@ steps:
   - await: { visible: { text: 'Count: 2' }, timeout: 5000 }
   - tap: { id: items.rebind }
   - assert: { hidden: { id: item.b.open } }
+  # 4. Open and close the overlay twice to check its identifiers are removed.
   - tap: { id: overlay.open }
   - await: { visible: { id: overlay.content }, timeout: 5000 }
   - assert: { visible: { id: overlay.status } }

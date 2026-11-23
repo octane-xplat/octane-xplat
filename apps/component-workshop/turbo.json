@@ -28,6 +28,10 @@
       ],
       "cache": false
     },
+    "test": {
+      "dependsOn": [],
+      "cache": false
+    },
     "test:coverage": {
       "inputs": [
         "$TURBO_DEFAULT$",

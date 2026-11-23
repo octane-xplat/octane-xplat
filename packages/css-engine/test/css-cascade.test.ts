@@ -8,6 +8,7 @@ import {
 } from '../src/stylesheets.ts'
 
 import { computeCascade } from '../src/cascade.ts'
+import { normalizeStylesheetPixels } from '../src/logical-pixels.ts'
 
 // The cascade modules are AppKit-free: nodes here are plain objects carrying
 // the ElementNode selector-adapter fields.
@@ -269,6 +270,15 @@ test('lengths: 12px/12dip/12 -> 12; 50% stays string', () => {
   assert.equal(node('masonview', { classes: ['d'] }).computedStyle.width, '50%')
 })
 
+test('NativeScript stylesheet lengths preserve selectors, queries, and quoted values', () => {
+  const css =
+    '@media (min-width: 400px) { .size-12px { --length: 12PX; width: calc(var(--length) + .5px); content: "12px"; background: url(length-12px); } }'
+  assert.equal(
+    normalizeStylesheetPixels(css),
+    '@media (min-width: 400px) { .size-12px { --length: 12dip; width: calc(var(--length) + .5dip); content: "12px"; background: url(length-12px); } }',
+  )
+})
+
 test('padding shorthand and var() expand to edges; flex-direction reaches style', () => {
   registerStylesheet(
     't11',
@@ -451,4 +461,19 @@ test('calc keeps resolved percentages and leaves contextual expressions intact',
 
   assert.equal(target.computedStyle.width, '50%')
   assert.equal(target.computedStyle.height, 'calc(50% - 10px)')
+})
+
+test('inline gap expands to longhands and outranks class row-gap/column-gap', () => {
+  registerStylesheet('gap-tier', '.gap-8 { gap: 8px }')
+
+  const n = node('masonview', { classes: ['gap-8'], style: { gap: 12 } })
+
+  assert.equal(n.computedStyle.gap, 12)
+  assert.equal(n.computedStyle.rowGap, 12)
+  assert.equal(n.computedStyle.columnGap, 12)
+
+  const two = node('masonview', { classes: ['gap-8'], style: { gap: '8dip 16dip' } })
+
+  assert.equal(two.computedStyle.rowGap, '8dip')
+  assert.equal(two.computedStyle.columnGap, '16dip')
 })

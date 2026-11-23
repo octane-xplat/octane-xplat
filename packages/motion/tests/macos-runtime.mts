@@ -15,7 +15,7 @@ import {
 } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
-const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
+const appRoot = fileURLToPath(new URL('../../../tools/macos-verification', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'octane-motion-channels-'))
 
 try {

@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/astryx-parity",
+	"name": "@octane-xplat/astryx-parity",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",

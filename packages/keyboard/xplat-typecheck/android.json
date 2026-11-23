@@ -1,0 +1,80 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../../../examples/keyboard/avoiding.tsrx",
+		"../../../examples/keyboard/composer.tsrx",
+		"../../../examples/keyboard/form.tsrx",
+		"../src/KeyboardAwareScrollView.mobile.tsrx",
+		"../src/KeyboardStickyView.mobile.tsrx",
+		"../src/Provider.tsrx",
+		"../src/binding-types.ts",
+		"../src/controller.ts",
+		"../src/focus-geometry.ts",
+		"../src/focus-publish.ts",
+		"../src/focus-runtime-types.ts",
+		"../src/focus-runtime.mobile.ts",
+		"../src/focus-source.android.ts",
+		"../src/focus-types.ts",
+		"../src/focused-input.ts",
+		"../src/index.ts",
+		"../src/motion.ts",
+		"../src/native-scope.ts",
+		"../src/prediction.ts",
+		"../src/props.ts",
+		"../src/runtime-types.ts",
+		"../src/runtime.mobile.ts",
+		"../src/scroll-controller.ts",
+		"../src/scroll-geometry.ts",
+		"../src/scroll-runtime-types.ts",
+		"../src/scroll-runtime.mobile.ts",
+		"../src/scroll-types.ts",
+		"../src/source.android.ts",
+		"../src/types.ts",
+		"../src/viewport-types.ts",
+		"../src/viewport.android.ts",
+		"../tests/fixtures/focus.android.tsrx",
+		"../tests/fixtures/motion.android.tsrx",
+		"../tests/fixtures/os-input.android.tsrx",
+		"../tests/fixtures/scroll.android.tsrx",
+		"../tests/fixtures/sticky.android.tsrx",
+		"../types/generated/index.d.ts",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/keyboard": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/ui": [
+				"../node_modules/@octane-xplat/ui/types/generated/index.d.ts"
+			],
+			"octane": [
+				"../node_modules/octane/dist/index.d.ts"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"octane/tsrx-boundary": [
+				"../node_modules/octane/dist/tsrx-boundary.d.ts"
+			]
+		},
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

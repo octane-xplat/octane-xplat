@@ -29,6 +29,6 @@ The app owns persistent key storage, ciphertext storage and protocol context.
 
 - AC1: [Checksum and installation](../../../docs/packages/package-crypto.md#make-a-document-checksum) and [capabilities](../../../docs/packages/package-crypto.md#choose-supported-hosts-and-key-sizes).
 - AC2: [Secure random values](../../../docs/packages/package-crypto.md#generate-random-values).
-- AC3: [Authenticated encryption](../../../docs/packages/package-crypto.md#encrypt-and-reopen-binary-data) and [maintained actions](../../../packages/crypto/examples/encrypted-note.ts).
+- AC3: [Authenticated encryption](../../../docs/packages/package-crypto.md#encrypt-and-reopen-binary-data) and [maintained actions](../../../examples/security/encrypted-note.ts).
 - AC4: [Serialization and separate key storage](../../../docs/packages/package-crypto.md#store-ciphertext-and-its-key-separately).
 - AC5: [Engine scope and costs](../../../docs/packages/package-crypto.md#choose-supported-hosts-and-key-sizes) and [verification record](../notes/crypto.md).

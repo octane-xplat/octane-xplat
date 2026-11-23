@@ -1,0 +1,38 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/media/gif-attachment.ts",
+		"../src/backend-types.ts",
+		"../src/backend.apple.ts",
+		"../src/backend.web.ts",
+		"../src/core.ts",
+		"../src/index.web.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-converter": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

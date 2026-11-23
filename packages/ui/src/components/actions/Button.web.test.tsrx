@@ -18,7 +18,7 @@ function mount(props: any = {}) {
 }
 
 const click = (host: Element) =>
-  act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+  act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))
 
 afterEach(() => {
   for (const root of roots.splice(0)) {
@@ -44,7 +44,7 @@ describe('Button pressAction failure reporting', () => {
     })
 
     click(host)
-    expect(host.classList.contains('vx-button--loading')).toBe(true)
+    expect(host.getAttribute('aria-busy')).toBe('true')
 
     await act(async () => {
       rejectAction!(error)
@@ -93,39 +93,39 @@ describe('Button pressAction failure reporting', () => {
   })
 })
 
-describe('Button tooltip title attribute', () => {
-  it('does not stringify an absent tooltip into a title attribute', () => {
-    const host = mount({ label: 'Save' })
+describe('Button tooltip', () => {
+  it('describes a focused button without overwriting an existing description', async () => {
+    const host = mount({
+      label: 'Save',
+      tooltip: 'Save the document',
+      web: { 'aria-describedby': 'instructions' },
+    })
 
-    expect(host.hasAttribute('title')).toBe(false)
-    expect(host.getAttribute('title')).toBe(null)
-  })
+    act(() => host.focus())
+    const panel = document.querySelector('[role="tooltip"]')!
+    expect(panel.textContent).toBe('Save the document')
+    expect(host.getAttribute('aria-describedby')?.split(' ')).toEqual(['instructions', panel.id])
 
-  it('sets title from tooltip and clears it when the tooltip is removed', () => {
-    const el = document.createElement('div')
-
-    document.body.append(el)
-
-    const root = createRoot(el)
-
-    roots.push(root)
-    act(() => root.render(<Button label="Save" tooltip="Save the document" />))
-
-    const host = el.firstElementChild as HTMLElement
-
-    expect(host.getAttribute('title')).toBe('Save the document')
-
-    act(() => root.render(<Button label="Save" />))
-    expect(host.hasAttribute('title')).toBe(false)
+    expect(document.activeElement).toBe(host)
+    act(() => host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="tooltip"]')).toBeNull()
+      expect(host.getAttribute('aria-describedby')).toBe('instructions')
+    })
   })
 })
 
+const loadingStatus = (host: HTMLElement) =>
+  host.parentElement!.querySelector('[role="status"][aria-live="polite"]')!
+
 describe('Button loading/pending semantics', () => {
-  it('exposes aria-busy, disabled, preserved name, and a live Loading status while isLoading', () => {
+  it('preserves the name and announces an initially loading button after mount', () => {
+    vi.useFakeTimers()
     const host = mount({ label: 'Save', isLoading: true }) as HTMLButtonElement
 
     expect(host.getAttribute('aria-busy')).toBe('true')
-    expect(host.disabled).toBe(true)
+    expect(host.disabled).toBe(false)
+    expect(host.getAttribute('aria-disabled')).toBe('true')
     expect(host.getAttribute('aria-label')).toBe('Save')
 
     const content = host.querySelector('.vx-button-content')!
@@ -135,13 +135,15 @@ describe('Button loading/pending semantics', () => {
     expect(content.textContent).toContain('Save')
     expect(host.querySelector('.vx-button-spinner')).not.toBe(null)
 
-    const status = host.querySelector('[role="status"][aria-live="polite"]')!
+    const status = loadingStatus(host)
 
-    expect(status.getAttribute('aria-live')).toBe('polite')
+    expect(status.textContent).toBe('')
+    act(() => vi.advanceTimersByTime(32))
     expect(status.textContent).toBe('Loading')
   })
 
   it('reports an in-flight pressAction as busy and blocked until it settles', async () => {
+    vi.useFakeTimers()
     let resolveAction: (() => void) | undefined
     const host = mount({
       label: 'Save',
@@ -151,10 +153,18 @@ describe('Button loading/pending semantics', () => {
         }),
     })
 
+    host.focus()
     click(host)
+    expect(document.activeElement).toBe(host)
     expect(host.getAttribute('aria-busy')).toBe('true')
-    expect((host as HTMLButtonElement).disabled).toBe(true)
-    expect(host.querySelector('[role="status"][aria-live="polite"]')!.textContent).toBe('Loading')
+    expect(host.getAttribute('aria-disabled')).toBe('true')
+    const blocked = new MouseEvent('click', { bubbles: true, cancelable: true })
+    act(() => host.dispatchEvent(blocked))
+    expect(blocked.defaultPrevented).toBe(true)
+    expect(loadingStatus(host).textContent).toBe('Loading')
+    expect(host.querySelector('.vx-button-spinner')).toBeNull()
+    act(() => vi.advanceTimersByTime(200))
+    expect(host.querySelector('.vx-button-spinner')).not.toBeNull()
 
     await act(async () => {
       resolveAction!()
@@ -163,7 +173,7 @@ describe('Button loading/pending semantics', () => {
 
     expect(host.getAttribute('aria-busy')).toBe(null)
     expect((host as HTMLButtonElement).disabled).toBe(false)
-    expect(host.querySelector('[role="status"][aria-live="polite"]')!.textContent).toBe('')
+    expect(loadingStatus(host).textContent).toBe('')
   })
 
   it('keeps an interruptible loading button enabled but still busy', () => {
@@ -179,7 +189,7 @@ describe('Button loading/pending semantics', () => {
 
   it('renders an empty status region when idle', () => {
     const host = mount({ label: 'Save' })
-    const status = host.querySelector('[role="status"][aria-live="polite"]')!
+    const status = loadingStatus(host)
 
     expect(status.textContent).toBe('')
   })
@@ -204,7 +214,7 @@ describe('Button renders a native button element', () => {
     // jsdom does not synthesize it, so dispatch click as the browser would.
     act(() => {
       host.dispatchEvent(new KeyboardEvent(type, { key, bubbles: true, cancelable: true }))
-      host.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      host.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
     })
 
     expect(action).toHaveBeenCalledTimes(1)
@@ -247,6 +257,39 @@ describe('Button renders a native button element', () => {
     expect(action).not.toHaveBeenCalled()
   })
 
+  it('allows the first form submit and blocks repeated submit while the action is pending', () => {
+    const pressAction = vi.fn(() => new Promise<void>(() => {}))
+    const host = mount({
+      label: 'Save',
+      pressAction,
+      web: { type: 'submit', name: 'intent', value: 'save' },
+    })
+    const form = document.createElement('form')
+    const onSubmit = vi.fn((event: Event) => event.preventDefault())
+    host.parentElement!.before(form)
+    form.append(host.parentElement!)
+    form.addEventListener('submit', onSubmit)
+
+    act(() => (host as HTMLButtonElement).click())
+    act(() => (host as HTMLButtonElement).click())
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(pressAction).toHaveBeenCalledTimes(1)
+    expect((onSubmit.mock.calls[0][0] as SubmitEvent).submitter).toBe(host)
+  })
+
+  it('keeps busy links as anchors and uses button semantics for disabled links', () => {
+    const busy = mount({ label: 'Open', href: 'https://example.com', isLoading: true })
+    const blocked = new MouseEvent('click', { bubbles: true, cancelable: true })
+    act(() => busy.dispatchEvent(blocked))
+    expect(busy.tagName).toBe('A')
+    expect(blocked.defaultPrevented).toBe(true)
+
+    const disabled = mount({ label: 'Open', href: 'https://example.com', isDisabled: true })
+    expect(disabled.tagName).toBe('BUTTON')
+    expect(disabled.hasAttribute('href')).toBe(false)
+  })
+
   it('still exposes aria-busy while pending on the native element', async () => {
     let resolveAction: (() => void) | undefined
     const host = mount({
@@ -260,7 +303,8 @@ describe('Button renders a native button element', () => {
     click(host)
     expect(host.tagName).toBe('BUTTON')
     expect(host.getAttribute('aria-busy')).toBe('true')
-    expect(host.disabled).toBe(true)
+    expect(host.disabled).toBe(false)
+    expect(host.getAttribute('aria-disabled')).toBe('true')
 
     await act(async () => {
       resolveAction!()
@@ -304,7 +348,7 @@ describe('Button synchronous effects and asynchronous work', () => {
 
     click(host)
     expect(calls).toEqual(['effect', 'action'])
-    expect(host.classList.contains('vx-button--loading')).toBe(true)
+    expect(host.getAttribute('aria-busy')).toBe('true')
     await act(async () => {
       finish()
       await task
@@ -347,7 +391,7 @@ describe('Button synchronous effects and asynchronous work', () => {
       await Promise.resolve()
     })
 
-    expect(host.classList.contains('vx-button--loading')).toBe(true)
+    expect(host.getAttribute('aria-busy')).toBe('true')
     await act(async () => {
       ends[1]()
       await Promise.resolve()

@@ -1,4 +1,4 @@
-import { FileInputDemo as Example } from '@xplat/demos/FileInputDemo.tsrx'
+import { FileInputDemo as Example } from '@octane-xplat/demos/FileInputDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

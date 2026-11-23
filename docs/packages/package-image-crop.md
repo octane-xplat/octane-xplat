@@ -65,7 +65,7 @@ export function PhotoSelection() {
 
 Replace the example URL and dimensions with your source. Keep hook-calling
 components in `.tsx` or `.tsrx` inside your renderer include glob.
-[The maintained demo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/image-crop/examples/selection.tsrx) uses a bundled image.
+[The maintained walkthrough](../../examples/media/crop-selection.tsrx) shows the same steps with numbered comments.
 
 ## Coordinates and control
 
@@ -103,7 +103,7 @@ crops, or the full react-image-crop API. Small selections can have overlapping
 
 To produce the selected file, use
 [`@octane-xplat/image-manipulator`](package-image-manipulator.md#crop-a-selection).
-Copy its maintained [exportCrop helper](../../packages/image-manipulator/examples/crop.ts)
+Copy its maintained [exportCrop helper](../../examples/media/crop-image.ts)
 into your app as `export-crop.ts`. Pass the natural rectangle from
 `toNaturalCrop`; the helper rounds it to whole pixels and clips it to the image
 bounds. The action receiving the result owns its preview/upload lifetime and

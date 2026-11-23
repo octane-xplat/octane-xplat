@@ -26,12 +26,12 @@ retention gaps; process output is not a complete OS diagnostic stream.
 - AC6: Discover existing app/session-scoped native reports with explicit availability and candidate/confirmed association; preserve complete originals separately from log rotation, with bounded retention and no OS report deletion.
 - AC7: Use diagnostics across CLI/MCP session/job selection; remove the former logs command/tool, and keep log cursors separate from report reads.
 
-- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history; start by optional exact target/platform positional or dev --device, expose progress/failure without launch jobs, reject ambiguous/unknown selectors, and cancel/end only owned resources across transports.
+- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history. Start by optional exact target/platform positional or dev `--device`. Use dev `--emulator` to select one virtual mobile target without an ID, with clear recovery when no target matches or the choice is ambiguous. Expose progress and failure without launch jobs, reject conflicting and unknown selectors, and cancel or end only owned resources across transports.
 
 ## Documentation
 
 - AC1: [Start capture and read a session](../../../docs/testing/diagnostics.md), [subprocess regression](../../../packages/cli/go/internal/history/session_history_test.go)
-- AC2: [Session selection and pagination](../../../docs/testing/diagnostics.md), [agent guidance](../../skills/octane-xplat/references/cli.md#follow-jobs-and-sessions-through-completion), [CLI regression](../../../tools/cli-go/cli.test.mts)
+- AC2: [Session selection and pagination](../../../docs/testing/diagnostics.md), [agent guidance](../guides/cli-workflow.md#follow-jobs-and-sessions-through-completion), [CLI regression](../../../tools/cli-go/cli.test.mts)
 - AC3: [Retention and missing evidence](../../../docs/testing/diagnostics.md#retention-and-missing-evidence), [storage regression](../../../packages/cli/go/internal/history/session_history_test.go)
 - AC4: [Browser setup and boundaries](../../../docs/testing/diagnostics.md#what-is-captured), [client regression](../../../packages/cli/test/dev-browser-logs.test.mts), [HTTP regression](../../../packages/cli/test/dev-bridge.test.mts), [optional Chromium qualification](../../../packages/cli/test/dev-browser-logs.test.mts)
 - AC5: [Platform coverage](../../../docs/testing/diagnostics.md#what-is-captured), [evidence record](../../design/agent-diagnostics.md)

@@ -15,7 +15,7 @@
 import { useContext, useEffect, useMemo } from 'octane'
 import type { DefinedTheme, ThemeMode } from './defined-theme'
 import { registerTheme } from './defined-theme'
-import { ThemeContext, ThemeNestingContext } from './theme-context'
+import { ThemeContext, ThemeNestingContext, themeContextValue } from './theme-context'
 
 /** Bare Context objects aren't valid JSX element types under the shared
  *  typings (same workaround as SizeProvider in size-context.ts). */
@@ -66,7 +66,10 @@ export function Theme(props: ThemeProps): unknown @{
     }
   }, [isNested, props.theme, effective])
 
-  const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
+  const ctx = useMemo(
+    () => themeContextValue(props.theme, mode, effective),
+    [props.theme, mode, effective],
+  )
 
   return (
     <ThemeProviderEl value={ctx}>

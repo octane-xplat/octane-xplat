@@ -1,9 +1,13 @@
 {
   "extends": "./tsconfig.types.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "isolatedDeclarations": false
+    "rootDir": "../..",
+    "isolatedDeclarations": false,
+    "paths": {
+      "@octane-xplat/motion": ["./src/index.ts"],
+      "@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
+    }
   },
-  "include": ["examples/VideoCropSurface.tsrx", "examples/video-geometry.ts"],
+  "include": ["../../examples/motion/component.tsrx", "../../examples/motion/presence.tsrx", "../../examples/motion/video-crop-surface.tsrx", "../../examples/motion/video-geometry.ts"],
   "exclude": []
 }

@@ -6,17 +6,20 @@ Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package,
 
 ## Starting point
 
-An AppKit Node-API app on a Mac with Apple Silicon or an Intel chip. The app already has a
-production Vite config that emits one CommonJS host bundle.
+An AppKit app using the NativeScript Core provider on a Mac with Apple
+Silicon or Intel. The app has a production Vite config that emits one
+CommonJS host bundle.
 
 ## Requirements
 
 - Declare the AppKit Node-API runtime and the app's bundle metadata in
   `package.json`.
+- Install the macOS build worker and apply the framework patches before
+  building with the macOS Vite preset.
 - Optionally include a custom macOS app icon from an `.icns` file in the app
   project.
-- Build with the macOS `codesign` and `hdiutil` tools. Apps with native leaves
-  need an Apple Silicon build Mac.
+- Build with the macOS `codesign` and `hdiutil` tools. Compiling native leaves
+  also needs Xcode Command Line Tools for the build host's architecture.
 - Ship one universal app that runs on Apple Silicon and Intel Macs.
 - Set the package's minimum macOS version to 13.5 or later for the
   JavaScriptCore host.
@@ -50,12 +53,13 @@ production Vite config that emits one CommonJS host bundle.
   app bundles no Node executable or JavaScript engine binary; it loads system
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
-- AC7: `apps/macos` loads the shared `@xplat/app` harness through
-  `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
+- AC7: `apps/harness/macos` loads the shared `@octane-xplat/app` harness through
+  the public macOS preset with no app-specific UI aliases. The
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
-  checks representative interactions including the 500-row list update, and
-  exposes missing AppKit services as unsupported or unavailable. The AppKit
-  list fallback mounts all rows and does not validate virtualization or scale.
+  checks representative interactions, and exposes missing AppKit services
+  as unsupported or unavailable. The VirtualList uses a bounded, scrollable
+  viewport and mounts a subset of the 500 rows. Removing a row updates the
+  collection to 499 rows while keeping the viewport and row count bounded.
 - AC8: An independent app using the public macOS package contract opens an
   AppKit window, uses the supported host API, and exits successfully from the
   packaged executable. An unsupported `node:` import or API member fails
@@ -86,36 +90,32 @@ production Vite config that emits one CommonJS host bundle.
   and [prebuilt native libraries](../../../docs/platform/macos-native.md).
 
 - AC1: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
-  and [macOS experiment notes](../../../apps/macos/README.md).
+  and [macOS experiment notes](../../../tools/macos-verification/README.md).
 - AC2: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
-  and [macOS experiment notes](../../../apps/macos/README.md).
-- AC3: [macOS signing and notarization notes](../../../apps/macos/README.md#packaging-proof).
-- AC5: [App icon packaging](../../../apps/macos/README.md#packaging-proof) and
+  and [macOS experiment notes](../../../tools/macos-verification/README.md).
+- AC3: [macOS signing and notarization notes](../../../tools/macos-verification/README.md#packaging-proof).
+- AC5: [App icon packaging](../../../tools/macos-verification/README.md#packaging-proof) and
   [experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target).
-- AC6: [macOS packaging proof](../../../apps/macos/README.md#packaging-proof).
-- AC7: [macOS package-root boundary](../../../apps/macos/README.md#macos-experiment).
-  Maintained [non-visual smoke checks](../../../apps/macos/README.md#non-visual-smoke-checks)
+- AC6: [macOS packaging proof](../../../tools/macos-verification/README.md#packaging-proof).
+- AC7: [macOS package-root boundary](../../../tools/macos-verification/README.md#macos-experiment).
+  Maintained [non-visual smoke checks](../../../tools/macos-verification/README.md#non-visual-smoke-checks)
   require the complete shared sweep and document unsupported leaf boundaries.
-- AC8: [Packaged host API](../../../apps/macos/README.md#packaging-proof) and the
+- AC8: [Packaged host API](../../../tools/macos-verification/README.md#packaging-proof) and the
   [independent fixture check](../../../packages/cli/test/verify-macos-jsc.mts).
 
 - AC9: [macOS native leaf guide](../../../docs/platform/macos-native.md) and the
   [native source recipe](macos-native-code.md).
 
 - AC10: [AppKit fonts](../../../docs/app/styling.md#appkit-fonts) and the
-  [maintained harness font setup](../../../apps/macos/src/fonts.ts).
+  [maintained harness font setup](../../../apps/harness/macos/src/fonts.ts).
 
 - AC11: [Renderer setup](../../../docs/packages/package-macos-appkit.md) and the
   [packed renderer consumer](../../../packages/macos-appkit/test/packed-consumer.ts).
 
 ## Verification gaps
 
-AC7 retains its all-rows fallback criterion. The current maintained sweep
-instead checks bounded mounting for the 500-row collection and its update to
-499 rows. That is runtime evidence for the current implementation, not a pass
-for the all-rows criterion or proof of large-list performance. Reconcile this
-with the VirtualList workflow separately; restoring the harness does not
-change the criterion.
+AC7 exercises handler dispatch and native viewport geometry. Physical input
+and performance under sustained scrolling require separate verification.
 
 ## Development app identity
 
@@ -151,8 +151,8 @@ changes and app-theme preference transitions.
   child-flex semantics and attached-placement boundaries are explicit.
 
 Documentation: [Container layout channels](../../../docs/packages/package-macos-appkit.md#container-layout-channels).
-Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-channels-fixture.macos.tsx)
+Maintained coverage: [Native geometry fixture](../../../tools/macos-verification/test/layout-channels-fixture.macos.tsx)
 and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
-The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
+The [panel placement fixture](../../../tools/macos-verification/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
-solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@xplat/verification` includes it.
+solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@octane-xplat/verification` includes it.

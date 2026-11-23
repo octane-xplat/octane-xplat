@@ -199,6 +199,20 @@
 		border-color: var(--color-border-strong);
 		background-color: var(--color-surface);
 	}
+	@platform web, ios, android {
+		.vx-input-shell--status-error {
+			border-color: var(--color-danger);
+		}
+		.vx-input-shell--status-warning {
+			border-color: var(--color-warning);
+		}
+		.vx-input-shell--status-success {
+			border-color: var(--color-success);
+		}
+		.vx-input-shell--disabled {
+			opacity: 0.5;
+		}
+	}
 	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
 	.vx-input:focus,
@@ -645,7 +659,6 @@
 		position: relative;
 		padding-top: 4px;
 		padding-bottom: 4px;
-		gap: 8px;
 	}
 	/* Astryx inputWrapperStyles: hover paints a 2px
    inset ring at 30% border-emphasized; :focus-within swaps the border to
@@ -692,18 +705,6 @@
 	.vx-input-shell--status-success:focus-within,
 	.vx-textarea-shell--status-success:focus-within {
 		border-color: var(--color-success);
-	}
-	.vx-input-shell--status-error {
-		border-color: var(--color-danger);
-	}
-	.vx-input-shell--status-warning {
-		border-color: var(--color-warning);
-	}
-	.vx-input-shell--status-success {
-		border-color: var(--color-success);
-	}
-	.vx-input-shell--disabled {
-		opacity: 0.5;
 	}
 	.vx-input-status-icon {
 		display: flex;
@@ -2924,6 +2925,11 @@
 	.vx-button:active:where(:not(:disabled, [aria-disabled='true'], .vx-button--disabled)) {
 		background-image: linear-gradient(var(--color-overlay-pressed), var(--color-overlay-pressed));
 	}
+	@media (forced-colors: active) {
+		.vx-button:where(.vx-button--primary, .vx-button--secondary, .vx-button--destructive) {
+			border: 1px solid ButtonText;
+		}
+	}
 	/* xplat-web-only:end */
 	.vx-button--disabled,
 	.vx-card--disabled {
@@ -2936,6 +2942,9 @@
 		padding: 0;
 		flex-shrink: 0;
 		max-width: none;
+	}
+	.vx-button--input-addon {
+		border-radius: 0;
 	}
 	.vx-button--group-first,
 	.vx-button--group-middle,
@@ -2957,11 +2966,11 @@
 	.vx-toggle-button-group {
 		display: inline-flex;
 	}
-	.vx-button-group.vx-button-group--horizontal > :not(:first-child) {
+	.vx-button-group.vx-button-group--horizontal > :nth-child(n+2 of :not(.vx-visually-hidden, [hidden], template, [popover])) {
 		border-left-width: 1px;
 		border-left-color: var(--color-border);
 	}
-	.vx-button-group.vx-button-group--vertical > :not(:first-child) {
+	.vx-button-group.vx-button-group--vertical > :nth-child(n+2 of :not(.vx-visually-hidden, [hidden], template, [popover])) {
 		border-top-width: 1px;
 		border-top-color: var(--color-border);
 	}
@@ -3606,15 +3615,17 @@
 }
 .vx-listmarker {
 	align-self: baseline;
-	@platform web {
-		box-sizing: border-box;
-	}
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
 	width: var(--spacing-4, 16px);
-	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 6px) / 2);
+	/* Core resolves the body-size token in layout calculations. */
+	margin-top: calc((var(--text-body-size, 14px) * var(--text-body-leading, 1.4286) - 6px) / 2);
+	@platform web {
+		box-sizing: border-box;
+		margin-top: calc((1em * var(--text-body-leading, 1.4286) - 6px) / 2);
+	}
 }
 .vx-listmarker-dot {
 	width: 6px;
@@ -3663,7 +3674,10 @@
 }
 .vx-listmarker--task {
 	align-self: flex-start;
-	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 20px) / 2);
+	margin-top: calc((var(--text-body-size, 14px) * var(--text-body-leading, 1.4286) - 20px) / 2);
+	@platform web {
+		margin-top: calc((1em * var(--text-body-leading, 1.4286) - 20px) / 2);
+	}
 }
 
 /* CodeBlock diff layer (Astryx isDiff): glyph column + whole-row tints. */

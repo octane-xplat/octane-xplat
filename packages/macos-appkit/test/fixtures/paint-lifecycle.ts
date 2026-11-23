@@ -37,7 +37,14 @@ export async function checkPaintLifecycle(root: any, nativeWindow: any) {
     shadows = debug.findId('paint-shadows'),
     backgrounds = debug.findId('paint-backgrounds')
 
-  check(near(percent.layer.cornerRadius, 40), 'percent radius initial')
+  check(
+    near(percent.layer.cornerRadius, 40),
+    'percent radius initial: ' + JSON.stringify({
+      radius: Number(percent.layer.cornerRadius),
+      width: Number(percent.frame.size.width),
+      height: Number(percent.frame.size.height),
+    }),
+  )
   check(
     near(percent.layer.transform.m41, 30),
     'percent translation initial: width=' +

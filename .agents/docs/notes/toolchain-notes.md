@@ -1,6 +1,6 @@
 # Toolchain notes
 
-> **Filename update (2026-09-28):** the app shell now lives in `apps/mobile`; current module suffix rules are in [module resolution](../../../docs/platform/module-resolution.md). Historical build notes below may use the former `.native` suffix.
+> **Filename update (2026-09-28):** the app shell now lives in `apps/harness`; current module suffix rules are in [module resolution](../../../docs/platform/module-resolution.md). Historical build notes below may use the former `.native` suffix.
 
 > Detailed build and release record. Two builds, one tree. The dev loop should feel like one project even though
 > it is two pipelines.
@@ -26,7 +26,7 @@
 
 - `vite dev` (web) + `ns run ios` / `ns run android` run concurrently against
   the same tree — **verified** (lab-experiment, iOS sim): three vite
-  processes coexist — web on `:5200` (pinned in `apps/web/vite.config.ts`)
+  processes coexist — web on `:5200` (pinned in `apps/harness/vite.web.config.mts`)
   plus, per native target, `vite serve` (the device-facing dev server) and a
   `vite build --watch` bundle emitter. The ns server prefers `:5173` and
   auto-bumps on collision (the device discovers the actual port from synced
@@ -42,7 +42,7 @@
   tsconfig `compilerOptions.paths`. A workspace package that is imported but
   absent from `paths` builds and serves fine, but edits to it never reach
   `handleHotUpdate` — the save is dropped _silently_, no log line. Harness
-  fix: `apps/mobile/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
+  fix: `apps/harness/tsconfig.json` maps `@octane-xplat/app`, `@octane-xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
 - **Patch installs of source-served deps** (pnpm/bun `patchedDependencies`)
@@ -444,14 +444,14 @@ scoped to native). `tsc --runExternalCode --noEmit` per target in CI via
 See module-resolution.md for the suffix-typing strategy.
 
 ```sh
-bun run turbo run typecheck --filter=@xplat/web
-bun run turbo run typecheck --filter=@xplat/mobile
+bun run turbo run typecheck --filter=@octane-xplat/web
+bun run turbo run typecheck --filter=@octane-xplat/mobile
 ```
 
 ## Native app plumbing
 
 - `nativescript.config.ts`, `App_Resources/` (icons, splash, fonts, strings,
-  entitlements), `platforms/` generated — live in `apps/mobile`.
+  entitlements), `platforms/` generated — live in `apps/harness`.
 - Xcode + Android SDK toolchains; CocoaPods via NS CLI. Signing/profiles per
   usual native workflow — CI needs macOS runners for iOS builds.
 - Distribution: no EAS equivalent — `ns build ios --release` + fastlane or
@@ -661,9 +661,9 @@ the Turbo package graph. CSS blocks this job; recipe/link hygiene has a separate
 PR-only job. The local Silo decision check stays outside CI.
 
 Browser coverage runs locally through each package's `test:e2e`/`test:browser`
-turbo task (`bun run turbo run test:e2e test:browser`); CI excludes the visual
-browser package, browser downloads, and device emulation from the fast gate.
-Stable CI adds non-browser packed consumers and native qualification. The
+turbo task (`bun run turbo run test:e2e test:browser`). CI excludes the visual
+browser package, browser downloads, and device execution.
+Stable CI adds non-browser packed consumers and native compilation. The
 [release guide](../releases.md) owns the current gate list. Repository and
 consumer lint share `packages/lint`; `xplat/no-dom-globals` replaces the retired
 standalone DOM regex sweep.
@@ -674,7 +674,8 @@ library starters through the PACKED `create-octane-xplat` bin, rewrites the
 consumer's `@octane-xplat/*` specifiers (dependencies, devDependencies, and
 root override policy) to `file:` tarballs, `bun install`s outside the
 workspace, and runs the consumer's own lint/typecheck/build/doctor. Flags:
-`--quick`, `--no-build`, `--smoke web`, `--native ios,android`, `--smoke-ios`,
+`--quick`, `--no-build`, `--smoke web`, `--native ios,android`,
+`--native-build-only`, `--smoke-ios`,
 `--test-ios`, `--test-android`, `--keep`, `--package-manager bun|pnpm`;
 env: `VERIFY_CONSUMER_DIR`, `VERIFY_ANDROID_DEVICE`, `VERIFY_IOS_DEVICE`,
 `XPLAT_WEB_BROWSERS`, `PLAYWRIGHT_REQUIRED`. A `--native` target additionally
@@ -696,25 +697,32 @@ prepared package outputs without rerunning prepack in either mode; run package
 preparation and `check:pack` before it:
 
 ```sh
+bun run turbo run build:go --filter=@octane-xplat/cli
 bun run build:packages
 bun run check:pack
 bun run turbo run test:packed --filter=@octane-xplat/updates
 bun run check:consumer --no-build --quick
 ```
 
-Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (macos-latest) and
-`native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in
+The `native-ios` (macos-latest) and `native-android` (ubuntu-latest with Temurin
+JDK 21) jobs in `stable.yml` pass `--native-build-only` to skip the full starter
+workflow and compile the selected target. Both wrap their run in
 `scripts/with-target-lock.ts <target>` — a per-target advisory lock under
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
-host. Android has no emulator runtime smoke yet.
+host. `scripts/with-native-target-lock.py` (fail-fast) and
+`apps/harness/scripts/check-navigation.py` contend on the same
+`<target>.lock` directory protocol through `scripts/native_target_lock.py`,
+so Python and Node callers mutually exclude on a target.
+`XPLAT_NATIVE_LOCK_DIR` redirects the lock root for all of them. Android
+has no emulator runtime smoke yet.
 
 Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
 `ci-evidence-ci-<sha>` for the `ci` track or `ci-evidence-stable-<tree>` for
 `stable`. Required jobs live in
 `scripts/release-channel.ts`: `ci` requires fast `checks`; `stable` requires
-the exhaustive packed consumers and all native lanes on the `release/lockstep`
-pull request. Stable evidence records the tested SHA and its tree so a merge
+the non-browser packed consumers and both native build jobs on the
+`release/lockstep` pull request. Stable evidence records the tested SHA and its tree so a merge
 commit with an identical tree reuses the PR's qualification.
 
 `release-pr.yml` rebuilds the draft release PR on every `main` push; merging

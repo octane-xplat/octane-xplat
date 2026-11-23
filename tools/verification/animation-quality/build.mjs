@@ -18,7 +18,7 @@ if (
 // A fresh minimal NativeScript host avoids stale generated app projects and
 // unrelated native plugins affecting the animation benchmark's build or runtime.
 const fixture = fileURLToPath(
-  new URL('../../../apps/mobile/src/benchmarks/animation-quality.ios.tsx', import.meta.url),
+  new URL('../../../apps/harness/src/benchmarks/animation-quality.ios.tsx', import.meta.url),
 )
 
 // Use Motion's declared native peer versions, not the broader mobile app's.
@@ -47,7 +47,7 @@ await writeFile(
 await mkdir(join(root, 'native-src'), { recursive: true })
 await copyFile(
   fileURLToPath(
-    new URL('../../../apps/mobile/benchmarks/AnimationQualityTrace.swift', import.meta.url),
+    new URL('../../../apps/harness/benchmarks/AnimationQualityTrace.swift', import.meta.url),
   ),
   join(root, 'native-src/AnimationQualityTrace.swift'),
 )

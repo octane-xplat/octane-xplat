@@ -1,0 +1,40 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/index.ts",
+		"./isolation-ios.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"jsx": "react-jsx",
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-ios@9.1.3/node_modules/@nativescript/types-ios/index.d.ts"
+		],
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			],
+			"@octane-xplat/motion": [
+				"../motion/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".ios",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"ios",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

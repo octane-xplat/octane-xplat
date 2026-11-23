@@ -6,7 +6,7 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const source = resolve(root, '../component-workshop/dist')
 
 if (!existsSync(resolve(source, 'index.html'))) {
-  throw new Error('Build @xplat/component-workshop before assembling docs')
+  throw new Error('Build @octane-xplat/component-workshop before assembling docs')
 }
 
 const destination = resolve(root, 'dist/workshop')

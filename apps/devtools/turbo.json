@@ -2,6 +2,12 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"dev:web": {
+			"dependsOn": ["@octane-xplat/cli#build", "@octane-xplat/devtools#typegen"],
+			"cache": false,
+			"persistent": true
+		},
+		"build:release": { "dependsOn": ["^build"], "cache": false },
 		"typecheck": {
 			"dependsOn": ["^typegen"],
 			"outputs": []

@@ -52,7 +52,10 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 
   check(
     labels(tabs) === 'First|Same' && tabs.selectedTabViewItem === tabs.tabViewItemAtIndex(1),
-    'TabView initial items/selection failed',
+    'TabView initial items/selection failed: ' + JSON.stringify({
+      labels: labels(tabs),
+      selected: Number(tabs.indexOfTabViewItem(tabs.selectedTabViewItem)),
+    }),
   )
 
   check(tabs.tabViewItemAtIndex(1).image, 'TabView system-symbol icon failed')
@@ -97,7 +100,12 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
   await settle()
   check(
     Number(content.frame.size.width) > 0 && Number(content.frame.size.height) > 0,
-    'TabView selected content layout failed',
+    'TabView selected content layout failed: ' +
+      JSON.stringify({
+        width: Number(content.frame.size.width),
+        height: Number(content.frame.size.height),
+        bounds: tabs.contentRect.size,
+      }),
   )
 
   check(
@@ -247,7 +255,15 @@ export async function checkImperativeTabLifecycle(root: any, nativeWindow: any) 
       child &&
       contentRoot === null &&
       contentEffects.join() === 'mount',
-    'TabView imperative mount failed',
+    'TabView imperative mount failed: ' +
+      JSON.stringify({
+        items: Number(left.numberOfTabViewItems),
+        nativeItemAttached: left.tabViewItemAtIndex(0) === native,
+        child: !!child,
+        portal: a.props.__portalContent,
+        contentRoot: contentRoot === null,
+        effects: contentEffects,
+      }),
   )
 
   updateTabArrays([b, a], [])

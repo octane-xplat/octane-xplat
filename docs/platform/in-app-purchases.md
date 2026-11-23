@@ -55,8 +55,8 @@ Install the billing package in your app:
 bun add @octane-xplat/billing
 ```
 
-Copy [purchases.ts](../../packages/demos/src/billing-guide/purchases.ts) and
-[PurchaseScreen.tsx](../../packages/demos/src/billing-guide/PurchaseScreen.tsx)
+Copy [purchases.ts](../../examples/payments/purchases.ts) and
+[PurchaseScreen.tsx](../../examples/payments/PurchaseScreen.tsx)
 into `src/billing/`, keeping their filenames. The controller owns listeners,
 serialized verification, restoration and cleanup. It uses your authenticated
 transport rather than a public endpoint that trusts a posted user ID.

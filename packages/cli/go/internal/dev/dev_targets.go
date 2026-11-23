@@ -28,13 +28,27 @@ type devTarget struct {
 	// records why; it stays visible for selection errors and prompts.
 	Unavailable string `json:"unavailable,omitempty"`
 }
-type devSelection struct{ Target, Device, Targets *string }
+type devSelection struct {
+	Target, Device, Targets *string
+	Emulator                bool
+}
+
+func (t devTarget) isVirtualDevice() bool {
+	switch t.Kind {
+	case "ios":
+		return t.Booted != nil
+	case "android":
+		return strings.HasPrefix(t.Device, "emulator-")
+	default:
+		return false
+	}
+}
 
 func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error) {
 	if choice.Device != nil && strings.TrimSpace(*choice.Device) == "" {
 		return nil, errors.New("--device requires an exact device target id")
 	}
-	single := choice.Target != nil && *choice.Target != "" || choice.Device != nil
+	single := choice.Target != nil && *choice.Target != "" || choice.Device != nil || choice.Emulator
 	if single && choice.Targets != nil && *choice.Targets != "" {
 		return nil, errors.New("pass either a single target/device or --targets, not both")
 	}
@@ -46,6 +60,9 @@ func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error)
 		}
 	}
 	for _, t := range all {
+		if choice.Emulator && !t.isVirtualDevice() {
+			continue
+		}
 		if single {
 			if choice.Target != nil && *choice.Target != "" && t.ID != *choice.Target && t.Kind != *choice.Target {
 				continue
@@ -73,17 +90,24 @@ func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error)
 		if len(blocked) != 0 {
 			return nil, fmt.Errorf("matched development targets are not usable: %s", strings.Join(blocked, "; "))
 		}
+		if choice.Emulator {
+			return nil, errors.New("no available virtual development targets matched. Check Xcode's simulator list for iOS or start an Android emulator, then run xplat targets")
+		}
 		return nil, fmt.Errorf("no development targets matched; available: %s", devTargetNames(all))
 	}
 	if single && len(selected) > 1 {
 		booted := []devTarget{}
 		for _, t := range selected {
-			if t.Booted != nil && *t.Booted {
+			// Android discovery only returns devices already connected to adb.
+			if t.Booted != nil && *t.Booted || choice.Emulator && t.Kind == "android" {
 				booted = append(booted, t)
 			}
 		}
 		if len(booted) == 1 {
 			return booted, nil
+		}
+		if choice.Emulator {
+			return nil, fmt.Errorf("ambiguous virtual development target. Rerun with --device ID instead of --emulator: %s", devTargetNames(selected))
 		}
 		return nil, fmt.Errorf("ambiguous development target; pass an exact target id or --targets for all: %s", devTargetNames(selected))
 	}
@@ -308,11 +332,11 @@ func androidDevTargets(data string) []devTarget {
 		if serial == "" {
 			continue
 		}
-		label := " (device)"
-		if strings.HasPrefix(serial, "emulator-") {
-			label = " (emulator)"
+		target := devTarget{Kind: "android", ID: serial, Name: serial + " (device)", Device: serial}
+		if target.isVirtualDevice() {
+			target.Name = serial + " (emulator)"
 		}
-		result = append(result, devTarget{Kind: "android", ID: serial, Name: serial + label, Device: serial})
+		result = append(result, target)
 	}
 	return result
 }

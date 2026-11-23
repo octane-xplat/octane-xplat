@@ -1,13 +1,13 @@
 # AppKit media/graphics and overlay runtime qualification
 
-Runtime evidence for [issue #78](../../../../../github.com/octane-xplat/octane-xplat/issues/78)
+Runtime evidence for [issue #78](https://github.com/octane-xplat/octane-xplat/issues/78)
 section 1 rows: **Media and charts** (Chart hover/drag/click, Image, Video,
 AnimatedImage, Pager, Lightbox zoom/swipe/video) and **Overlays** (Popover +
 typeahead window layer, Tooltip).
 
 **Host unless noted:** local Apple Silicon Mac, macOS 27.2 (Darwin 27.2.0),
 AppKit/JavaScriptCore host via `bun run probe run … --target macos` and the
-`@xplat/macos` verify fixtures. `skymac.local` (arm64 iMac, macOS 26.6.2, ~9 GB
+`@octane-xplat/macos` verify fixtures. `skymac.local` (arm64 iMac, macOS 26.6.2, ~9 GB
 free) was verified reachable but not yet used. `press`/`setText` are
 action-dispatch; NSEvent posting goes through the real event queue; neither is
 physical OS input. No screenshots/visual analysis performed.
@@ -98,7 +98,7 @@ Research probes (gitignored `research/probes-cases/`):
    unqualified in `docs/app/primitives.md`.
 
 6. **Deterministic GC-finalization crash blocks overlay-surface
-   qualification.** `apps/macos/test/verify-overlays.mts` (repaired launch
+   qualification.** `tools/macos-verification/test/verify-overlays.mts` (repaired launch
    path, below) and a research overlay probe both die with `EXC_BREAKPOINT`
    (reported as SIGKILL) 4/4 identical stacks: during a JSC sweep,
    `IsoHeapCellType::finishSweep` → JS finalizer →
@@ -121,7 +121,7 @@ Research probes (gitignored `research/probes-cases/`):
      map as one arg → `metadata.nsmd not found`; now selects host arch.
    - `examples/probes/charts.macos.tsrx`: asserted `image` before the
      deferred local decode ran (race); now waits for it.
-   - `apps/macos/test/verify-overlays.mts`: shim-only bootstrap predated
+   - `tools/macos-verification/test/verify-overlays.mts`: shim-only bootstrap predated
      the native-leaf loader (`libxplatmason.dylib is not loaded`) and the
      generated entry missed `import 'virtual:bamboo.css'`; now builds the
      native artifact and writes the real bootstrap.
@@ -158,6 +158,6 @@ Research probes (gitignored `research/probes-cases/`):
 ```sh
 bun run probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
 bun run probe run examples/probes/media-runtime… --deps @octane-xplat/video,@octane-xplat/gif,@octane-xplat/pager
-bun run --filter @xplat/macos test:overlays   # currently blocked by the GC crash
+bun run --filter @octane-xplat/macos test:overlays   # currently blocked by the GC crash
 bun run --filter @octane-xplat/ui test:color:macos test:overlay-keyboard:macos
 ```

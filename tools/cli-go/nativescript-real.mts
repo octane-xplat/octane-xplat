@@ -32,7 +32,7 @@ for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale SDK build source: ${file}`)
 }
 
-const app = realpathSync(join(root, 'apps/mobile'))
+const app = realpathSync(join(root, 'apps/harness'))
 const engine = JSON.parse(readFileSync(join(app, 'node_modules/nativescript/package.json')))
 const runtime = JSON.parse(
   readFileSync(join(app, `node_modules/@nativescript/${target}/package.json`)),
@@ -42,10 +42,10 @@ const projectInputs = Object.fromEntries(
   [
     'bun.lock',
     'tsconfig.base.json',
-    'apps/mobile/package.json',
-    'apps/mobile/nativescript.config.ts',
-    'apps/mobile/vite.config.mts',
-    'apps/mobile/tsconfig.json',
+    'apps/harness/package.json',
+    'apps/harness/nativescript.config.ts',
+    'apps/harness/vite.config.mts',
+    'apps/harness/tsconfig.json',
   ].map((file) => [file, sha(readFileSync(join(root, file)))]),
 )
 

@@ -1,4 +1,4 @@
-import { LottieDemo as Example } from '@xplat/demos/LottieDemo.tsrx'
+import { LottieDemo as Example } from '@octane-xplat/demos/LottieDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

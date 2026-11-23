@@ -8,7 +8,7 @@ import { createRequire } from 'node:module'
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-const req = createRequire(join(process.cwd(), 'apps/mobile/package.json'))
+const req = createRequire(join(process.cwd(), 'apps/harness/package.json'))
 const corePkg = req.resolve('@nativescript/core/package.json')
 const coreDir = dirname(corePkg)
 const version = JSON.parse(readFileSync(corePkg, 'utf8')).version

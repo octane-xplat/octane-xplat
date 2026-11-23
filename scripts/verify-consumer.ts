@@ -40,6 +40,8 @@
 //        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
 //        --quick: packed web starter install + plain tsc + dev/prod compilation;
 //                 skips platform enablement and the full app/library checks.
+//        --native-build-only: requires --native; checks packed app setup and
+//                             builds the selected targets without runtime checks.
 import { readBunLock } from '../packages/cli/src/package-manager.ts'
 import { parseAllDocuments, parseDocument } from 'yaml'
 import assert from 'node:assert/strict'
@@ -76,6 +78,8 @@ const flagValue = (name) => {
 
 const doBuild = !flag('no-build')
 const quick = flag('quick')
+const nativeBuildOnly = flag('native-build-only')
+const fullStarter = !quick && !nativeBuildOnly
 const packageManager = flagValue('package-manager') ?? 'bun'
 
 assert.ok(
@@ -92,6 +96,16 @@ const testAndroid = flag('test-android')
 assert.ok(
   !quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
   '--quick cannot qualify native builds or device tests; use the full consumer workflow',
+)
+assert.ok(
+  !nativeBuildOnly ||
+    (nativeTargets.length > 0 &&
+      nativeTargets.every((target) => target === 'ios' || target === 'android') &&
+      !smokeTargets.length &&
+      !smokeIos &&
+      !testIos &&
+      !testAndroid),
+  '--native-build-only requires --native ios, android, or ios,android and cannot run runtime checks',
 )
 
 if (testAndroid) {
@@ -302,7 +316,7 @@ try {
   // Web-only subset: `xplat add ios android` below restores the rest, which
   // exercises the post-scaffold enablement path on the packed artifacts.
   await gate(
-    `packed create-octane-xplat scaffolds ${quick ? 'a web starter' : 'app and library starters'}`,
+    `packed create-octane-xplat scaffolds ${fullStarter ? 'app and library starters' : 'a web starter'}`,
     60 * 1000,
     () => {
       const createTarball = tarballs.get('create-octane-xplat')
@@ -353,7 +367,7 @@ try {
         'subset scaffold leaked native files',
       )
 
-      if (quick) {
+      if (!fullStarter) {
         return
       }
 
@@ -669,15 +683,17 @@ try {
   })
 
   for (const [name, argv] of [
-    ...(!quick
+    ...(fullStarter ? [[`${packageManager} run lint`, ['lint']]] : []),
+    // The starter typecheck generates the project references NativeScript's
+    // Vite build reads, including when CI only builds the native app.
+    ...(!quick ? [[`${packageManager} run typecheck (web + native)`, ['typecheck']]] : []),
+    ...(!nativeBuildOnly
       ? [
-          [`${packageManager} run lint`, ['lint']],
-          [`${packageManager} run typecheck (web + native)`, ['typecheck']],
+          [`${packageManager} run test:web — default component test`, ['test:web']],
+          [`${packageManager} run build — web bundle from packed ui`, ['build']],
         ]
       : []),
-    [`${packageManager} run test:web — default component test`, ['test:web']],
-    [`${packageManager} run build — web bundle from packed ui`, ['build']],
-    ...(!quick ? [[`${packageManager} run xplat doctor`, ['xplat', 'doctor']]] : []),
+    ...(fullStarter ? [[`${packageManager} run xplat doctor`, ['xplat', 'doctor']]] : []),
   ]) {
     await gate(name, 10 * 60 * 1000, () => {
       const r = run(packageManager, ['run', ...argv], appDir)
@@ -765,7 +781,7 @@ try {
     })
   }
 
-  if (!quick) {
+  if (fullStarter) {
     await gate(
       'library starter installs and publishes source with isolated declarations',
       15 * 60 * 1000,
@@ -849,7 +865,7 @@ try {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         const { createRequire } = await import('node:module')
-        const require = createRequire(join(repoRoot, 'apps/web/package.json'))
+        const require = createRequire(join(repoRoot, 'tools/web-verification/package.json'))
         const playwright = require('playwright')
 
         browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')

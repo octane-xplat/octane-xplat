@@ -22,12 +22,11 @@ The root manifest is restored after the install, including failed installs.
 Verify the installed package links with:
 
 ```sh
-realpath apps/mobile/node_modules/@octane-xplat/nativescript-masonkit
+realpath apps/windows/node_modules/@octane-xplat/nativescript-masonkit
 ```
 
 The path should resolve into your checkout's
-`dist/packages/nativescript-masonkit`. Other declaring packages (for example
-`apps/windows`, `packages/demos`, `packages/media-probe`) resolve the same way.
+`dist/packages/nativescript-masonkit`.
 
 Rebuild the fork (`pnpm exec nx run nativescript-masonkit:build.all`) after
 changing its source; `link:` dependencies expose the dist directory directly,
@@ -42,7 +41,7 @@ its generated declarations and app files:
 
 ```sh
 bun run typegen
-bun run turbo run gen --filter=@xplat/app
+bun run turbo run gen --filter=@octane-xplat/app
 ```
 
 ## Develop the mobile core package
@@ -53,7 +52,7 @@ and select it explicitly:
 ```sh
 ln -s /path/to/nativescript-mason links/nativescript-mason
 bun run dev:masonkit --core
-realpath apps/mobile/node_modules/@octane-xplat/nativescript-mason-core
+realpath apps/harness/node_modules/@octane-xplat/nativescript-mason-core
 ```
 
 The resolved path must end in `dist/packages/nativescript-mason-core` in that

@@ -1,0 +1,41 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/web-rendering/Document.web.tsrx",
+		"../../../examples/web-rendering/client.web.ts",
+		"../../../examples/web-rendering/context.server.ts",
+		"../../../examples/web-rendering/routes.web.tsrx",
+		"../../../examples/web-rendering/server.web.ts",
+		"../src/assets.ts",
+		"../src/build/prerender.ts",
+		"../src/build/vite.ts",
+		"../src/client.web.ts",
+		"../src/document.web.tsrx",
+		"../src/props.ts",
+		"../src/server.web.ts",
+		"../src/transfer.ts",
+		"../test/types.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "ESNext",
+		"jsxImportSource": "@octane-xplat/jsx/dom",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"node"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

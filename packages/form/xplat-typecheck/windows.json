@@ -1,0 +1,47 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../../../examples/forms/trip-form.tsrx",
+		"../src/index.ts",
+		"../src/use-field.tsrx",
+		"../src/use-form-store.tsrx",
+		"../src/use-form.tsrx",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/form": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/ui": [
+				"../node_modules/@octane-xplat/ui/types/generated/index.d.ts"
+			],
+			"octane": [
+				"../node_modules/octane/dist/index.d.ts"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"octane/tsrx-boundary": [
+				"../node_modules/octane/dist/tsrx-boundary.d.ts"
+			]
+		},
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

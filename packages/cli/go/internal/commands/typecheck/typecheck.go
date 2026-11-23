@@ -86,7 +86,7 @@ func expectedTypecheckPrograms(projectRoot string, inputs map[string]typecheckCo
 		}
 		for _, env := range []string{"web", "ios", "android", "macos", "windows", "gtk"} {
 			if names[env] {
-				configs = append(configs, filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck", env+".json"))
+				configs = append(configs, filepath.Join(projectRoot, "xplat-typecheck", env+".json"))
 			}
 		}
 	} else {
@@ -190,7 +190,7 @@ func Command(ctx context.Context, _ map[string]any) error {
 			return err
 		}
 		fmt.Printf("Typechecking %s\n", config)
-		if filepath.Dir(config) == filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck") {
+		if filepath.Dir(config) == filepath.Join(projectRoot, "xplat-typecheck") {
 			listing, err := proc.RunProcess(ctx, []string{node, checker, "--noEmit", "--runExternalCode", "--listFilesOnly", "-p", config}, projectRoot, project.ToolEnvironment())
 			if err != nil {
 				return err

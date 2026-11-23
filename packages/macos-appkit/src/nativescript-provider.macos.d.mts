@@ -1,0 +1,12 @@
+import type { UserConfig } from 'vite'
+
+export interface NativeScriptProvider {
+  readonly config: UserConfig
+  readonly coreRoot: string
+  readonly reusedCoreFiles: readonly string[]
+}
+
+/** @internal Resolve the consuming app's patched NativeScript toolchain. */
+export function createNativeScriptProvider(project: string): Promise<NativeScriptProvider>
+
+export { nativeScriptDevImports } from './nativescript-dev-imports.mjs'

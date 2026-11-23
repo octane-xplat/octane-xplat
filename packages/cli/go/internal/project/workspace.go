@@ -81,6 +81,35 @@ func Dependencies(manifest map[string]any) map[string]any {
 	}
 	return result
 }
+
+// WindowsToolchainRoot selects an explicitly configured NativeScript project.
+// The app remains the identity and route owner; only the Windows engine runs
+// from this directory and resolves its dependencies there.
+func WindowsToolchainRoot(root string, manifest map[string]any) (string, error) {
+	value := cli.ValueAt(manifest, "xplat", "targets", "windows", "toolchain")
+	if value == nil {
+		return root, nil
+	}
+	path, ok := value.(string)
+	if !ok || strings.TrimSpace(path) == "" || filepath.IsAbs(path) {
+		return "", fmt.Errorf("xplat.targets.windows.toolchain must be a non-empty relative path")
+	}
+	toolRoot, err := osfs.Canonical(resolveFrom(root, path))
+	if err != nil {
+		return "", fmt.Errorf("resolve Windows toolchain %q: %w", path, err)
+	}
+	toolManifest, err := Manifest(toolRoot)
+	if err != nil {
+		return "", fmt.Errorf("read Windows toolchain %q: %w", path, err)
+	}
+	if !osfs.PathExists(filepath.Join(toolRoot, "nativescript.config.ts")) {
+		return "", fmt.Errorf("Windows toolchain %q has no nativescript.config.ts", path)
+	}
+	if dep, ok := Dependencies(toolManifest)["@nativescript/windows"].(string); !ok || strings.TrimSpace(dep) == "" {
+		return "", fmt.Errorf("Windows toolchain %q does not declare @nativescript/windows", path)
+	}
+	return toolRoot, nil
+}
 func isAppDirectory(path string, manifest map[string]any) bool {
 	if manifest == nil {
 		return false
@@ -103,12 +132,13 @@ func DeclaredPlatforms(path string, manifest map[string]any) []string {
 	if webProject(path) {
 		platforms = append(platforms, "web")
 	}
-	if osfs.PathExists(filepath.Join(path, "nativescript.config.ts")) {
-		deps := Dependencies(manifest)
-		for _, platform := range []string{"ios", "android", "windows"} {
-			if _, ok := deps["@nativescript/"+platform].(string); ok {
-				platforms = append(platforms, platform)
-			}
+	deps := Dependencies(manifest)
+	hasNativeConfig := osfs.PathExists(filepath.Join(path, "nativescript.config.ts"))
+	for _, platform := range []string{"ios", "android", "windows"} {
+		_, hasDependency := deps["@nativescript/"+platform].(string)
+		separateWindows := platform == "windows" && cli.ValueAt(manifest, "xplat", "targets", "windows", "toolchain") != nil
+		if hasNativeConfig && hasDependency || separateWindows {
+			platforms = append(platforms, platform)
 		}
 	}
 	if cli.ValueAt(manifest, "xplat", "targets", "macos", "runtime") == "appkit-node-api" {
@@ -138,6 +168,11 @@ func discoverWorkspace(root string) (workspaceDiscovery, error) {
 		}
 		rel, err := filepath.Rel(root, path)
 		if err != nil {
+			return
+		}
+		// Framework tools can embed NativeScript hosts without being apps.
+		// They remain independently selectable when invoked as project roots.
+		if framework && (rel == "tools" || strings.HasPrefix(rel, "tools"+string(filepath.Separator))) {
 			return
 		}
 		name := pkg["name"]

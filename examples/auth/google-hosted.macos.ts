@@ -14,10 +14,12 @@ export interface GoogleHostedBackend {
 
 /** Wire your authenticated backend transport into googleAuth.configure. */
 export function createGoogleHostedFlow(backend: GoogleHostedBackend): GoogleHostedAuthFlow {
+  // 1. Keep the server's attempt identifier only while sign-in is active.
   let attemptId: string | undefined
 
   return {
     async createRequest(options) {
+      // 2. Ask the backend for a new authorization URL and remember its attempt.
       // Cancellation does not call complete; expire unused attempts server-side.
       attemptId = undefined
 
@@ -27,6 +29,7 @@ export function createGoogleHostedFlow(backend: GoogleHostedBackend): GoogleHost
       return { url: attempt.url, callbackScheme: attempt.callbackScheme }
     },
     async complete(callbackURL) {
+      // 3. Consume the local attempt before sending the callback to the backend.
       const id = attemptId
 
       attemptId = undefined
@@ -37,6 +40,7 @@ export function createGoogleHostedFlow(backend: GoogleHostedBackend): GoogleHost
       return backend.complete({ attemptId: id, callbackURL })
     },
     async signOut() {
+      // 4. Clear the attempt and end the backend session.
       attemptId = undefined
       await backend.signOut()
     },

@@ -2,7 +2,7 @@
 
 ID: bamboo-css
 Targets: web, ios, android
-Related APIs: `@octane-xplat/bamboo`, `bamboo`, `xplatBambooConfig`, `xplatPortablePreset`, `virtual:bamboo.css`, `className`
+Related APIs: `@octane-xplat/bamboo`, `bamboo`, `xplatBambooConfig`, `xplatPortablePreset`, `octane-xplat/vite`, `virtual:bamboo.css`, `className`
 
 ## Starting point
 

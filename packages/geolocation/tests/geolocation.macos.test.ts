@@ -31,7 +31,7 @@ test('missing or unconfigured hosts remain unsupported through both entry points
 })
 
 test('permission outcomes remain distinct and register with the permission dispatcher', async () => {
-  for (const result of ['granted', 'denied', 'unsupported']) {
+  for (const result of ['granted', 'denied', 'undetermined', 'unsupported']) {
     globals.XplatGeolocation = {
       isAvailable: () => true,
       ensure: (done: any) => done(result),
@@ -41,6 +41,51 @@ test('permission outcomes remain distinct and register with the permission dispa
     assert.equal((await geolocation.requestPermissions()).status, result)
     assert.equal((await permissions.requestPermissions('location')).status, result)
   }
+})
+
+test('permission reads use getStatus and never invoke the prompting ensure', async () => {
+  for (const [result, canAskAgain] of [
+    ['granted', true],
+    ['denied', false],
+    ['undetermined', true],
+    ['unsupported', false],
+    ['future-status', false],
+  ]) {
+    let prompts = 0
+
+    globals.XplatGeolocation = {
+      isAvailable: () => true,
+      getStatus: (done: any) => done(result),
+      ensure: (done: any) => {
+        prompts++
+        done('granted')
+      },
+    }
+
+    assert.equal((await geolocation.getPermissions()).status, result === 'future-status' ? 'unsupported' : result)
+    assert.equal(prompts, 0)
+    const viaDispatcher = await permissions.getPermissions('location')
+
+    assert.equal(viaDispatcher.canAskAgain, canAskAgain)
+    assert.equal(prompts, 0)
+  }
+})
+
+test('a stale bridge without getStatus reports unsupported without prompting', async () => {
+  let prompts = 0
+
+  globals.XplatGeolocation = {
+    isAvailable: () => true,
+    ensure: (done: any) => {
+      prompts++
+      done('granted')
+    },
+  }
+
+  assert.equal((await geolocation.getPermissions()).status, 'unsupported')
+  assert.equal((await permissions.getPermissions('location')).status, 'unsupported')
+  assert.equal(prompts, 0)
+  assert.equal((await geolocation.requestPermissions()).status, 'granted')
 })
 
 test('position options, JSON normalization, and concurrent callbacks stay independent', async () => {

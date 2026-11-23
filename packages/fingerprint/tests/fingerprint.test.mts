@@ -27,7 +27,7 @@ async function fixture(t) {
     name: 'app',
     version: '1.0.0',
     nativescript: { id: 'test.app' },
-    dependencies: { '@xplat/native-fixture': 'workspace:*', 'pure-js': '1.0.0' },
+    dependencies: { '@octane-xplat/native-fixture': 'workspace:*', 'pure-js': '1.0.0' },
   })
 
   await write(
@@ -38,7 +38,7 @@ async function fixture(t) {
   await write('App_Resources/iOS/build.xcconfig', 'IPHONEOS_DEPLOYMENT_TARGET=13')
   await write('App_Resources/Android/app.gradle', 'android {}')
   await write('packages/native/package.json', {
-    name: '@xplat/native-fixture',
+    name: '@octane-xplat/native-fixture',
     version: '1.0.0',
     nativescript: { platforms: { ios: '9.1', android: '9.1' } },
   })
@@ -48,10 +48,10 @@ async function fixture(t) {
   await write('packages/native/index.d.ts', 'export declare function thing(): void')
   await write('node_modules/pure-js/package.json', { name: 'pure-js', version: '1.0.0' })
   await write('node_modules/pure-js/index.js', 'export const message = 1')
-  await mkdir(join(root, 'node_modules/@xplat'), { recursive: true })
+  await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(
     join(root, 'packages/native'),
-    join(root, 'node_modules/@xplat/native-fixture'),
+    join(root, 'node_modules/@octane-xplat/native-fixture'),
     'dir',
   )
 
@@ -170,12 +170,12 @@ test('pnpm patch digests and paths stay distinct; generated UI declarations do n
 
   await f.write(
     'pnpm-lock.yaml',
-    lock + 'patchedDependencies:\n  "@xplat/native-fixture@1.0.0": public-locked-patch-hash\n',
+    lock + 'patchedDependencies:\n  "@octane-xplat/native-fixture@1.0.0": public-locked-patch-hash\n',
   )
 
   await f.write(
     'pnpm-workspace.yaml',
-    'patchedDependencies:\n  "@xplat/native-fixture@1.0.0": patches/native.patch\n',
+    'patchedDependencies:\n  "@octane-xplat/native-fixture@1.0.0": patches/native.patch\n',
   )
 
   await f.write('patches/native.patch', 'public native patch one')
@@ -250,7 +250,7 @@ test('directory lock resolutions match installed files without hashing checkout 
   for (const f of [a, b]) {
     await f.write(
       'pnpm-lock.yaml',
-      `lockfileVersion: 9.0\nimporters: {.: {}}\npackages:\n  '@xplat/native-fixture@file:${join(f.root, 'packages/native')}':\n    resolution: {type: directory, directory: '${join(f.root, 'packages/native')}'}\n`,
+      `lockfileVersion: 9.0\nimporters: {.: {}}\npackages:\n  '@octane-xplat/native-fixture@file:${join(f.root, 'packages/native')}':\n    resolution: {type: directory, directory: '${join(f.root, 'packages/native')}'}\n`,
     )
   }
 
@@ -344,7 +344,7 @@ test('Bun locks fingerprint native resolutions and local patches while ignoring 
 
   const lock = {
     lockfileVersion: 3,
-    workspaces: { '': {}, 'packages/native': { name: '@xplat/native-fixture', version: '1.0.0' } },
+    workspaces: { '': {}, 'packages/native': { name: '@octane-xplat/native-fixture', version: '1.0.0' } },
     packages: { 'pure-js': ['pure-js@1.0.0', '', {}, 'js-integrity'] },
   }
 
@@ -359,7 +359,7 @@ test('Bun locks fingerprint native resolutions and local patches while ignoring 
   const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
 
   pkg.packageManager = 'bun@1.4.4'
-  pkg.patchedDependencies = { '@xplat/native-fixture@1.0.0': 'patches/native.patch' }
+  pkg.patchedDependencies = { '@octane-xplat/native-fixture@1.0.0': 'patches/native.patch' }
   await write('package.json', pkg)
   await write('patches/native.patch', 'native patch one')
 
@@ -384,8 +384,8 @@ test('Bun native archive resolutions hash integrity without checkout paths and r
         lockfileVersion: 3,
         workspaces: { '': {} },
         packages: {
-          '@xplat/native-fixture': [
-            '@xplat/native-fixture@' + join(f.root, 'native.tgz'),
+          '@octane-xplat/native-fixture': [
+            '@octane-xplat/native-fixture@' + join(f.root, 'native.tgz'),
             {},
             'sha512-native-one',
           ],
@@ -401,8 +401,8 @@ test('Bun native archive resolutions hash integrity without checkout paths and r
     'bun.lock',
     JSON.stringify({
       packages: {
-        '@xplat/native-fixture': [
-          '@xplat/native-fixture@' + join(b.root, 'native.tgz'),
+        '@octane-xplat/native-fixture': [
+          '@octane-xplat/native-fixture@' + join(b.root, 'native.tgz'),
           {},
           'sha512-native-two',
         ],
@@ -415,7 +415,7 @@ test('Bun native archive resolutions hash integrity without checkout paths and r
     'bun.lock',
     JSON.stringify({
       packages: {
-        '@xplat/native-fixture': ['@xplat/native-fixture@9.0.0', '', {}, 'sha512-native-one'],
+        '@octane-xplat/native-fixture': ['@octane-xplat/native-fixture@9.0.0', '', {}, 'sha512-native-one'],
       },
     }),
   )
@@ -427,7 +427,7 @@ test('retained lockfiles require an explicit manager and ignore the unselected l
   const { root, write } = await fixture(t)
 
   await write('bun.lock', {
-    workspaces: { '': {}, 'packages/native': { name: '@xplat/native-fixture', version: '1.0.0' } },
+    workspaces: { '': {}, 'packages/native': { name: '@octane-xplat/native-fixture', version: '1.0.0' } },
     packages: {},
   })
 

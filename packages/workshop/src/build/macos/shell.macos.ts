@@ -44,7 +44,7 @@ class WorkshopActions extends NSObject {
 
 /**
  * Minimal window service standing in for the consumer's AppKit window layer
- * (see apps/macos appkit.ts). Requires an explicit compiled component; the
+ * (see apps/harness/macos appkit.ts). Requires an explicit compiled component; the
  * stage host wraps story windows so providers/fixture reach the second root.
  */
 function installWindowService({ parent, offscreen }) {
@@ -133,7 +133,7 @@ function installWindowService({ parent, offscreen }) {
 /** AppKit shell; all chrome lives in one Octane component, the story in a
  *  separate persistent root mounted on the stage slot's view. */
 export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscreen = false } = {}) {
-	globalThis.__xplatDevModules = modules
+	renderer.__installDevelopmentModules(modules)
 	const app = NSApplication.sharedApplication
 	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 		rect(0, 0, 1100, 720),
@@ -171,11 +171,12 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		controller,
 		target: 'macos',
 		onStage(view) {
-			stage = view
+			stage = view?.nativeViewProtected ?? view
 		},
 		focus(view) {
-			if (view) {
-				window.makeFirstResponder(view)
+			const target = view?.native ?? view?.nativeViewProtected ?? view
+			if (target instanceof NSView && target.window === window) {
+				window.makeFirstResponder(target)
 			}
 		},
 	})
@@ -351,51 +352,47 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		return false
 	}
 
-	// Dispatches through the view's real recognizer/control action. This is
-	// gesture-action dispatch for qualification, not OS-synthesized input.
+	// Dispatch the AppKit action of the rendered control selected by its label.
 	const pressLabel = (label, scope = stage) => {
-		let target = null
-		eachSubview(scope, (view) => {
+		const pressed = eachSubview(scope, (target) => {
 			let name = ''
 			try {
 				name = String(
-					typeof view.accessibilityLabel === 'function'
-						? view.accessibilityLabel()
-						: (view.accessibilityLabel ?? ''),
+					typeof target.accessibilityLabel === 'function'
+						? target.accessibilityLabel()
+						: (target.accessibilityLabel ?? ''),
 				)
 			} catch {}
+			if (name !== label) {
+				return false
+			}
 
-			if (name === label) {
-				target = view
+			if (typeof target.accessibilityPerformPress === 'function' && target.accessibilityPerformPress()) {
+				return true
+			}
+
+			const recs = target.gestureRecognizers
+			const count = typeof recs?.count === 'function' ? recs.count() : (recs?.count ?? 0)
+			for (let i = 0; i < count; i++) {
+				const rec = recs.objectAtIndex(i)
+				const receiver = rec.target
+				const invoke = receiver?.['viewPressed:'] ?? receiver?.viewPressed
+				if (typeof invoke === 'function') {
+					invoke.call(receiver, rec)
+					return true
+				}
+			}
+
+			if (typeof target.performClick === 'function') {
+				target.performClick(target)
 				return true
 			}
 
 			return false
 		})
-
-		if (!target) {
+		if (!pressed) {
 			console.log(`WORKSHOP_PRESS_MISS "${label}"`)
-			return
 		}
-
-		const recs = target.gestureRecognizers
-		const count = typeof recs?.count === 'function' ? recs.count() : (recs?.count ?? 0)
-		for (let i = 0; i < count; i++) {
-			const rec = recs.objectAtIndex(i)
-			const receiver = rec.target
-			const invoke = receiver?.['viewPressed:'] ?? receiver?.viewPressed
-			if (typeof invoke === 'function') {
-				invoke.call(receiver, rec)
-				return
-			}
-		}
-
-		if (typeof target.performClick === 'function') {
-			target.performClick(target)
-			return
-		}
-
-		console.log(`WORKSHOP_PRESS_MISS "${label}"`)
 	}
 
 	const run = async (command) => {

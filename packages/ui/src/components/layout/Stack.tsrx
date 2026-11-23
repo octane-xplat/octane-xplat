@@ -1,13 +1,16 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useMemo } from 'octane'
+import { useContext, useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
-import { InteractionScopeProvider } from '../../gestures/context.tsrx'
+import { InteractionScopeContext, interactionScopeOutlet } from '../../gestures/context.tsrx'
 import type { StackProps } from '../../props'
 import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
+import {
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
+} from '../../internal/accessibility/native-accessibility'
 
 import { resolveStackLayout } from './stack-layout'
 
@@ -17,6 +20,7 @@ import { resolveStackLayout } from './stack-layout'
  *  `isScrollable` hosts the flow inside a ScrollView — NS layouts can't
  *  scroll their own overflow. */
 export function Stack(props: StackProps): unknown @{
+  const scopes = useContext(InteractionScopeContext)
   const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const layout = resolveStackLayout(props)
   const sizingStyle = {
@@ -73,9 +77,7 @@ export function Stack(props: StackProps): unknown @{
           { display: 'flex' },
         )}
       >
-        <InteractionScopeProvider scope={props.interactionScope}>
-          {props.children}
-        </InteractionScopeProvider>
+        {interactionScopeOutlet(scopes, props.interactionScope, props.children)}
       </masonview>
     </scrollview>
   } @else {
@@ -102,9 +104,7 @@ export function Stack(props: StackProps): unknown @{
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      <InteractionScopeProvider scope={props.interactionScope}>
-        {props.children}
-      </InteractionScopeProvider>
+      {interactionScopeOutlet(scopes, props.interactionScope, props.children)}
     </masonview>
   }
 }

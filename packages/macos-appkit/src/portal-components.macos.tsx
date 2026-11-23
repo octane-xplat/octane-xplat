@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { createPortal, type UniversalRenderable } from 'octane/universal/native'
 import { useCallback, useState } from 'octane'
 
@@ -51,6 +50,7 @@ function CellPortal(props: {
 
 /** @internal Recycled native hosts share the declaring list's Octane tree. */
 export function __PortalList(props: any) {
+  const { onItemLoading, onItemTap, onLoadMoreItems, ...attributes } = props
   const [cells, setCells] = useState<CellBinding[]>([])
   const onTarget = useCallback((event: CellBinding & { type: 'bind' | 'release' }) => {
     setCells((current) => {
@@ -76,7 +76,13 @@ export function __PortalList(props: any) {
 
   return (
     <>
-      <listview {...props} __onCellTarget={props.renderItem ? onTarget : undefined} />
+      <listview
+        {...attributes}
+        onItemLoading={onItemLoading}
+        onItemTap={onItemTap}
+        onLoadMoreItems={onLoadMoreItems}
+        __onCellTarget={props.renderItem ? onTarget : undefined}
+      />
       {props.renderItem &&
         cells.map((cell) => <CellPortal key={cell.id} cell={cell} render={props.renderItem} />)}
     </>

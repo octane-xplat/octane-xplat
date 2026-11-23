@@ -7,7 +7,9 @@ source of task names and supported arguments; check it before running a lane.
 
 Reserve native-build, device and shared desktop resources for the complete
 phase. Use the configured existing devices; never create or clone a device to
-run a fixture. Capture and inspect images only when authorized for the task.
+run a fixture. Before running iOS or Android checks across worktrees, follow
+the [shared-host native target lock setup](toolchain.md#shared-host-native-target-locks).
+Capture and inspect images only when authorized for the task.
 A successful source, packed or programmatic-dispatch check does not establish
 OS input, visual parity, accessibility or physical hardware behavior. Store run
 results and gaps in Silo, and raw evidence in local storage.
@@ -152,7 +154,7 @@ bun run turbo run test --filter=@octane-xplat/image-crop
 bun run turbo run typecheck --filter=@octane-xplat/image-crop
 bun run turbo run typegen --filter=@octane-xplat/image-crop
 bun run probe doctor
-bun run probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
+bun run probe run examples/probes/image-crop-selection.tsrx --target web --deps @octane-xplat/image-crop
 bun run probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
 ```
 
@@ -217,9 +219,9 @@ bun run probe run examples/probes/share.macos.tsrx --target macos --watch
 Consumer guidance: [table](../../docs/packages/package-table.md).
 
 ```sh
-bun run probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
-bun run probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
-bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/interactive.tsrx --target web --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/geometry.tsrx --target macos --deps @octane-xplat/table
 ```
 
 ## tray
@@ -324,7 +326,7 @@ delivery. Android runtime and macOS WebView drag require their own evidence.
 
 ```sh
 bun run turbo run typecheck test build pack:check --filter=@octane-xplat/dnd-kit
-bun run turbo run test --filter=@xplat/web
+bun run turbo run test --filter=@octane-xplat/web
 bun run probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos
 ```
 
@@ -335,6 +337,16 @@ check uses an OS-assigned port and captures no images. It does not establish
 native IME, VoiceOver or TalkBack behavior.
 
 ```sh
-bun run turbo run input:readiness --filter=@xplat/web
+bun run turbo run input:readiness --filter=@octane-xplat/web
+```
+
+## Scroll visibility
+
+The maintained visibility probe exercises root binding, threshold updates,
+imperative observation, and cleanup. A passing dispatch probe does not establish
+OS input or accessibility behavior.
+
+```sh
+bun run probe run examples/probes/intersection-observer.tsrx --target web --deps @octane-xplat/intersection-observer
 ```
 

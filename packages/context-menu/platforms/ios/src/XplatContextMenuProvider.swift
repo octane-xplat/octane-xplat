@@ -24,15 +24,13 @@ private final class ContextMenuModel: ObservableObject {
 	var onSelect: ((String) -> Void)?
 }
 
-// Same shape as the plugin's NativeScriptViewRepresentable: a unique
-// instance id (registered id + uuid) resolved through the core-owned
-// NativeScriptViewFactory, which the JS-side SwiftUIManager hooks up.
+// One factory identity per registered host id, like the sheet leaf's
+// representable: the JS side owns creation/destruction of each id through
+// NativeScriptViewFactory.viewDestroyer, so a stable id — not the plugin's
+// uuid-suffixed instance key — is what lets unmount release the native
+// view instead of leaking it (and re-creating it on every recomposition).
 private struct HostedNativeScriptView: UIViewRepresentable {
 	let id: String
-
-	init(id: String) {
-		self.id = id + "-" + UUID().uuidString
-	}
 
 	func makeUIView(context: Context) -> UIView {
 		return NativeScriptViewFactory.shared?.getViewById(id) ?? UIView()

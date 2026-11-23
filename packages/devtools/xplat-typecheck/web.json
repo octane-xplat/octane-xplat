@@ -1,0 +1,48 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/app.ts",
+		"../src/assets.d.ts",
+		"../src/backend.ts",
+		"../src/client.ts",
+		"../src/desktop/Shell.ts",
+		"../src/desktop/panels.d.ts",
+		"../src/desktop/target.ts",
+		"../src/host/desktop.ts",
+		"../src/host/panels.ts",
+		"../src/host/records.ts",
+		"../src/host/server.ts",
+		"../src/host/web.ts",
+		"../src/macos/ws-frames.ts",
+		"../src/node.ts",
+		"../src/panel/App.tsrx",
+		"../src/panel/index.ts",
+		"../src/panel/main.web.tsrx",
+		"../src/panel/model.ts",
+		"../src/panel/plugin.ts",
+		"../src/panel/styles.ts",
+		"../src/record.ts",
+		"../src/types.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"types": [
+			"node"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

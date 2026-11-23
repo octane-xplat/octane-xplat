@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type {
-  UniversalHostBatch,
-  UniversalHostCommand,
-  UniversalRoot,
+import {
+  defineUniversalComponent,
+  universalPlan,
+  universalValue,
+  type UniversalHostBatch,
+  type UniversalHostCommand,
+  type UniversalRoot,
 } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', async () => (await import('../tests/core-mock.js')).createCoreMock())
@@ -19,8 +22,10 @@ import {
 } from '../tests/core-mock.js'
 import {
   createNativeScriptContainer,
+  createNativeScriptRoot,
   type NativeScriptContainer,
   nativeScriptDriver,
+  observeBatches,
   releaseNativeScriptContainer,
 } from './driver.js'
 import { type ElementConstructor, registerElement } from './elements.js'
@@ -288,6 +293,21 @@ describe('nativeScriptDriver', () => {
     expect(scroll.content).toBeNull()
   })
 
+  it('rejects a second content child without detaching it from its current parent', () => {
+    const { apply, host, view } = mount(new MockContentView())
+    apply(create(1, 'test-grid'), create(2, 'label'), insert(1), insert(2, 1))
+    const grid = view<MockLayoutBase>(1)
+    const label = view<MockView>(2)
+
+    expect(() => apply(move(2))).toThrow('accepts one content child')
+    expect(host.content).toBe(grid)
+    expect(grid.children).toEqual([label])
+
+    apply(remove(1), move(2))
+    expect(host.content).toBe(label)
+    expect(grid.children).toEqual([])
+  })
+
   it('hosts tab view items, each taking its child as the item view', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(
@@ -445,10 +465,37 @@ describe('nativeScriptDriver', () => {
     expect(label.formattedText).toBeNull()
   })
 
+  it('dispatches SearchBar submit through the onSubmit alias', () => {
+    const { apply, view, dispatched } = mount(new MockLayoutBase())
+    apply(create(1, 'searchbar'), insert(1), event(1, 'returnPress', listener(10)))
+    const search = view<MockView>(1)
+    const submission = { eventName: 'submit', object: search }
+    search.notify(submission)
+    expect(dispatched).toEqual([{ listener: 10, data: submission }])
+  })
+
   it('sets an ActionBar child as its titleView', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(create(1, 'actionbar'), create(2, 'label'), insert(1), insert(2, 1))
     expect(view<core.ActionBar>(1).titleView).toBe(view(2))
+  })
+
+  it('restores the current JSX ActionBar title after an imperative title is cleared', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'actionbar'), create(2, 'label'), create(3, 'label'), insert(1), insert(2, 1))
+    const bar = view<core.ActionBar>(1)
+    const title = view(2)
+    const imperativeTitle = view(3)
+
+    apply(update(1, { titleView: imperativeTitle }))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBe(title)
+
+    apply(update(1, { titleView: imperativeTitle }), remove(2, 1))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBeNull()
   })
 
   it('recreate swaps a node for another type in place', () => {
@@ -467,6 +514,97 @@ describe('nativeScriptDriver', () => {
     expect(stack.children[0]).toBeInstanceOf(core.Button)
     expect(texts(stack)).toEqual(['b', 'c'])
     expect(previous.parent).toBeNull()
+  })
+
+  it('recreate keeps the record: children, position and listeners survive', () => {
+    const { apply, container, view, dispatched } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'test-stack'),
+      create(2, 'label', { text: 'kept' }),
+      create(3, 'label', { text: 'last' }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 1),
+      event(2, 'tap', listener(7)),
+    )
+    const node = container.nodes.get(1)
+
+    apply({ op: 'recreate', id: 1, type: 'test-grid', props: {} })
+
+    const grid = view<MockLayoutBase>(1)
+    expect(grid).toBeInstanceOf(core.GridLayout)
+    expect(grid.children).toEqual([view(2), view(3)])
+    // The record is the same object, and its children still point at it —
+    // commands addressed to them keep flowing to the live tree.
+    expect(container.nodes.get(1)).toBe(node)
+    expect(node?.children.map((child) => child.id)).toEqual([2, 3])
+    apply(update(2, { text: 'still here' }))
+    expect(view<MockTextBase>(2).text).toBe('still here')
+    view<MockView>(2).notify({ eventName: 'tap', object: view(2) })
+    expect(dispatched.map((entry) => entry.listener)).toEqual([7])
+  })
+
+  it("does not park a detached node's view on the host when its tag is re-registered", () => {
+    const { apply, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'label'), insert(1), remove(1))
+    // The record survives a remove: still registered, logically detached.
+    class LabelNext extends MockTextBase {}
+    try {
+      registerElement('label', LabelNext as unknown as ElementConstructor)
+      const next = view<MockTextBase>(1)
+      expect(next).toBeInstanceOf(LabelNext)
+      expect(host.children).toEqual([])
+      expect(next.parent).toBeNull()
+    } finally {
+      registerElement('label', core.Label as unknown as ElementConstructor)
+    }
+  })
+
+  it('mutes the change echo a folded text write raises', () => {
+    const { apply, view, dispatched } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'textfield'),
+      create(2, '#text', { value: 'a' }),
+      insert(1),
+      insert(2, 1),
+      event(1, 'textChange', listener(9)),
+    )
+    const field = view<MockTextBase>(1)
+    apply(update(2, { value: 'b' }))
+    expect(field.text).toBe('b')
+    expect(dispatched).toEqual([])
+
+    field.text = 'c'
+    expect(dispatched).toEqual([
+      {
+        listener: 9,
+        data: expect.objectContaining({ eventName: 'textChange', value: 'c' }),
+      },
+    ])
+  })
+
+  it("drops a folded span when a formattedstring's last #text child leaves", () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'label'),
+      create(2, 'formattedstring'),
+      create(3, '#text', { value: 'minted' }),
+      create(4, 'span', { text: 'kept' }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 2),
+    )
+    const formatted = view<MockFormattedString>(2)
+    const kept = view(4)
+    expect(formatted.spans).toEqual([expect.anything(), kept])
+
+    apply(remove(3, 2))
+    // The minted span left with its owner — the detached text no longer renders.
+    expect(formatted.spans).toEqual([kept])
+
+    apply(insert(3, 2))
+    expect(formatted.spans).toEqual([kept, expect.objectContaining({ text: 'minted' })])
   })
 
   it('recreates live views when a tag is re-registered', () => {
@@ -518,6 +656,41 @@ describe('nativeScriptDriver', () => {
     ).toThrow(/<nope> is not a registered element/)
     expect(host.children).toEqual([])
     expect(container.nodes.size).toBe(0)
+  })
+
+  it('rejects multiple projected ContentView children before applying a batch', () => {
+    const { apply, container, host } = mount(new MockLayoutBase())
+    expect(() =>
+      apply(
+        create(1, 'contentview'),
+        create(2, 'proxyviewcontainer'),
+        create(3, 'label'),
+        create(4, 'proxyviewcontainer'),
+        create(5, 'label'),
+        insert(1),
+        insert(2, 1),
+        insert(3, 2),
+        insert(4, 2),
+        insert(5, 4),
+      ),
+    ).toThrow(/<contentview> cannot project multiple/)
+    expect(host.children).toEqual([])
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('admits one projected ContentView child alongside a collapsed sibling', () => {
+    const { apply, host } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'contentview'),
+      create(2, 'proxyviewcontainer'),
+      create(3, 'label'),
+      create(4, 'label', { style: { visibility: 'collapse' } }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 2),
+    )
+    expect(host.children).toHaveLength(1)
   })
 
   it('rejects commands against unknown hosts before any command applies', () => {
@@ -662,8 +835,8 @@ describe('nativeScriptDriver', () => {
     expect(orphaned.children).toEqual([])
   })
 
-  it('rejects batches for another renderer and unknown tags', () => {
-    const { apply, container } = mount(new MockLayoutBase())
+  it('rejects batches for another renderer', () => {
+    const { container } = mount(new MockLayoutBase())
     const batch: UniversalHostBatch = {
       renderer: 'dom',
       version: 1,
@@ -672,7 +845,82 @@ describe('nativeScriptDriver', () => {
     expect(() => nativeScriptDriver.prepareBatch(container, batch, {} as never)).toThrow(
       /does not match/,
     )
-    expect(() => apply(create(1, 'nope'))).toThrow(/<nope> is not a registered element/)
+  })
+
+  const invalidSuffixes: [string, Command[], RegExp][] = [
+    ['unregistered create', [create(3, 'nope')], /<nope> is not a registered element/],
+    [
+      'unregistered recreation',
+      [{ op: 'recreate', id: 1, type: 'nope', props: {} }],
+      /<nope> is not a registered element/,
+    ],
+    ['unknown host', [insert(3)], /unknown host 3/],
+    ['unknown parent', [insert(2, 3)], /unknown host 3/],
+    ['use after destroy', [{ op: 'destroy', id: 2 }, update(2, {})], /unknown host 2/],
+    ['cycle', [insert(2, 1), move(1, 2)], /logical ownership cycle/],
+  ]
+
+  it.each(invalidSuffixes)('rejects %s before applying a valid prefix', (_, suffix, error) => {
+    const { apply, container, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'test-stack', { className: 'before' }), insert(1))
+    const previous = view<MockLayoutBase>(1)
+    const observer = { willApply: vi.fn(), didApply: vi.fn() }
+    const unobserve = observeBatches(observer)
+    try {
+      const batch: UniversalHostBatch = {
+        renderer: 'nativescript',
+        version: 2,
+        commands: [update(1, { className: 'after' }), create(2, 'test-stack'), ...suffix],
+      }
+      expect(() => nativeScriptDriver.prepareBatch(container, batch, {} as never)).toThrow(error)
+      expect(host.children).toEqual([previous])
+      expect(previous.children).toEqual([])
+      expect(previous.className).toBe('before')
+      expect([...container.nodes.keys()]).toEqual([1])
+      expect(observer.willApply).not.toHaveBeenCalled()
+      expect(observer.didApply).not.toHaveBeenCalled()
+    } finally {
+      unobserve()
+    }
+  })
+
+  it('allows a move after an earlier command detaches the destination from the moving node', () => {
+    const { apply, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'test-stack'), create(2, 'test-stack'), insert(2, 1), insert(1))
+    apply(remove(2, 1), insert(2), move(1, 2))
+    expect(host.children).toEqual([view(2)])
+    expect(view<MockLayoutBase>(2).children).toEqual([view(1)])
+  })
+
+  it('keeps the root usable after rejecting an unregistered sibling', () => {
+    const renderer = 'nativescript'
+    const label = universalPlan(renderer, { kind: 'host', type: 'label', bindings: [['text', 0]] })
+    const invalid = universalPlan(renderer, { kind: 'host', type: 'nope' })
+    const scene = defineUniversalComponent(
+      renderer,
+      ({ text, showInvalid }: { text: string; showInvalid?: boolean }) => [
+        universalValue(label, [text]),
+        ...(showInvalid ? [universalValue(invalid)] : []),
+      ],
+    )
+    const host = new MockLayoutBase()
+    const root = createNativeScriptRoot(host as unknown as core.ViewBase)
+    root.render(scene, { text: 'before' })
+    const [previous] = host.children as MockTextBase[]
+    try {
+      expect(() => root.render(scene, { text: 'bad', showInvalid: true })).toThrow(
+        /<nope> is not a registered element/,
+      )
+      expect(host.children).toEqual([previous])
+      expect(previous.text).toBe('before')
+
+      root.render(scene, { text: 'after' })
+      expect(host.children).toEqual([previous])
+      expect(previous.text).toBe('after')
+    } finally {
+      root.unmount()
+    }
+    expect(host.children).toEqual([])
   })
 
   it('classifies handler props as discrete host events', () => {

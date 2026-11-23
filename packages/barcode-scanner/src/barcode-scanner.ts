@@ -63,8 +63,9 @@ export const barcodeScanner: BarcodeScannerService = {
 }
 
 // Scanning needs camera access — register the kind this leaf owns for the
-// platform dispatcher (same 'camera' kind media registers; both leafs' owners
-// run identical ensure logic, and the leaf must work with media absent).
+// platform dispatcher. media registers the same 'camera' kind with the
+// availability-aware owner, so claim it only as a fallback: media's owner
+// wins whenever it is installed regardless of module evaluation order.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
 const toResponse = (status: PermissionStatus) => ({
@@ -73,7 +74,7 @@ const toResponse = (status: PermissionStatus) => ({
   canAskAgain: status === 'granted' || status === 'undetermined',
 })
 
-permissionOwners.camera = {
+permissionOwners.camera ??= {
   getPermissions: async () => toResponse(cameraPermissionStatus()),
   requestPermissions: async () => toResponse(await barcodeScanner.ensure()),
 }

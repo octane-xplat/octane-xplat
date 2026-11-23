@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/tracking-transparency-native-api",
+	"name": "@octane-xplat/tracking-transparency-native-api",
 	"private": true,
 	"type": "module",
 	"scripts": {

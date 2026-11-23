@@ -35,6 +35,10 @@ The native host is no longer a PluginDrawer instance. Plugin imperative methods 
 
 Import Drawer and DrawerProps from UI; the separate drawer package is removed without aliases. Platform behavior stays unchanged; web/desktop retain their explicit-control subset. Npm dependency resolution no longer adds a Drawer-origin mobile plugin chain for web-only consumers. A host may still install gesturehandler for another feature, so test package costs with a minimal consumer rather than assuming it disappears from a whole app. NativeScript renderer/core peers and one Octane runtime remain required.
 
+When an effect calls the controller through a stable ref, explicitly include
+the controlled props that should trigger synchronization. TSRX inference cannot
+see reads inside the controller.
+
 ## Qualification boundaries
 
 The maintained controller tests cover geometry readiness, controlled/uncontrolled requests, latest commands, regrab progress, stale settles, cancellation, errors and disposal. Common-owner tests cover edge/sign rejection before claim and sticky exclusion after extra pointers. Handler/adapter tests are separate from OS input; packed declarations/bundles are separate from installed native runtime.

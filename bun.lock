@@ -5,42 +5,40 @@
     "": {
       "name": "octane-xplat",
       "devDependencies": {
+        "@octane-xplat/auth": "workspace:*",
+        "@octane-xplat/billing": "workspace:*",
+        "@octane-xplat/build": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/dnd-kit": "workspace:*",
         "@octane-xplat/fmt": "0.3.0",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/motion": "workspace:*",
+        "@octane-xplat/sentry": "workspace:*",
+        "@octane-xplat/share": "workspace:*",
+        "@octane-xplat/sqlite": "workspace:*",
+        "@octane-xplat/table": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "@octane-xplat/web-host": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/core": "0.2.4",
         "@tsrx/oxc": "catalog:",
         "@types/node": "26.6.6",
+        "jose": "6.2.15",
+        "octane": "catalog:",
         "oxfmt": "0.76.0",
         "oxlint": "1.91.0",
+        "srvx": "1.0.6",
         "tslib": "2.9.1",
         "turbo": "2.11.4",
         "typescript": "catalog:",
         "typescript-classic": "catalog:",
+        "vite": "catalog:",
         "vitest": "catalog:",
         "yaml": "2.9.1",
       },
     },
-    "apps/astryx-sandbox": {
-      "name": "@xplat/astryx-sandbox",
-      "version": "0.0.0",
-      "dependencies": {
-        "@octane-xplat/files": "workspace:*",
-        "@octane-xplat/ui": "workspace:*",
-        "octane": "catalog:",
-      },
-      "devDependencies": {
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/jsx": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "@tsrx/content-mapper": "catalog:",
-        "playwright": "1.63.0",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/component-workshop": {
-      "name": "@xplat/component-workshop",
+      "name": "@octane-xplat/component-workshop",
       "version": "0.0.0",
       "dependencies": {
         "@octane-xplat/ads": "workspace:*",
@@ -49,6 +47,7 @@
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/canvas": "workspace:*",
         "@octane-xplat/charts": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/gif": "workspace:*",
         "@octane-xplat/icons": "workspace:*",
@@ -67,16 +66,15 @@
         "@octane-xplat/tiptap": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octane-xplat/video": "workspace:*",
-        "@xplat/demos": "workspace:*",
         "octane": "catalog:",
       },
       "devDependencies": {
+        "@octane-xplat/astryx-sandbox": "git+https://github.com/octane-xplat/astryx-sandbox.git#aabfe55398acd82722e5be73b6c121c173759a28",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/workshop": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
-        "@xplat/astryx-sandbox": "workspace:*",
         "playwright": "1.63.0",
         "typescript": "catalog:",
         "vite": "catalog:",
@@ -104,23 +102,23 @@
       },
     },
     "apps/docs": {
-      "name": "@xplat/docs",
+      "name": "@octane-xplat/docs",
       "version": "0.0.0",
       "dependencies": {
+        "@octane-xplat/demos": "workspace:*",
         "@octane-xplat/intersection-observer": "workspace:*",
         "@octane-xplat/motion": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
-        "@xplat/demos": "workspace:*",
         "octane": "catalog:",
         "shiki": "4.6.0",
       },
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/component-workshop": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
-        "@xplat/component-workshop": "workspace:*",
         "exports-md": "0.2.20",
         "jsdom": "catalog:",
         "playwright": "1.63.0",
@@ -130,39 +128,16 @@
         "wrangler": "^4.0.0",
       },
     },
-    "apps/macos": {
-      "name": "@xplat/macos",
-      "version": "0.0.0",
-      "dependencies": {
-        "@nativescript/macos-node-api": "catalog:",
-        "@octane-xplat/bamboo": "workspace:*",
-        "@octane-xplat/camera": "workspace:*",
-        "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/platform": "workspace:*",
-        "@octane-xplat/ui": "workspace:*",
-        "@octane-xplat/web-browser": "workspace:*",
-        "@xplat/app": "workspace:*",
-        "@xplat/demos": "workspace:*",
-        "octane": "catalog:",
-      },
-      "devDependencies": {
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-build": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/maestro": {
-      "name": "@xplat/maestro",
+      "name": "@octane-xplat/maestro",
       "version": "0.0.0",
       "dependencies": {
         "@nativescript-community/gesturehandler": "2.1.0",
         "@nativescript-community/observable": "2.0.11",
         "@nativescript/core": "catalog:",
         "@octane-xplat/lightbox": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/media": "workspace:*",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "octane": "catalog:",
@@ -181,8 +156,8 @@
         "vite": "catalog:",
       },
     },
-    "apps/mobile": {
-      "name": "@xplat/mobile",
+    "apps/harness": {
+      "name": "@octane-xplat/mobile",
       "version": "0.0.0",
       "dependencies": {
         "@nativescript-community/gesturehandler": "2.1.0",
@@ -191,12 +166,15 @@
         "@nativescript/canvas": "3.0.1",
         "@nativescript/core": "catalog:",
         "@nativescript/font-manager": "1.0.20",
+        "@nativescript/macos-node-api": "catalog:",
+        "@octane-xplat/app": "workspace:*",
         "@octane-xplat/auth": "workspace:*",
         "@octane-xplat/biometrics": "workspace:*",
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/canvas": "workspace:*",
         "@octane-xplat/context-menu": "workspace:*",
         "@octane-xplat/date-picker": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
         "@octane-xplat/effects": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/geolocation": "workspace:*",
@@ -204,8 +182,9 @@
         "@octane-xplat/haptics": "workspace:*",
         "@octane-xplat/image": "workspace:*",
         "@octane-xplat/lottie": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/media": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/notifications": "workspace:*",
         "@octane-xplat/pager": "workspace:*",
@@ -219,9 +198,8 @@
         "@octane-xplat/smooth-corners": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octane-xplat/video": "workspace:*",
+        "@octane-xplat/web-browser": "workspace:*",
         "@valor/nativescript-websockets": "2.0.3",
-        "@xplat/app": "workspace:*",
-        "@xplat/demos": "workspace:*",
         "octane": "catalog:",
       },
       "devDependencies": {
@@ -233,7 +211,7 @@
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/macos-build": "workspace:*",
         "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -273,120 +251,11 @@
         "vitest": "catalog:",
       },
     },
-    "apps/web": {
-      "name": "@xplat/web",
-      "version": "0.0.0",
-      "dependencies": {
-        "@octane-xplat/ui": "workspace:*",
-        "@xplat/app": "workspace:*",
-        "@xplat/demos": "workspace:*",
-        "octane": "catalog:",
-      },
-      "devDependencies": {
-        "@octane-xplat/bamboo": "workspace:*",
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/sqlite": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "@tsrx/content-mapper": "catalog:",
-        "playwright": "1.63.0",
-        "typescript": "catalog:",
-        "typescript-classic": "catalog:",
-        "vite": "catalog:",
-        "vitest": "catalog:",
-      },
-    },
-    "apps/windows": {
-      "name": "@xplat/windows",
-      "version": "0.0.0",
-      "dependencies": {
-        "@nativescript-community/observable": "2.0.11",
-        "@nativescript-community/perms": "3.0.12",
-        "@nativescript/canvas": "3.0.1",
-        "@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
-        "@nativescript/font-manager": "1.0.18",
-        "@octane-xplat/ads": "workspace:*",
-        "@octane-xplat/app-menu": "workspace:*",
-        "@octane-xplat/audio": "workspace:*",
-        "@octane-xplat/auth": "workspace:*",
-        "@octane-xplat/background-tasks": "workspace:*",
-        "@octane-xplat/barcode-scanner": "workspace:*",
-        "@octane-xplat/billing": "workspace:*",
-        "@octane-xplat/biometrics": "workspace:*",
-        "@octane-xplat/calendar": "workspace:*",
-        "@octane-xplat/camera": "workspace:*",
-        "@octane-xplat/canvas": "workspace:*",
-        "@octane-xplat/charts": "workspace:*",
-        "@octane-xplat/contacts": "workspace:*",
-        "@octane-xplat/effects": "workspace:*",
-        "@octane-xplat/files": "workspace:*",
-        "@octane-xplat/firebase-analytics": "workspace:*",
-        "@octane-xplat/firebase-crashlytics": "workspace:*",
-        "@octane-xplat/geolocation": "workspace:*",
-        "@octane-xplat/gif": "workspace:*",
-        "@octane-xplat/global-shortcuts": "workspace:*",
-        "@octane-xplat/haptics": "workspace:*",
-        "@octane-xplat/image": "workspace:*",
-        "@octane-xplat/intersection-observer": "workspace:*",
-        "@octane-xplat/lottie": "workspace:*",
-        "@octane-xplat/maps": "workspace:*",
-        "@octane-xplat/media": "workspace:*",
-        "@octane-xplat/media-converter": "workspace:*",
-        "@octane-xplat/media-library": "workspace:*",
-        "@octane-xplat/motion": "workspace:*",
-        "@octane-xplat/nativescript-masonkit": "1.0.0-beta.129",
-        "@octane-xplat/nativescript-octane": "workspace:*",
-        "@octane-xplat/network": "workspace:*",
-        "@octane-xplat/notifications": "workspace:*",
-        "@octane-xplat/pager": "workspace:*",
-        "@octane-xplat/platform": "workspace:*",
-        "@octane-xplat/posthog": "workspace:*",
-        "@octane-xplat/print": "workspace:*",
-        "@octane-xplat/push": "workspace:*",
-        "@octane-xplat/recorder": "workspace:*",
-        "@octane-xplat/richtext": "workspace:*",
-        "@octane-xplat/rolling-text": "workspace:*",
-        "@octane-xplat/screen-orientation": "workspace:*",
-        "@octane-xplat/secure-storage": "workspace:*",
-        "@octane-xplat/sentry": "workspace:*",
-        "@octane-xplat/shaders": "workspace:*",
-        "@octane-xplat/share": "workspace:*",
-        "@octane-xplat/smooth-corners": "workspace:*",
-        "@octane-xplat/sounds": "workspace:*",
-        "@octane-xplat/splash-screen": "workspace:*",
-        "@octane-xplat/sqlite": "workspace:*",
-        "@octane-xplat/store-review": "workspace:*",
-        "@octane-xplat/tray": "workspace:*",
-        "@octane-xplat/ui": "workspace:*",
-        "@octane-xplat/updates": "workspace:*",
-        "@octane-xplat/video": "workspace:*",
-        "@octane-xplat/view-shot": "workspace:*",
-        "@octane-xplat/web-browser": "workspace:*",
-        "@valor/nativescript-websockets": "2.0.3",
-        "@xplat/app": "workspace:*",
-        "@xplat/demos": "workspace:*",
-        "octane": "catalog:",
-      },
-      "devDependencies": {
-        "@nativescript/types": "catalog:",
-        "@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
-        "@nativescript/windows": "1.0.0-beta.24",
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/vite-octane": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "nativescript": "9.1.2-dev.2026-09-24-36031892256",
-        "typescript": "catalog:",
-        "typescript-classic": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/workshop-demo": {
-      "name": "@xplat/workshop-demo",
+      "name": "@octane-xplat/workshop-demo",
       "version": "0.0.0",
       "dependencies": {
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/ui": "workspace:*",
         "octane": "catalog:",
       },
@@ -398,6 +267,7 @@
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/linux-gtk": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/macos-build": "workspace:*",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/workshop": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
@@ -409,7 +279,7 @@
     },
     "packages/ads": {
       "name": "@octane-xplat/ads",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/google-mobile-ads": "5.0.4",
         "@octane-xplat/jsx": "workspace:*",
@@ -435,11 +305,12 @@
       ],
     },
     "packages/app": {
-      "name": "@xplat/app",
+      "name": "@octane-xplat/app",
       "version": "0.0.0",
       "dependencies": {
         "@octane-xplat/audio": "workspace:*",
         "@octane-xplat/biometrics": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/geolocation": "workspace:*",
         "@octane-xplat/haptics": "workspace:*",
@@ -457,7 +328,6 @@
         "@octane-xplat/sqlite": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octane-xplat/video": "workspace:*",
-        "@xplat/demos": "workspace:*",
       },
       "devDependencies": {
         "@bamboocss/dev": "1.60.1",
@@ -476,7 +346,7 @@
     },
     "packages/app-menu": {
       "name": "@octane-xplat/app-menu",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -498,7 +368,7 @@
     },
     "packages/audio": {
       "name": "@octane-xplat/audio",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -527,7 +397,7 @@
     },
     "packages/auth": {
       "name": "@octane-xplat/auth",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/apple-sign-in": "2.0.0",
         "@nativescript/google-signin": "2.1.1",
@@ -560,7 +430,7 @@
     },
     "packages/background-tasks": {
       "name": "@octane-xplat/background-tasks",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -586,7 +456,7 @@
     },
     "packages/bamboo": {
       "name": "@octane-xplat/bamboo",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@ampproject/remapping": "2.3.0",
         "@bamboocss/preset-base": "1.60.1",
@@ -606,7 +476,7 @@
     },
     "packages/barcode-scanner": {
       "name": "@octane-xplat/barcode-scanner",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/mlkit-barcode-scanning": "3.0.4",
         "@nativescript/mlkit-core": "3.0.4",
@@ -635,7 +505,7 @@
     },
     "packages/billing": {
       "name": "@octane-xplat/billing",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/payments": "4.0.1",
       },
@@ -661,7 +531,7 @@
     },
     "packages/biometrics": {
       "name": "@octane-xplat/biometrics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/biometrics": "1.3.1",
         "@octane-xplat/lib": "workspace:*",
@@ -689,7 +559,7 @@
     },
     "packages/build": {
       "name": "@octane-xplat/build",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@babel/core": "8.0.9",
         "@babel/plugin-transform-unicode-property-regex": "8.0.1",
@@ -723,7 +593,7 @@
     },
     "packages/calendar": {
       "name": "@octane-xplat/calendar",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -748,7 +618,7 @@
     },
     "packages/camera": {
       "name": "@octane-xplat/camera",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/lib": "workspace:*",
@@ -784,7 +654,7 @@
     },
     "packages/canvas": {
       "name": "@octane-xplat/canvas",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/canvas": "3.0.1",
         "@octane-xplat/jsx": "workspace:*",
@@ -815,7 +685,7 @@
     },
     "packages/charts": {
       "name": "@octane-xplat/charts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "d3-array": "3.2.5",
@@ -855,7 +725,7 @@
     },
     "packages/cli": {
       "name": "@octane-xplat/cli",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat": "./bin/xplat.exe",
       },
@@ -893,7 +763,7 @@
     },
     "packages/contacts": {
       "name": "@octane-xplat/contacts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/contacts": "3.0.0",
         "@octane-xplat/platform": "workspace:*",
@@ -919,7 +789,7 @@
     },
     "packages/context-menu": {
       "name": "@octane-xplat/context-menu",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -935,6 +805,7 @@
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
+        "typescript-classic": "catalog:",
         "vite": "catalog:",
       },
       "peerDependencies": {
@@ -950,7 +821,7 @@
     },
     "packages/create": {
       "name": "create-octane-xplat",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "create-octane-xplat": "./dist/index.js",
       },
@@ -967,7 +838,7 @@
     },
     "packages/crypto": {
       "name": "@octane-xplat/crypto",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -991,7 +862,7 @@
     },
     "packages/css-engine": {
       "name": "@octane-xplat/css-engine",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@csstools/css-calc": "3.4.3",
         "css-tree": "3.2.1",
@@ -1004,7 +875,7 @@
     },
     "packages/date-picker": {
       "name": "@octane-xplat/date-picker",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -1033,7 +904,7 @@
       ],
     },
     "packages/demos": {
-      "name": "@xplat/demos",
+      "name": "@octane-xplat/demos",
       "version": "0.0.0",
       "dependencies": {
         "@lexical/code": "0.53.0",
@@ -1076,7 +947,7 @@
         "@nativescript/core": "catalog:",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": "catalog:",
       },
@@ -1086,7 +957,7 @@
     },
     "packages/devtools": {
       "name": "@octane-xplat/devtools",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
@@ -1109,7 +980,7 @@
     },
     "packages/dnd-kit": {
       "name": "@octane-xplat/dnd-kit",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@dnd-kit/abstract": "0.5.3",
         "@dnd-kit/collision": "0.5.3",
@@ -1144,7 +1015,7 @@
     },
     "packages/docs-search": {
       "name": "@octane-xplat/docs-search",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@huggingface/tokenizers": "0.2.0",
         "onnxruntime-web": "1.31.1",
@@ -1157,7 +1028,7 @@
     },
     "packages/effects": {
       "name": "@octane-xplat/effects",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/swift-ui": "4.0.2",
         "@octane-xplat/jsx": "workspace:*",
@@ -1185,7 +1056,7 @@
     },
     "packages/files": {
       "name": "@octane-xplat/files",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-document-picker": "1.1.29",
         "@octane-xplat/jsx": "workspace:*",
@@ -1222,7 +1093,7 @@
     },
     "packages/fingerprint": {
       "name": "@octane-xplat/fingerprint",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-fingerprint": "./dist/cli.js",
       },
@@ -1240,7 +1111,7 @@
     },
     "packages/firebase-analytics": {
       "name": "@octane-xplat/firebase-analytics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-analytics": "5.0.2",
         "@nativescript/firebase-core": "5.0.2",
@@ -1270,7 +1141,7 @@
     },
     "packages/firebase-crashlytics": {
       "name": "@octane-xplat/firebase-crashlytics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-core": "5.0.2",
         "@nativescript/firebase-crashlytics": "5.0.2",
@@ -1297,7 +1168,7 @@
     },
     "packages/form": {
       "name": "@octane-xplat/form",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@tanstack/form-core": "1.33.5",
@@ -1322,7 +1193,7 @@
     },
     "packages/geofencing": {
       "name": "@octane-xplat/geofencing",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -1334,6 +1205,7 @@
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
       "peerDependencies": {
         "@nativescript/core": ">=9.1.0 <10",
@@ -1347,7 +1219,7 @@
     },
     "packages/geolocation": {
       "name": "@octane-xplat/geolocation",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/geolocation": "9.0.0",
         "@octane-xplat/lib": "workspace:*",
@@ -1374,7 +1246,7 @@
     },
     "packages/gif": {
       "name": "@octane-xplat/gif",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
@@ -1404,7 +1276,7 @@
     },
     "packages/global-shortcuts": {
       "name": "@octane-xplat/global-shortcuts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -1426,7 +1298,7 @@
     },
     "packages/haptics": {
       "name": "@octane-xplat/haptics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -1455,7 +1327,7 @@
     },
     "packages/icons": {
       "name": "@octane-xplat/icons",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@iconify/types": "2.0.0",
         "@iconify/utils": "3.1.7",
@@ -1488,7 +1360,7 @@
     },
     "packages/image": {
       "name": "@octane-xplat/image",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
@@ -1519,7 +1391,7 @@
     },
     "packages/image-crop": {
       "name": "@octane-xplat/image-crop",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
@@ -1551,7 +1423,7 @@
     },
     "packages/image-manipulator": {
       "name": "@octane-xplat/image-manipulator",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@jsquash/webp": "1.5.0",
         "@octane-xplat/lib": "workspace:*",
@@ -1581,7 +1453,7 @@
     },
     "packages/intersection-observer": {
       "name": "@octane-xplat/intersection-observer",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
       },
@@ -1609,7 +1481,7 @@
     },
     "packages/jsx": {
       "name": "@octane-xplat/jsx",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
@@ -1627,7 +1499,7 @@
     },
     "packages/keyboard": {
       "name": "@octane-xplat/keyboard",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -1656,7 +1528,7 @@
     },
     "packages/lexical": {
       "name": "@octane-xplat/lexical",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@lexical/code": "0.53.0",
         "@lexical/extension": "0.53.0",
@@ -1697,7 +1569,7 @@
     },
     "packages/lib": {
       "name": "@octane-xplat/lib",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -1751,7 +1623,7 @@
     },
     "packages/lingui": {
       "name": "@octane-xplat/lingui",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-collator": "0.3.0",
         "@formatjs/intl-datetimeformat": "7.9.0",
@@ -1791,7 +1663,7 @@
     },
     "packages/lint": {
       "name": "@octane-xplat/lint",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-lint": "./bin/lint.mjs",
       },
@@ -1810,7 +1682,7 @@
     },
     "packages/linux-gtk-renderer": {
       "name": "@octane-xplat/linux-gtk",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -1831,7 +1703,7 @@
     },
     "packages/lottie": {
       "name": "@octane-xplat/lottie",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/lib": "workspace:*",
@@ -1861,12 +1733,15 @@
     },
     "packages/macos-appkit": {
       "name": "@octane-xplat/macos-appkit",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
+        "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
         "@nativescript/objc-node-api": "1.0.0-alpha.7",
+        "@nativescript/vite": "8.0.20",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "acorn": "8.19.0",
         "saxes": "6.0.0",
@@ -1884,7 +1759,7 @@
     },
     "packages/macos-build": {
       "name": "@octane-xplat/macos-build",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
         "@types/node": "24.10.1",
@@ -1897,7 +1772,7 @@
     },
     "packages/maps": {
       "name": "@octane-xplat/maps",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@googlemaps/js-api-loader": "2.1.3",
         "@nativescript/google-maps": "1.8.0",
@@ -1925,7 +1800,7 @@
     },
     "packages/mcp": {
       "name": "@octane-xplat/mcp",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-mcp": "./dist/xplat-mcp.js",
       },
@@ -1944,7 +1819,7 @@
     },
     "packages/media": {
       "name": "@octane-xplat/media",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/camera": "7.0.0",
         "@nativescript/imagepicker": "5.0.0",
@@ -1958,10 +1833,12 @@
         "@nativescript/types": "catalog:",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
+        "jsdom": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
         "typescript-classic": "catalog:",
+        "vitest": "catalog:",
       },
       "peerDependencies": {
         "@nativescript/core": ">=9.1.0 <10",
@@ -1975,7 +1852,7 @@
     },
     "packages/media-converter": {
       "name": "@octane-xplat/media-converter",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "gifuct-js": "2.1.2",
@@ -2000,7 +1877,7 @@
     },
     "packages/media-library": {
       "name": "@octane-xplat/media-library",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2029,24 +1906,9 @@
         "@nativescript/core",
       ],
     },
-    "packages/media-probe": {
-      "name": "@xplat/media-probe",
-      "version": "0.0.0",
-      "dependencies": {
-        "@nativescript-community/audio": "6.4.14",
-        "@nativescript/audio-context": "1.3.3",
-        "@octane-xplat/platform": "workspace:*",
-      },
-      "devDependencies": {
-        "@nativescript/core": "catalog:",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
-        "@octane-xplat/nativescript-octane": "workspace:*",
-        "octane": "catalog:",
-      },
-    },
     "packages/motion": {
       "name": "@octane-xplat/motion",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-getcanonicallocales": "3.3.0",
         "@formatjs/intl-locale": "5.4.1",
@@ -2060,7 +1922,7 @@
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/video": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
@@ -2086,7 +1948,7 @@
     },
     "packages/nano-icons": {
       "name": "@octane-xplat/nano-icons",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "nano-icons": "./bin/nano-icons.mjs",
       },
@@ -2128,7 +1990,7 @@
     },
     "packages/nativescript-octane": {
       "name": "@octane-xplat/nativescript-octane",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
@@ -2150,7 +2012,7 @@
     },
     "packages/network": {
       "name": "@octane-xplat/network",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@kayahr/text-encoding": "2.2.0",
         "@octane-xplat/platform": "workspace:*",
@@ -2206,7 +2068,7 @@
     },
     "packages/notifications": {
       "name": "@octane-xplat/notifications",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/local-notifications": "7.0.0",
         "@octane-xplat/lib": "workspace:*",
@@ -2232,7 +2094,7 @@
     },
     "packages/pager": {
       "name": "@octane-xplat/pager",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-pager": "14.1.42",
         "@octane-xplat/jsx": "workspace:*",
@@ -2264,7 +2126,7 @@
     },
     "packages/picker": {
       "name": "@octane-xplat/picker",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -2296,7 +2158,7 @@
     },
     "packages/platform": {
       "name": "@octane-xplat/platform",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/lib": "workspace:*",
@@ -2340,7 +2202,7 @@
     },
     "packages/posthog": {
       "name": "@octane-xplat/posthog",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
         "posthog-js": "1.441.2",
@@ -2367,7 +2229,7 @@
     },
     "packages/pretext": {
       "name": "@octane-xplat/pretext",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@chenglou/pretext": "1.0.0",
         "@formatjs/intl-getcanonicallocales": "3.3.0",
@@ -2394,7 +2256,7 @@
     },
     "packages/print": {
       "name": "@octane-xplat/print",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2416,7 +2278,7 @@
     },
     "packages/push": {
       "name": "@octane-xplat/push",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-core": "5.0.2",
         "@nativescript/firebase-messaging": "5.0.2",
@@ -2444,7 +2306,7 @@
     },
     "packages/recorder": {
       "name": "@octane-xplat/recorder",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2473,7 +2335,7 @@
     },
     "packages/richtext": {
       "name": "@octane-xplat/richtext",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2505,7 +2367,7 @@
     },
     "packages/rolling-text": {
       "name": "@octane-xplat/rolling-text",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-getcanonicallocales": "3.3.0",
         "@formatjs/intl-locale": "5.4.1",
@@ -2543,7 +2405,7 @@
     },
     "packages/screen-orientation": {
       "name": "@octane-xplat/screen-orientation",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2566,7 +2428,7 @@
     },
     "packages/secure-storage": {
       "name": "@octane-xplat/secure-storage",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/secure-storage": "4.0.2",
         "@octane-xplat/lib": "workspace:*",
@@ -2594,7 +2456,7 @@
     },
     "packages/sentry": {
       "name": "@octane-xplat/sentry",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/sentry": "4.6.49",
         "@octane-xplat/lib": "workspace:*",
@@ -2605,7 +2467,7 @@
         "@nativescript/types": "catalog:",
         "@nativescript/vite": "8.0.20",
         "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
@@ -2630,7 +2492,7 @@
     },
     "packages/shaders": {
       "name": "@octane-xplat/shaders",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/canvas": "workspace:*",
         "shaders": "4.0.6",
@@ -2654,7 +2516,7 @@
     },
     "packages/share": {
       "name": "@octane-xplat/share",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/social-share": "2.3.0",
         "@octane-xplat/platform": "workspace:*",
@@ -2683,7 +2545,7 @@
     },
     "packages/sheet": {
       "name": "@octane-xplat/sheet",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -2714,7 +2576,7 @@
     },
     "packages/shortcuts": {
       "name": "@octane-xplat/shortcuts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@casbin/expression-eval": "5.3.0",
       },
@@ -2738,7 +2600,7 @@
     },
     "packages/smooth-corners": {
       "name": "@octane-xplat/smooth-corners",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@lisse/core": "0.7.3",
         "@octane-xplat/jsx": "workspace:*",
@@ -2748,7 +2610,7 @@
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -2772,7 +2634,7 @@
     },
     "packages/sounds": {
       "name": "@octane-xplat/sounds",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/audio-context": "1.3.3",
       },
@@ -2800,7 +2662,7 @@
     },
     "packages/speech-recognition": {
       "name": "@octane-xplat/speech-recognition",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2816,7 +2678,7 @@
     },
     "packages/splash-screen": {
       "name": "@octane-xplat/splash-screen",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2837,7 +2699,7 @@
     },
     "packages/sqlite": {
       "name": "@octane-xplat/sqlite",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/sqlite": "4.1.1",
         "@octane-xplat/lib": "workspace:*",
@@ -2859,7 +2721,7 @@
     },
     "packages/store-review": {
       "name": "@octane-xplat/store-review",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
@@ -2881,7 +2743,7 @@
     },
     "packages/stripe": {
       "name": "@octane-xplat/stripe",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@stripe/stripe-js": "10.2.1",
@@ -2911,7 +2773,7 @@
     },
     "packages/table": {
       "name": "@octane-xplat/table",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2944,7 +2806,7 @@
     },
     "packages/tailwind": {
       "name": "@octane-xplat/tailwind",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@tailwindcss/node": "4.3.5",
         "@tailwindcss/oxide": "4.3.5",
@@ -2968,7 +2830,7 @@
     },
     "packages/tiptap": {
       "name": "@octane-xplat/tiptap",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/richtext": "workspace:*",
@@ -3003,7 +2865,7 @@
     },
     "packages/toolchain": {
       "name": "octane-xplat",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat": "./bin/xplat.exe",
       },
@@ -3015,7 +2877,7 @@
         "@octane-xplat/tweaks": "workspace:*",
         "@octanejs/vite-plugin": "0.6.0",
         "@tsrx/oxc": "0.23.0",
-        "typescript": "7.1.0-beta",
+        "typescript": "7.1.0-dev.20261121.1",
         "vite": "8.3.6",
       },
       "devDependencies": {
@@ -3024,7 +2886,7 @@
     },
     "packages/tracking-transparency": {
       "name": "@octane-xplat/tracking-transparency",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -3051,7 +2913,7 @@
     },
     "packages/tray": {
       "name": "@octane-xplat/tray",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -3082,7 +2944,7 @@
     },
     "packages/tweaks": {
       "name": "@octane-xplat/tweaks",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/devtools": "workspace:*",
         "@octane-xplat/icons": "workspace:*",
@@ -3124,7 +2986,7 @@
     },
     "packages/ui": {
       "name": "@octane-xplat/ui",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -3158,7 +3020,7 @@
     },
     "packages/updates": {
       "name": "@octane-xplat/updates",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@noble/hashes": "2.4.0",
         "@octane-xplat/platform": "workspace:*",
@@ -3183,7 +3045,7 @@
     },
     "packages/video": {
       "name": "@octane-xplat/video",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nstudio/nativescript-exoplayer": "6.2.0",
         "@octane-xplat/jsx": "workspace:*",
@@ -3215,7 +3077,7 @@
     },
     "packages/view-shot": {
       "name": "@octane-xplat/view-shot",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -3244,7 +3106,7 @@
     },
     "packages/vite-octane": {
       "name": "@octane-xplat/vite-octane",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/nativescript-octane": "workspace:*",
       },
@@ -3266,7 +3128,7 @@
     },
     "packages/web-browser": {
       "name": "@octane-xplat/web-browser",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -3292,7 +3154,7 @@
     },
     "packages/web-host": {
       "name": "@octane-xplat/web-host",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/build": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -3319,7 +3181,7 @@
     },
     "packages/workshop": {
       "name": "@octane-xplat/workshop",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -3365,7 +3227,7 @@
       ],
     },
     "tools/astryx-parity": {
-      "name": "@xplat/astryx-parity",
+      "name": "@octane-xplat/astryx-parity",
       "version": "0.0.0",
       "dependencies": {
         "@astryxdesign/core": "0.7.4",
@@ -3390,7 +3252,7 @@
       },
     },
     "tools/auth-guide": {
-      "name": "@xplat/auth-guide",
+      "name": "@octane-xplat/auth-guide",
       "dependencies": {
         "jose": "6.2.15",
         "typescript-classic": "catalog:",
@@ -3402,10 +3264,10 @@
       },
     },
     "tools/cli-go": {
-      "name": "@xplat/cli-go-probe",
+      "name": "@octane-xplat/cli-go-probe",
     },
     "tools/feedback-worker": {
-      "name": "@xplat/feedback-worker",
+      "name": "@octane-xplat/feedback-worker",
       "version": "0.0.0",
       "devDependencies": {
         "@cloudflare/workers-types": "5.20260928.1",
@@ -3428,12 +3290,36 @@
         "vite": "catalog:",
       },
     },
+    "tools/macos-verification": {
+      "name": "@octane-xplat/macos",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nativescript/macos-node-api": "catalog:",
+        "@octane-xplat/app": "workspace:*",
+        "@octane-xplat/bamboo": "workspace:*",
+        "@octane-xplat/camera": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "@octane-xplat/web-browser": "workspace:*",
+        "octane": "catalog:",
+      },
+      "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/macos-build": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
     "tools/native-readiness": {
-      "name": "@xplat/native-readiness",
+      "name": "@octane-xplat/native-readiness",
       "version": "0.0.0",
     },
     "tools/ota-server": {
-      "name": "@xplat/ota-server",
+      "name": "@octane-xplat/ota-server",
       "version": "0.0.0",
       "dependencies": {
         "@octane-xplat/fingerprint": "workspace:*",
@@ -3446,7 +3332,7 @@
       },
     },
     "tools/platform-qualification": {
-      "name": "@xplat/platform-qualification",
+      "name": "@octane-xplat/platform-qualification",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
@@ -3470,7 +3356,7 @@
       },
     },
     "tools/probe": {
-      "name": "@xplat/probe",
+      "name": "@octane-xplat/probe",
       "version": "0.0.0",
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
@@ -3482,7 +3368,7 @@
       },
     },
     "tools/routing-eval": {
-      "name": "@xplat/routing-eval",
+      "name": "@octane-xplat/routing-eval",
       "version": "0.0.0",
       "devDependencies": {
         "@types/node": "24.10.1",
@@ -3490,7 +3376,7 @@
       },
     },
     "tools/tailwind-qualification": {
-      "name": "@xplat/tailwind-qualification",
+      "name": "@octane-xplat/tailwind-qualification",
       "devDependencies": {
         "@nativescript/tailwind": "4.1.0",
         "@octane-xplat/css-engine": "workspace:*",
@@ -3504,7 +3390,7 @@
       },
     },
     "tools/verification": {
-      "name": "@xplat/verification",
+      "name": "@octane-xplat/verification",
       "version": "0.0.0",
       "devDependencies": {
         "@octane-xplat/ui": "workspace:*",
@@ -3514,7 +3400,7 @@
       },
     },
     "tools/visual": {
-      "name": "@xplat/visual",
+      "name": "@octane-xplat/visual",
       "version": "0.0.0",
       "dependencies": {
         "@octane-xplat/ui": "workspace:*",
@@ -3532,6 +3418,115 @@
         "vite": "catalog:",
         "vitest": "catalog:",
         "vitest-plugin-vis": "5.1.7",
+      },
+    },
+    "tools/web-verification": {
+      "name": "@octane-xplat/web",
+      "version": "0.0.0",
+      "dependencies": {
+        "@octane-xplat/app": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "octane": "catalog:",
+      },
+      "devDependencies": {
+        "@octane-xplat/bamboo": "workspace:*",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/sqlite": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "@tsrx/content-mapper": "catalog:",
+        "playwright": "1.63.0",
+        "typescript": "catalog:",
+        "typescript-classic": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
+    "tools/windows-host": {
+      "name": "@octane-xplat/windows",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nativescript-community/observable": "2.0.11",
+        "@nativescript-community/perms": "3.0.12",
+        "@nativescript/canvas": "3.0.1",
+        "@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
+        "@nativescript/font-manager": "1.0.18",
+        "@octane-xplat/ads": "workspace:*",
+        "@octane-xplat/app": "workspace:*",
+        "@octane-xplat/app-menu": "workspace:*",
+        "@octane-xplat/audio": "workspace:*",
+        "@octane-xplat/auth": "workspace:*",
+        "@octane-xplat/background-tasks": "workspace:*",
+        "@octane-xplat/barcode-scanner": "workspace:*",
+        "@octane-xplat/billing": "workspace:*",
+        "@octane-xplat/biometrics": "workspace:*",
+        "@octane-xplat/calendar": "workspace:*",
+        "@octane-xplat/camera": "workspace:*",
+        "@octane-xplat/canvas": "workspace:*",
+        "@octane-xplat/charts": "workspace:*",
+        "@octane-xplat/contacts": "workspace:*",
+        "@octane-xplat/demos": "workspace:*",
+        "@octane-xplat/effects": "workspace:*",
+        "@octane-xplat/files": "workspace:*",
+        "@octane-xplat/firebase-analytics": "workspace:*",
+        "@octane-xplat/firebase-crashlytics": "workspace:*",
+        "@octane-xplat/geolocation": "workspace:*",
+        "@octane-xplat/gif": "workspace:*",
+        "@octane-xplat/global-shortcuts": "workspace:*",
+        "@octane-xplat/haptics": "workspace:*",
+        "@octane-xplat/image": "workspace:*",
+        "@octane-xplat/intersection-observer": "workspace:*",
+        "@octane-xplat/lottie": "workspace:*",
+        "@octane-xplat/maps": "workspace:*",
+        "@octane-xplat/media": "workspace:*",
+        "@octane-xplat/media-converter": "workspace:*",
+        "@octane-xplat/media-library": "workspace:*",
+        "@octane-xplat/motion": "workspace:*",
+        "@octane-xplat/nativescript-masonkit": "1.0.0-beta.129",
+        "@octane-xplat/nativescript-octane": "workspace:*",
+        "@octane-xplat/network": "workspace:*",
+        "@octane-xplat/notifications": "workspace:*",
+        "@octane-xplat/pager": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/posthog": "workspace:*",
+        "@octane-xplat/print": "workspace:*",
+        "@octane-xplat/push": "workspace:*",
+        "@octane-xplat/recorder": "workspace:*",
+        "@octane-xplat/richtext": "workspace:*",
+        "@octane-xplat/rolling-text": "workspace:*",
+        "@octane-xplat/screen-orientation": "workspace:*",
+        "@octane-xplat/secure-storage": "workspace:*",
+        "@octane-xplat/sentry": "workspace:*",
+        "@octane-xplat/shaders": "workspace:*",
+        "@octane-xplat/share": "workspace:*",
+        "@octane-xplat/smooth-corners": "workspace:*",
+        "@octane-xplat/sounds": "workspace:*",
+        "@octane-xplat/splash-screen": "workspace:*",
+        "@octane-xplat/sqlite": "workspace:*",
+        "@octane-xplat/store-review": "workspace:*",
+        "@octane-xplat/tray": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "@octane-xplat/updates": "workspace:*",
+        "@octane-xplat/video": "workspace:*",
+        "@octane-xplat/view-shot": "workspace:*",
+        "@octane-xplat/web-browser": "workspace:*",
+        "@valor/nativescript-websockets": "2.0.3",
+        "octane": "catalog:",
+      },
+      "devDependencies": {
+        "@nativescript/types": "catalog:",
+        "@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
+        "@nativescript/windows": "1.0.0-beta.24",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/vite-octane": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "nativescript": "9.1.2-dev.2026-09-24-36031892256",
+        "typescript": "catalog:",
+        "typescript-classic": "catalog:",
+        "vite": "catalog:",
       },
     },
   },
@@ -3553,10 +3548,12 @@
     "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
     "octane@0.17.0": "packages/cli/patches/octane@0.17.0.patch",
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
+    "@tsrx/content-mapper@0.1.2": "packages/cli/patches/@tsrx__content-mapper@0.1.2.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21-pkgprnew.patch",
+    "@octane-xplat/nativescript-mason-core@1.0.0-beta.13": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.13.patch",
     "@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
     "@octanejs/tiptap@0.0.63": "packages/cli/patches/@octanejs__tiptap@0.0.63.patch",
-    "@octane-xplat/nativescript-mason-core@1.0.0-beta.12": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.12.patch",
+    "@octanejs/lexical@0.2.13": "packages/cli/patches/@octanejs__lexical@0.2.13.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
   },
@@ -3634,7 +3631,7 @@
     "@tsrx/oxc": "0.23.0",
     "jsdom": "30.1.1",
     "octane": "0.17.0",
-    "typescript": "7.1.0-beta",
+    "typescript": "7.1.0-dev.20261121.1",
     "typescript-classic": "npm:typescript@5.9.3",
     "vite": "8.3.6",
     "vitest": "4.1.11",
@@ -4332,8 +4329,6 @@
 
     "@nativescript-community/arraybuffers": ["@nativescript-community/arraybuffers@1.1.5", "", {}, "sha512-Tcvb8Y+i71UUHiOd59KZefP1UmOXDYKg/Oy2KGf1CgPH7i0TlosBxYJwwczq2csuuKYG4Bde//K+I/soym+8eg=="],
 
-    "@nativescript-community/audio": ["@nativescript-community/audio@6.4.14", "", { "dependencies": { "@nativescript-community/perms": "3.0.11" } }, "sha512-YLdOWxHtyBoEzNFc0mK6Ww9v5SSPUuaLk7Vik+q0lF9oA6DOIEhs64qbj1iHqnZTYG8886TWFx+mg5dsh5Go2A=="],
-
     "@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.0.45", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-4GcYCxJByXVUIdOch5BY/HP32bO8lrOhaBpzlb/rQZwV3lmqmEZ4d5Jp33vxuekIcbxKhlWO72ky7H/0gMfQDQ=="],
 
     "@nativescript-community/observable": ["@nativescript-community/observable@2.0.11", "", {}, "sha512-G30bcw2gwvBB5ceJ23mEtej/iYVqXCrgLaMxOftNrno0wyg0RWuJQqDUFwO4bZdSRz8/um9oM1u/5SihmxJvBA=="],
@@ -4478,11 +4473,19 @@
 
     "@octane-xplat/ads": ["@octane-xplat/ads@workspace:packages/ads"],
 
+    "@octane-xplat/app": ["@octane-xplat/app@workspace:packages/app"],
+
     "@octane-xplat/app-menu": ["@octane-xplat/app-menu@workspace:packages/app-menu"],
+
+    "@octane-xplat/astryx-parity": ["@octane-xplat/astryx-parity@workspace:tools/astryx-parity"],
+
+    "@octane-xplat/astryx-sandbox": ["@octane-xplat/astryx-sandbox@github:octane-xplat/astryx-sandbox#aabfe55", { "peerDependencies": { "@octane-xplat/files": "*", "@octane-xplat/ui": "*", "octane": "^0.17.0" } }, "octane-xplat-astryx-sandbox-aabfe55", "sha512-QwHyIaGQ+leC4GqE5FTv4hs0HVRsu1JPxzZaX7fiGj3dKfxw4qyqH9eGGoKRFuvN8PQzfdB6bClGU/60u5kBUA=="],
 
     "@octane-xplat/audio": ["@octane-xplat/audio@workspace:packages/audio"],
 
     "@octane-xplat/auth": ["@octane-xplat/auth@workspace:packages/auth"],
+
+    "@octane-xplat/auth-guide": ["@octane-xplat/auth-guide@workspace:tools/auth-guide"],
 
     "@octane-xplat/background-tasks": ["@octane-xplat/background-tasks@workspace:packages/background-tasks"],
 
@@ -4506,6 +4509,10 @@
 
     "@octane-xplat/cli": ["@octane-xplat/cli@workspace:packages/cli"],
 
+    "@octane-xplat/cli-go-probe": ["@octane-xplat/cli-go-probe@workspace:tools/cli-go"],
+
+    "@octane-xplat/component-workshop": ["@octane-xplat/component-workshop@workspace:apps/component-workshop"],
+
     "@octane-xplat/contacts": ["@octane-xplat/contacts@workspace:packages/contacts"],
 
     "@octane-xplat/context-menu": ["@octane-xplat/context-menu@workspace:packages/context-menu"],
@@ -4516,15 +4523,21 @@
 
     "@octane-xplat/date-picker": ["@octane-xplat/date-picker@workspace:packages/date-picker"],
 
+    "@octane-xplat/demos": ["@octane-xplat/demos@workspace:packages/demos"],
+
     "@octane-xplat/devtools": ["@octane-xplat/devtools@workspace:packages/devtools"],
 
     "@octane-xplat/devtools-desktop": ["@octane-xplat/devtools-desktop@workspace:apps/devtools"],
 
     "@octane-xplat/dnd-kit": ["@octane-xplat/dnd-kit@workspace:packages/dnd-kit"],
 
+    "@octane-xplat/docs": ["@octane-xplat/docs@workspace:apps/docs"],
+
     "@octane-xplat/docs-search": ["@octane-xplat/docs-search@workspace:packages/docs-search"],
 
     "@octane-xplat/effects": ["@octane-xplat/effects@workspace:packages/effects"],
+
+    "@octane-xplat/feedback-worker": ["@octane-xplat/feedback-worker@workspace:tools/feedback-worker"],
 
     "@octane-xplat/files": ["@octane-xplat/files@workspace:packages/files"],
 
@@ -4592,9 +4605,13 @@
 
     "@octane-xplat/lottie": ["@octane-xplat/lottie@workspace:packages/lottie"],
 
+    "@octane-xplat/macos": ["@octane-xplat/macos@workspace:tools/macos-verification"],
+
     "@octane-xplat/macos-appkit": ["@octane-xplat/macos-appkit@workspace:packages/macos-appkit"],
 
     "@octane-xplat/macos-build": ["@octane-xplat/macos-build@workspace:packages/macos-build"],
+
+    "@octane-xplat/maestro": ["@octane-xplat/maestro@workspace:apps/maestro"],
 
     "@octane-xplat/maps": ["@octane-xplat/maps@workspace:packages/maps"],
 
@@ -4606,11 +4623,15 @@
 
     "@octane-xplat/media-library": ["@octane-xplat/media-library@workspace:packages/media-library"],
 
+    "@octane-xplat/mobile": ["@octane-xplat/mobile@workspace:apps/harness"],
+
     "@octane-xplat/motion": ["@octane-xplat/motion@workspace:packages/motion"],
 
     "@octane-xplat/nano-icons": ["@octane-xplat/nano-icons@workspace:packages/nano-icons"],
 
-    "@octane-xplat/nativescript-mason-core": ["@octane-xplat/nativescript-mason-core@1.0.0-beta.12", "", { "dependencies": { "@nativescript/font-manager": "1.0.20" }, "peerDependencies": { "@nativescript/core": "~9.1.2" } }, "sha512-Ytd71kZb0xMZ5rBrjT1dL3PG1V+/QgDMHyePzgPjmX4GjPKAk5zSzMSOlnhOE+Kk0rJvBc0FGjIt5RGlRKk/eA=="],
+    "@octane-xplat/native-readiness": ["@octane-xplat/native-readiness@workspace:tools/native-readiness"],
+
+    "@octane-xplat/nativescript-mason-core": ["@octane-xplat/nativescript-mason-core@1.0.0-beta.13", "", { "dependencies": { "@nativescript/font-manager": "1.0.20" }, "peerDependencies": { "@nativescript/core": "~9.1.2" } }, "sha512-B5T7kOTEfDPnuPyyjRfxMnA7K0MMbpE3HuGQ3lD2aG+zzmOApEwIF8PC0pWRVmEU85nduqzssiDAXLhbQT9BCg=="],
 
     "@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.126", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-Lx2PN1uOfDrLsCfLjJ6EckGiFiP5/9nCSftRXXhmgs/CtfrR4dq60iyUe+Scc3F90zHlRNvjbNkLO1Rtk8Gw6Q=="],
 
@@ -4622,17 +4643,23 @@
 
     "@octane-xplat/notifications": ["@octane-xplat/notifications@workspace:packages/notifications"],
 
+    "@octane-xplat/ota-server": ["@octane-xplat/ota-server@workspace:tools/ota-server"],
+
     "@octane-xplat/pager": ["@octane-xplat/pager@workspace:packages/pager"],
 
     "@octane-xplat/picker": ["@octane-xplat/picker@workspace:packages/picker"],
 
     "@octane-xplat/platform": ["@octane-xplat/platform@workspace:packages/platform"],
 
+    "@octane-xplat/platform-qualification": ["@octane-xplat/platform-qualification@workspace:tools/platform-qualification"],
+
     "@octane-xplat/posthog": ["@octane-xplat/posthog@workspace:packages/posthog"],
 
     "@octane-xplat/pretext": ["@octane-xplat/pretext@workspace:packages/pretext"],
 
     "@octane-xplat/print": ["@octane-xplat/print@workspace:packages/print"],
+
+    "@octane-xplat/probe": ["@octane-xplat/probe@workspace:tools/probe"],
 
     "@octane-xplat/push": ["@octane-xplat/push@workspace:packages/push"],
 
@@ -4641,6 +4668,8 @@
     "@octane-xplat/richtext": ["@octane-xplat/richtext@workspace:packages/richtext"],
 
     "@octane-xplat/rolling-text": ["@octane-xplat/rolling-text@workspace:packages/rolling-text"],
+
+    "@octane-xplat/routing-eval": ["@octane-xplat/routing-eval@workspace:tools/routing-eval"],
 
     "@octane-xplat/screen-orientation": ["@octane-xplat/screen-orientation@workspace:packages/screen-orientation"],
 
@@ -4674,6 +4703,8 @@
 
     "@octane-xplat/tailwind": ["@octane-xplat/tailwind@workspace:packages/tailwind"],
 
+    "@octane-xplat/tailwind-qualification": ["@octane-xplat/tailwind-qualification@workspace:tools/tailwind-qualification"],
+
     "@octane-xplat/tiptap": ["@octane-xplat/tiptap@workspace:packages/tiptap"],
 
     "@octane-xplat/tracking-transparency": ["@octane-xplat/tracking-transparency@workspace:packages/tracking-transparency"],
@@ -4686,17 +4717,27 @@
 
     "@octane-xplat/updates": ["@octane-xplat/updates@workspace:packages/updates"],
 
+    "@octane-xplat/verification": ["@octane-xplat/verification@workspace:tools/verification"],
+
     "@octane-xplat/video": ["@octane-xplat/video@workspace:packages/video"],
 
     "@octane-xplat/view-shot": ["@octane-xplat/view-shot@workspace:packages/view-shot"],
 
+    "@octane-xplat/visual": ["@octane-xplat/visual@workspace:tools/visual"],
+
     "@octane-xplat/vite-octane": ["@octane-xplat/vite-octane@workspace:packages/vite-octane"],
+
+    "@octane-xplat/web": ["@octane-xplat/web@workspace:tools/web-verification"],
 
     "@octane-xplat/web-browser": ["@octane-xplat/web-browser@workspace:packages/web-browser"],
 
     "@octane-xplat/web-host": ["@octane-xplat/web-host@workspace:packages/web-host"],
 
+    "@octane-xplat/windows": ["@octane-xplat/windows@workspace:tools/windows-host"],
+
     "@octane-xplat/workshop": ["@octane-xplat/workshop@workspace:packages/workshop"],
+
+    "@octane-xplat/workshop-demo": ["@octane-xplat/workshop-demo@workspace:apps/workshop-demo"],
 
     "@octanejs/app-core": ["@octanejs/app-core@0.3.0", "", { "dependencies": { "@ripple-ts/adapter": "^0.4.0", "esbuild": "^0.28.1" }, "peerDependencies": { "octane": "^0.17.0" } }, "sha512-RD36orb4vXW3ye3OdkBXquFYmFD9B3DZ5BocZCxZNPkUdjPXc5CzPLvdYHzDLEd9+uTP+XW9hAwQy3Qjtj6MXQ=="],
 
@@ -5348,17 +5389,17 @@
 
     "@typescript/typescript-android-arm64": ["@typescript/typescript-android-arm64@7.1.0-beta", "", { "os": "android", "cpu": "arm64" }, "sha512-UZx6PxoQavuvaVTrSf3aw0Oy/J/uJpRylipA0kzc038jMvZXh0UtE8vnQp20FqtdgD5bhXZ0aJrRJyoTSUO58Q=="],
 
-    "@typescript/typescript-darwin-arm64": ["@typescript/typescript-darwin-arm64@7.1.0-beta", "", { "os": "darwin", "cpu": "arm64" }, "sha512-q7mxblcyX0E7hXsY4k+Q6KWKK5mGmfVq+BDesdTgRVgjodk27aIxER77Zyj9+TgSTlCje8F7+JM6f6hl2BuNdw=="],
+    "@typescript/typescript-darwin-arm64": ["@typescript/typescript-darwin-arm64@7.1.0-dev.20261121.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-AYWfaBJcQroMGm/3B56xPRby52eEzJUUao6egeB468Aoyetcsc+0V7igQfiJgWdHQlwF092NPTJnjpfE2HWHyA=="],
 
-    "@typescript/typescript-darwin-x64": ["@typescript/typescript-darwin-x64@7.1.0-beta", "", { "os": "darwin", "cpu": "x64" }, "sha512-D5EYqG5Wm/guw9+0j8+Mn1Jbr/gfS/VtFTuoH8PJtFbcqeDaQGMulc7SW8q51QG6Y3wGOGX3nbsTOw6fIKWWAA=="],
+    "@typescript/typescript-darwin-x64": ["@typescript/typescript-darwin-x64@7.1.0-dev.20261121.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-fzfrhrTHDxynXhDfVcmVK19XQV84FLxGiL7dFhIbWVLf32pt+bTvaoHR1OUUnInt1+ICe0sGSEs+++qXLZ869w=="],
 
     "@typescript/typescript-freebsd-arm64": ["@typescript/typescript-freebsd-arm64@7.1.0-beta", "", { "os": "freebsd", "cpu": "arm64" }, "sha512-9A0XX0tcnH9qPdolSKKzSjTb93dlB0UEcAJbHYEsrFX2fkFNSum9+dvkQQJ9vLc+7vxHetDPujq9Qe6wx+Xhow=="],
 
     "@typescript/typescript-freebsd-x64": ["@typescript/typescript-freebsd-x64@7.1.0-beta", "", { "os": "freebsd", "cpu": "x64" }, "sha512-EDf/dBHfY0TxX3NmUTek0hbffeyZlh3+ls6WQW3ICB8vYxwYLFnzg7wkgEUvl9eRlpiJ/nmc2S8arPMzINJ7rg=="],
 
-    "@typescript/typescript-linux-arm": ["@typescript/typescript-linux-arm@7.1.0-beta", "", { "os": "linux", "cpu": "arm" }, "sha512-AvN9HmzOQh46G4312ooSgMHhbB7DtnLwg8D9mo324X49B7weMwtJrBG1MxT9IyI8kzDd7YRtW+1hWGun7WG7Qw=="],
+    "@typescript/typescript-linux-arm": ["@typescript/typescript-linux-arm@7.1.0-dev.20261121.1", "", { "os": "linux", "cpu": "arm" }, "sha512-tTOjrl2Om6HLKb4kNWshr0O+NWndsOXMCzfALSkxm8sBwJwstk92whDTMjyM5XcUA+zDXbw+tasz3v2Xbjvx/A=="],
 
-    "@typescript/typescript-linux-arm64": ["@typescript/typescript-linux-arm64@7.1.0-beta", "", { "os": "linux", "cpu": "arm64" }, "sha512-hNqQBgQ5b5oGqN76QqbAU6CwYhJZ6iOcWc2kPTUs2OentgpxZktETziH6KIyRFJPaiBncognwn2ZLu3DNhHiWw=="],
+    "@typescript/typescript-linux-arm64": ["@typescript/typescript-linux-arm64@7.1.0-dev.20261121.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-CyvOLCEizm1EshR6xDxZZ236iyo2Lh8VE440560QGZkdt7lDW6jNPH+aOiBrCIar+1ZbI9LRUY//tFPe3xXBhA=="],
 
     "@typescript/typescript-linux-loong64": ["@typescript/typescript-linux-loong64@7.1.0-beta", "", { "os": "linux", "cpu": "none" }, "sha512-xbUustlBrFflt2pNEyG5ye+d4WGPc/rfr2xK29MXeobPSw297JqwuKRrvbKM5o3fE/eUM/c+urVm6jQ3IaMVTw=="],
 
@@ -5370,7 +5411,7 @@
 
     "@typescript/typescript-linux-s390x": ["@typescript/typescript-linux-s390x@7.1.0-beta", "", { "os": "linux", "cpu": "s390x" }, "sha512-j+d04s2kxaPQh6DLPb01sknAQfzsrdSZy15jBRHyLEZoaaQ19dVjbFRlkNVvYwUG7ZdP8+y5b/7RmPxdtHUKdQ=="],
 
-    "@typescript/typescript-linux-x64": ["@typescript/typescript-linux-x64@7.1.0-beta", "", { "os": "linux", "cpu": "x64" }, "sha512-kcD51ihf+pnI5KT4uQQYG04OpwznaZYBlIQhDhl8fflFd27NktxXsUeguxZyvUMyWfum7IF2bBS6Jv7ox0AgFQ=="],
+    "@typescript/typescript-linux-x64": ["@typescript/typescript-linux-x64@7.1.0-dev.20261121.1", "", { "os": "linux", "cpu": "x64" }, "sha512-z1Emby7a2gLHPreXgAoho6j1u1PATXarl7UkOmWxWjgPEsSl/rhSIwQm6PhncV+JpQXmM07Jvkaty3e0YOJtKg=="],
 
     "@typescript/typescript-netbsd-arm64": ["@typescript/typescript-netbsd-arm64@7.1.0-beta", "", { "os": "none", "cpu": "arm64" }, "sha512-8W85YyoGK+rgGoSU9jJQUpELbrKcZcbdJk2jPNQ6UKDKI7ryPlPFTrV2jCE5RQuv4Tt96hMDTc33s4YfRrLFBA=="],
 
@@ -5382,9 +5423,9 @@
 
     "@typescript/typescript-sunos-x64": ["@typescript/typescript-sunos-x64@7.1.0-beta", "", { "os": "sunos", "cpu": "x64" }, "sha512-ovAdoWXEn2B5/fyWG69pLU3FWmQwPWOjQV5TFbcxtpnOv+R3g8ySGHl1NYRq7Lb/GYdFDvaGcZ+SiU7iKuiMsA=="],
 
-    "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.1.0-beta", "", { "os": "win32", "cpu": "arm64" }, "sha512-lJbo71IEOfL7ZZIZnArRaOLqjn9BAfoSzyUQn0aSjfSpDZL4ru0afUsdBfo6PQEjD6ssdmi0n/RwaPADX6bsvQ=="],
+    "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.1.0-dev.20261121.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-d72WINcqFwSCc3MNg+NYzkysNllcODcYc0lsX/wBB2Sn7CqWFS8H532vXH8cC0fssGfShbXIw/NgLWCtBPapAQ=="],
 
-    "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.1.0-beta", "", { "os": "win32", "cpu": "x64" }, "sha512-UKcHvbybY2tDTvFW2b1vwiAvDlIRooo69lh8CXWVhOQejcvpM5+IgbiFW9EIwR5Wi5X/v+BdN7gdWbigBuJ3rw=="],
+    "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.1.0-dev.20261121.1", "", { "os": "win32", "cpu": "x64" }, "sha512-yIDgOrsvcayUhVJHF80UOzLthUaECY5bB+buPUWj4eylTWGno9qAraYSDnaTdzDZtlEvhfZPKoQCtTKMsRvQqw=="],
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.4.0", "", {}, "sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ=="],
 
@@ -5460,55 +5501,7 @@
 
     "@xmldom/xmldom": ["@xmldom/xmldom@0.9.12", "", {}, "sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A=="],
 
-    "@xplat/app": ["@xplat/app@workspace:packages/app"],
-
-    "@xplat/astryx-parity": ["@xplat/astryx-parity@workspace:tools/astryx-parity"],
-
-    "@xplat/astryx-sandbox": ["@xplat/astryx-sandbox@workspace:apps/astryx-sandbox"],
-
-    "@xplat/auth-guide": ["@xplat/auth-guide@workspace:tools/auth-guide"],
-
-    "@xplat/cli-go-probe": ["@xplat/cli-go-probe@workspace:tools/cli-go"],
-
-    "@xplat/component-workshop": ["@xplat/component-workshop@workspace:apps/component-workshop"],
-
-    "@xplat/demos": ["@xplat/demos@workspace:packages/demos"],
-
-    "@xplat/docs": ["@xplat/docs@workspace:apps/docs"],
-
-    "@xplat/feedback-worker": ["@xplat/feedback-worker@workspace:tools/feedback-worker"],
-
     "@xplat/linux-gtk-tests": ["@xplat/linux-gtk-tests@workspace:tools/linux-gtk-tests"],
-
-    "@xplat/macos": ["@xplat/macos@workspace:apps/macos"],
-
-    "@xplat/maestro": ["@xplat/maestro@workspace:apps/maestro"],
-
-    "@xplat/media-probe": ["@xplat/media-probe@workspace:packages/media-probe"],
-
-    "@xplat/mobile": ["@xplat/mobile@workspace:apps/mobile"],
-
-    "@xplat/native-readiness": ["@xplat/native-readiness@workspace:tools/native-readiness"],
-
-    "@xplat/ota-server": ["@xplat/ota-server@workspace:tools/ota-server"],
-
-    "@xplat/platform-qualification": ["@xplat/platform-qualification@workspace:tools/platform-qualification"],
-
-    "@xplat/probe": ["@xplat/probe@workspace:tools/probe"],
-
-    "@xplat/routing-eval": ["@xplat/routing-eval@workspace:tools/routing-eval"],
-
-    "@xplat/tailwind-qualification": ["@xplat/tailwind-qualification@workspace:tools/tailwind-qualification"],
-
-    "@xplat/verification": ["@xplat/verification@workspace:tools/verification"],
-
-    "@xplat/visual": ["@xplat/visual@workspace:tools/visual"],
-
-    "@xplat/web": ["@xplat/web@workspace:apps/web"],
-
-    "@xplat/windows": ["@xplat/windows@workspace:apps/windows"],
-
-    "@xplat/workshop-demo": ["@xplat/workshop-demo@workspace:apps/workshop-demo"],
 
     "@xtuc/ieee754": ["@xtuc/ieee754@1.2.0", "", {}, "sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA=="],
 
@@ -5524,7 +5517,7 @@
 
     "agent-base": ["agent-base@6.0.2", "", { "dependencies": { "debug": "4.4.3" } }, "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ=="],
 
-    "ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+    "ajv": ["ajv@8.17.1", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
 
     "ajv-formats": ["ajv-formats@3.0.1", "", { "peerDependencies": { "ajv": "^8.0.0" }, "optionalPeers": ["ajv"] }, "sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ=="],
 
@@ -5858,7 +5851,7 @@
 
     "es-errors": ["es-errors@1.3.0", "", {}, "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw=="],
 
-    "es-module-lexer": ["es-module-lexer@2.3.2", "", {}, "sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw=="],
+    "es-module-lexer": ["es-module-lexer@1.7.0", "", {}, "sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA=="],
 
     "es-object-atoms": ["es-object-atoms@1.1.2", "", { "dependencies": { "es-errors": "1.3.0" } }, "sha512-HWcBoN6NileqtSydK2FqHbS/LoDd2pqrnQHLyJzBj4kOp/ky2MWMN694xOfkK8/SnUsW2DH7EfyVlydKCsm1Zw=="],
 
@@ -6888,7 +6881,7 @@
 
     "stringify-entities": ["stringify-entities@4.0.4", "", { "dependencies": { "character-entities-html4": "2.1.0", "character-entities-legacy": "3.0.0" } }, "sha512-IwfBptatlO+QCJUo19AqvrPNqlVMpW9YEL2LIVY+Rpv2qsjCGxaDLNRgeGsQWJhfItebuJhsGSLjaBbNSQ+ieg=="],
 
-    "strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+    "strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "6.4.0" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "strip-ansi-cjs": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
@@ -7008,7 +7001,7 @@
 
     "typeorm": ["typeorm@0.3.31", "", { "dependencies": { "@sqltools/formatter": "1.2.5", "ansis": "4.4.0", "app-root-path": "3.1.0", "buffer": "6.0.3", "dayjs": "1.11.23", "debug": "4.4.3", "dedent": "1.7.2", "dotenv": "16.6.1", "glob": "10.5.0", "reflect-metadata": "0.2.2", "sha.js": "2.4.12", "sql-highlight": "6.1.0", "tslib": "2.8.1", "uuid": "11.1.1", "yargs": "17.7.3" }, "peerDependencies": { "@google-cloud/spanner": "^5.18.0 || ^6.0.0 || ^7.0.0 || ^8.0.0", "@sap/hana-client": "^2.14.22", "better-sqlite3": "^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "ioredis": "^5.0.4", "mongodb": "^5.8.0 || ^6.0.0", "mssql": "^9.1.1 || ^10.0.0 || ^11.0.0 || ^12.0.0", "mysql2": "^2.2.5 || ^3.0.1", "oracledb": "^6.3.0 || ^7.0.0", "pg": "^8.5.1", "pg-native": "^3.0.0", "pg-query-stream": "^4.0.0", "redis": "^3.1.1 || ^4.0.0 || ^5.0.14", "sql.js": "^1.4.0", "sqlite3": "^5.0.3 || ^6.0.0", "ts-node": "^10.7.0", "typeorm-aurora-data-api-driver": "^2.0.0 || ^3.0.0" }, "optionalPeers": ["@google-cloud/spanner", "@sap/hana-client", "better-sqlite3", "ioredis", "mongodb", "mssql", "mysql2", "oracledb", "pg", "pg-native", "pg-query-stream", "redis", "sql.js", "sqlite3", "ts-node", "typeorm-aurora-data-api-driver"], "bin": { "typeorm": "cli.js", "typeorm-ts-node-esm": "cli-ts-node-esm.js", "typeorm-ts-node-commonjs": "cli-ts-node-commonjs.js" } }, "sha512-6u9EFtdLBgHjnPm78NStVeM+I/1MolTzKykDDcydzKUkh6E++YS6XViU/fePJbvDvEGU4Xq34KOM/CLeer9I2A=="],
 
-    "typescript": ["typescript@7.1.0-beta", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.1.0-beta", "@typescript/typescript-android-arm64": "7.1.0-beta", "@typescript/typescript-darwin-arm64": "7.1.0-beta", "@typescript/typescript-darwin-x64": "7.1.0-beta", "@typescript/typescript-freebsd-arm64": "7.1.0-beta", "@typescript/typescript-freebsd-x64": "7.1.0-beta", "@typescript/typescript-linux-arm": "7.1.0-beta", "@typescript/typescript-linux-arm64": "7.1.0-beta", "@typescript/typescript-linux-loong64": "7.1.0-beta", "@typescript/typescript-linux-mips64el": "7.1.0-beta", "@typescript/typescript-linux-ppc64": "7.1.0-beta", "@typescript/typescript-linux-riscv64": "7.1.0-beta", "@typescript/typescript-linux-s390x": "7.1.0-beta", "@typescript/typescript-linux-x64": "7.1.0-beta", "@typescript/typescript-netbsd-arm64": "7.1.0-beta", "@typescript/typescript-netbsd-x64": "7.1.0-beta", "@typescript/typescript-openbsd-arm64": "7.1.0-beta", "@typescript/typescript-openbsd-x64": "7.1.0-beta", "@typescript/typescript-sunos-x64": "7.1.0-beta", "@typescript/typescript-win32-arm64": "7.1.0-beta", "@typescript/typescript-win32-x64": "7.1.0-beta" }, "bin": { "tsc": "bin/tsc" } }, "sha512-cjWjZAJDsmZzsNC5GwHNlW0YPM65jZa5oR0KyQcYX3KSVIfTvtBq//vewISyatKk4OLi5grZjHhIVE9fdrw1UQ=="],
+    "typescript": ["typescript@7.1.0-dev.20261121.1", "", { "optionalDependencies": { "@typescript/typescript-darwin-arm64": "7.1.0-dev.20261121.1", "@typescript/typescript-darwin-x64": "7.1.0-dev.20261121.1", "@typescript/typescript-linux-arm": "7.1.0-dev.20261121.1", "@typescript/typescript-linux-arm64": "7.1.0-dev.20261121.1", "@typescript/typescript-linux-x64": "7.1.0-dev.20261121.1", "@typescript/typescript-win32-arm64": "7.1.0-dev.20261121.1", "@typescript/typescript-win32-x64": "7.1.0-dev.20261121.1" }, "bin": { "tsc": "bin/tsc" } }, "sha512-/dDd4OgwnCQdzQ3nC3JByHeKhi1rDccTjlXtJTDcmMBYL6ak0KqEnEMjeQRVjwVRCo0fYejq3Kw51S7akRSltg=="],
 
     "typescript-classic": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
@@ -7322,8 +7315,6 @@
 
     "@isaacs/cliui/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "0.2.0", "emoji-regex": "9.2.2", "strip-ansi": "7.2.0" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
 
-    "@isaacs/cliui/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "6.4.0" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
-
     "@isaacs/cliui/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "6.2.3", "string-width": "5.1.2", "strip-ansi": "7.2.0" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
 
     "@istanbuljs/load-nyc-config/camelcase": ["camelcase@5.3.1", "", {}, "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="],
@@ -7376,13 +7367,13 @@
 
     "@lingui/cli/ora": ["ora@9.4.1", "", { "dependencies": { "chalk": "5.6.2", "cli-cursor": "5.0.0", "cli-spinners": "3.4.0", "is-interactive": "2.0.0", "is-unicode-supported": "2.1.0", "log-symbols": "7.0.1", "stdin-discarder": "0.3.2", "string-width": "8.3.0" } }, "sha512-6VlU9MLXbjVQD04AZCMX28hVtA5bUoadvUqO76MUCVA0ilwJbMiHsITRPfyVm6p/BC0Av/BXMujx39WCe1LEqw=="],
 
+    "@modelcontextprotocol/sdk/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+
     "@modelcontextprotocol/sdk/jose": ["jose@6.2.12", "", {}, "sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw=="],
 
     "@nano-sql/core/chalk": ["chalk@2.4.2", "", { "dependencies": { "ansi-styles": "3.2.1", "escape-string-regexp": "1.0.5", "supports-color": "5.5.0" } }, "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="],
 
     "@nano-sql/core/fast-deep-equal": ["fast-deep-equal@2.0.1", "", {}, "sha512-bCK/2Z4zLidyB4ReuIsvALH6w31YfAQDmXMqMx6FyfHqvBxtjC0eRumeSu4Bs3XtXwpyIywtSTrVT99BxY1f9w=="],
-
-    "@nativescript-community/audio/@nativescript-community/perms": ["@nativescript-community/perms@3.0.11", "", {}, "sha512-Q2Fee9LoxE9GfOR+9nPoSHkCFU+uFIO3jMmsC3J/Z/XC6j9mT7PhgG6APhzCE9Oqo14GSUTxR0oDbv4us9zcdg=="],
 
     "@nativescript-community/sentry/@sentry/browser": ["@sentry/browser@7.111.0", "", { "dependencies": { "@sentry-internal/feedback": "7.111.0", "@sentry-internal/replay-canvas": "7.111.0", "@sentry-internal/tracing": "7.111.0", "@sentry/core": "7.111.0", "@sentry/replay": "7.111.0", "@sentry/types": "7.111.0", "@sentry/utils": "7.111.0" } }, "sha512-x7S9XoJh+TbMnur4eBhPpCVo+p7udABBV2gQk+Iw6LP9e8EFKmGmNyl76vSsT6GeFJ7mwxDEKfuwbVoLBjIvHw=="],
 
@@ -7452,9 +7443,29 @@
 
     "@octane-xplat/macos-build/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
 
+    "@octane-xplat/maestro/@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.1.0", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-GHh21qwaIy1fnmLSazVEi3M6N8ruT39om8ugZXsaRqFUxXqRRT+LV93Qp7m0CzQfzQcQ2mmER/se/IVVoUe4Eg=="],
+
     "@octane-xplat/media-converter/mediabunny": ["mediabunny@1.42.0", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-s9ypTqLi6kbh95gC+YaJlG0PkLvMxu37Q/wO/pFZx0fUCA5Ym5mp+2dWoa83mKQ3Uo18aNlgev5iJ5ESZqWwgQ=="],
 
+    "@octane-xplat/mobile/@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.1.0", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-GHh21qwaIy1fnmLSazVEi3M6N8ruT39om8ugZXsaRqFUxXqRRT+LV93Qp7m0CzQfzQcQ2mmER/se/IVVoUe4Eg=="],
+
+    "@octane-xplat/probe/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
+
+    "@octane-xplat/routing-eval/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
+
     "@octane-xplat/shortcuts/@nativescript/core": ["@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298", { "dependencies": { "@csstools/css-calc": "2.1.4", "@csstools/css-color-parser": "3.1.0", "@csstools/css-parser-algorithms": "3.0.5", "@csstools/css-tokenizer": "3.0.4", "@nativescript/hook": "3.0.5", "acorn": "8.19.0", "css-tree": "3.2.1", "css-what": "7.0.0", "emoji-regex": "10.6.0", "semver": "7.8.5", "source-map": "0.7.6", "source-map-js": "1.2.1", "tslib": "2.8.1" } }, "sha512-y+yYu/shQ7C9u1l9ydHcshZ4SQNywotJhbOx4hx7JP6j2hgAckyU9FsYeOPyds7Zeey5+Yw7CsvgLe9L4c7Kgw=="],
+
+    "@octane-xplat/verification/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
+
+    "@octane-xplat/windows/@nativescript/core": ["@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298", { "dependencies": { "@csstools/css-calc": "2.1.4", "@csstools/css-color-parser": "3.1.0", "@csstools/css-parser-algorithms": "3.0.5", "@csstools/css-tokenizer": "3.0.4", "@nativescript/hook": "3.0.5", "acorn": "8.19.0", "css-tree": "3.2.1", "css-what": "7.0.0", "emoji-regex": "10.6.0", "semver": "7.8.5", "source-map": "0.7.6", "source-map-js": "1.2.1", "tslib": "2.8.1" } }, "sha512-y+yYu/shQ7C9u1l9ydHcshZ4SQNywotJhbOx4hx7JP6j2hgAckyU9FsYeOPyds7Zeey5+Yw7CsvgLe9L4c7Kgw=="],
+
+    "@octane-xplat/windows/@nativescript/font-manager": ["@nativescript/font-manager@1.0.18", "", {}, "sha512-bPWqsE6oYRwdb4JVe60aSeAIgnjbpgObDGO3HEI2ghNFIOxI3+qXR7VkTRY3AFHyIljT9DCVWy3mcde9k5LO3A=="],
+
+    "@octane-xplat/windows/@nativescript/vite": ["@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298", { "dependencies": { "@babel/core": "7.29.7", "@babel/generator": "7.29.8", "@babel/parser": "7.29.9", "@babel/plugin-transform-typescript": "7.29.9", "@babel/plugin-transform-unicode-property-regex": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@rollup/plugin-alias": "6.0.0", "@rollup/plugin-commonjs": "29.0.3", "@rollup/plugin-replace": "6.0.3", "css": "3.0.0", "esbuild": "0.27.7", "minimist": "1.2.8", "sass": "1.104.1", "vite": "8.3.0", "vite-plugin-static-copy": "4.1.1", "ws": "8.21.3" }, "peerDependencies": { "@analogjs/vite-plugin-angular": "^2.0.0", "@angular/build": "^21.0.0 || ^22.0.0", "@vitejs/plugin-vue": "^6.0.5", "@vitejs/plugin-vue-jsx": "^5.1.5", "@vue/compiler-sfc": "^3.5.0", "react-reconciler": "^0.32.0", "typescript": "*", "vite-plugin-solid": "^2.11.11", "vue-tsc": "^3.2.0" }, "optionalPeers": ["@analogjs/vite-plugin-angular", "@angular/build", "@vitejs/plugin-vue", "@vitejs/plugin-vue-jsx", "@vue/compiler-sfc", "react-reconciler", "typescript", "vite-plugin-solid", "vue-tsc"] }, "sha512-b4lW9meFZ3UIMDjp4Q2Agj0h9BteaTCp4bPx7antgtPaYDwrwM638mOnDJMd2u6BnDEGpqM4cnBqdM9YDEmbtw=="],
+
+    "@octane-xplat/windows/@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.129", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-g+M7Xq4hs30eH9CY1XnyIXRSSSeNBxHa4yY759R+wCPe96IO8cuYtDaHFzahyA8P955/tHuq1QUkJq5Xe/YP8w=="],
+
+    "@octane-xplat/windows/nativescript": ["nativescript@9.1.2-dev.2026-09-24-36031892256", "", { "dependencies": { "@foxt/js-srp": "0.0.3-patch2", "@nativescript/doctor": "2.0.18", "@nativescript/hook": "3.0.5", "@npmcli/arborist": "9.1.8", "@rigor789/resolve-package-path": "1.0.7", "axios": "1.18.1", "byline": "5.0.0", "chokidar": "3.6.0", "cli-table3": "0.6.5", "color": "4.2.3", "convert-source-map": "2.0.0", "detect-newline": "3.1.0", "email-validator": "2.0.4", "fast-glob": "3.3.3", "font-finder": "1.1.0", "glob": "10.5.0", "ios-device-lib": "0.9.6", "ios-mobileprovision-finder": "1.2.1", "ios-sim-portable": "4.5.3", "jimp": "1.6.1", "lodash": "4.18.1", "log4js": "6.9.1", "marked": "15.0.12", "marked-terminal": "7.3.0", "minimatch": "10.2.6", "mkdirp": "3.0.1", "mute-stream": "2.0.0", "nativescript-dev-xcode": "0.8.2", "open": "8.4.2", "ora": "5.4.1", "pacote": "21.0.4", "pbxproj-dom": "1.2.0", "plist": "3.1.0", "prettier": "3.9.6", "prompts": "2.4.2", "proper-lockfile": "4.1.2", "proxy-lib": "0.4.1", "qr-image": "3.2.0", "qrcode-terminal": "0.12.0", "semver": "7.7.3", "shelljs": "0.10.0", "simple-git": "3.36.0", "simple-plist": "1.4.0", "source-map": "0.8.0", "tar": "7.5.22", "ts-morph": "28.0.0", "tunnel": "0.0.6", "typescript": "5.7.3", "uuid": "11.1.1", "winreg": "1.2.5", "ws": "8.21.1", "xml2js": "0.6.2", "yargs": "17.7.2", "yazl": "3.3.1" }, "optionalDependencies": { "fsevents": "2.3.3" }, "hasInstallScript": true, "bin": { "ns": "bin/tns", "nsc": "bin/tns", "tns": "bin/tns", "nativescript": "bin/tns" } }, "sha512-zdc3aQeSoSLc1TUrIHXbMXhY9vL2u28ATFlLNgdi4Ue2L0kN1Xq5SFJjWTGIL18RipajoS6+gbqGCtf87guznA=="],
 
     "@opentelemetry/browser-instrumentation/web-vitals": ["web-vitals@5.3.0", "", {}, "sha512-q6LWsLatGYZp5VGBIOvbTj6JBV2nOmC8KvWztXBmwJcfFAzhwKwbOxhUH306XY3CcaZDUlSmSuNPBsCn0bFu+g=="],
 
@@ -7572,26 +7583,6 @@
 
     "@vue/compiler-sfc/source-map-js": ["source-map-js@1.2.2", "", {}, "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="],
 
-    "@xplat/maestro/@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.1.0", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-GHh21qwaIy1fnmLSazVEi3M6N8ruT39om8ugZXsaRqFUxXqRRT+LV93Qp7m0CzQfzQcQ2mmER/se/IVVoUe4Eg=="],
-
-    "@xplat/mobile/@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.1.0", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-GHh21qwaIy1fnmLSazVEi3M6N8ruT39om8ugZXsaRqFUxXqRRT+LV93Qp7m0CzQfzQcQ2mmER/se/IVVoUe4Eg=="],
-
-    "@xplat/probe/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
-
-    "@xplat/routing-eval/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
-
-    "@xplat/verification/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
-
-    "@xplat/windows/@nativescript/core": ["@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298", { "dependencies": { "@csstools/css-calc": "2.1.4", "@csstools/css-color-parser": "3.1.0", "@csstools/css-parser-algorithms": "3.0.5", "@csstools/css-tokenizer": "3.0.4", "@nativescript/hook": "3.0.5", "acorn": "8.19.0", "css-tree": "3.2.1", "css-what": "7.0.0", "emoji-regex": "10.6.0", "semver": "7.8.5", "source-map": "0.7.6", "source-map-js": "1.2.1", "tslib": "2.8.1" } }, "sha512-y+yYu/shQ7C9u1l9ydHcshZ4SQNywotJhbOx4hx7JP6j2hgAckyU9FsYeOPyds7Zeey5+Yw7CsvgLe9L4c7Kgw=="],
-
-    "@xplat/windows/@nativescript/font-manager": ["@nativescript/font-manager@1.0.18", "", {}, "sha512-bPWqsE6oYRwdb4JVe60aSeAIgnjbpgObDGO3HEI2ghNFIOxI3+qXR7VkTRY3AFHyIljT9DCVWy3mcde9k5LO3A=="],
-
-    "@xplat/windows/@nativescript/vite": ["@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298", { "dependencies": { "@babel/core": "7.29.7", "@babel/generator": "7.29.8", "@babel/parser": "7.29.9", "@babel/plugin-transform-typescript": "7.29.9", "@babel/plugin-transform-unicode-property-regex": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@rollup/plugin-alias": "6.0.0", "@rollup/plugin-commonjs": "29.0.3", "@rollup/plugin-replace": "6.0.3", "css": "3.0.0", "esbuild": "0.27.7", "minimist": "1.2.8", "sass": "1.104.1", "vite": "8.3.0", "vite-plugin-static-copy": "4.1.1", "ws": "8.21.3" }, "peerDependencies": { "@analogjs/vite-plugin-angular": "^2.0.0", "@angular/build": "^21.0.0 || ^22.0.0", "@vitejs/plugin-vue": "^6.0.5", "@vitejs/plugin-vue-jsx": "^5.1.5", "@vue/compiler-sfc": "^3.5.0", "react-reconciler": "^0.32.0", "typescript": "*", "vite-plugin-solid": "^2.11.11", "vue-tsc": "^3.2.0" }, "optionalPeers": ["@analogjs/vite-plugin-angular", "@angular/build", "@vitejs/plugin-vue", "@vitejs/plugin-vue-jsx", "@vue/compiler-sfc", "react-reconciler", "typescript", "vite-plugin-solid", "vue-tsc"] }, "sha512-b4lW9meFZ3UIMDjp4Q2Agj0h9BteaTCp4bPx7antgtPaYDwrwM638mOnDJMd2u6BnDEGpqM4cnBqdM9YDEmbtw=="],
-
-    "@xplat/windows/@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.129", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-g+M7Xq4hs30eH9CY1XnyIXRSSSeNBxHa4yY759R+wCPe96IO8cuYtDaHFzahyA8P955/tHuq1QUkJq5Xe/YP8w=="],
-
-    "@xplat/windows/nativescript": ["nativescript@9.1.2-dev.2026-09-24-36031892256", "", { "dependencies": { "@foxt/js-srp": "0.0.3-patch2", "@nativescript/doctor": "2.0.18", "@nativescript/hook": "3.0.5", "@npmcli/arborist": "9.1.8", "@rigor789/resolve-package-path": "1.0.7", "axios": "1.18.1", "byline": "5.0.0", "chokidar": "3.6.0", "cli-table3": "0.6.5", "color": "4.2.3", "convert-source-map": "2.0.0", "detect-newline": "3.1.0", "email-validator": "2.0.4", "fast-glob": "3.3.3", "font-finder": "1.1.0", "glob": "10.5.0", "ios-device-lib": "0.9.6", "ios-mobileprovision-finder": "1.2.1", "ios-sim-portable": "4.5.3", "jimp": "1.6.1", "lodash": "4.18.1", "log4js": "6.9.1", "marked": "15.0.12", "marked-terminal": "7.3.0", "minimatch": "10.2.6", "mkdirp": "3.0.1", "mute-stream": "2.0.0", "nativescript-dev-xcode": "0.8.2", "open": "8.4.2", "ora": "5.4.1", "pacote": "21.0.4", "pbxproj-dom": "1.2.0", "plist": "3.1.0", "prettier": "3.9.6", "prompts": "2.4.2", "proper-lockfile": "4.1.2", "proxy-lib": "0.4.1", "qr-image": "3.2.0", "qrcode-terminal": "0.12.0", "semver": "7.7.3", "shelljs": "0.10.0", "simple-git": "3.36.0", "simple-plist": "1.4.0", "source-map": "0.8.0", "tar": "7.5.22", "ts-morph": "28.0.0", "tunnel": "0.0.6", "typescript": "5.7.3", "uuid": "11.1.1", "winreg": "1.2.5", "ws": "8.21.1", "xml2js": "0.6.2", "yargs": "17.7.2", "yazl": "3.3.1" }, "optionalDependencies": { "fsevents": "2.3.3" }, "hasInstallScript": true, "bin": { "ns": "bin/tns", "nsc": "bin/tns", "tns": "bin/tns", "nativescript": "bin/tns" } }, "sha512-zdc3aQeSoSLc1TUrIHXbMXhY9vL2u28ATFlLNgdi4Ue2L0kN1Xq5SFJjWTGIL18RipajoS6+gbqGCtf87guznA=="],
-
     "anymatch/picomatch": ["picomatch@2.3.2", "", {}, "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="],
 
     "ast-types/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
@@ -7618,7 +7609,7 @@
 
     "cli-highlight/yargs": ["yargs@16.2.2", "", { "dependencies": { "cliui": "7.0.4", "escalade": "3.2.0", "get-caller-file": "2.0.5", "require-directory": "2.1.1", "string-width": "4.2.3", "y18n": "5.0.8", "yargs-parser": "20.2.9" } }, "sha512-Nt9ZJjXTv5R8MHbqby/wXQ6Gi0Bb3TcYZkR1bzuL4yB2OxWPkXknz513gEF0GoA6tn00UpbPvERW8rzCuWCA6w=="],
 
-    "cmd-ts/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "6.4.0" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
+    "cliui/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "css/source-map": ["source-map@0.6.1", "", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
 
@@ -7726,9 +7717,9 @@
 
     "octane/@tsrx/core": ["@tsrx/core@0.5.5", "", { "dependencies": { "@jridgewell/sourcemap-codec": "1.6.0", "@noble/hashes": "2.4.0", "@sveltejs/acorn-typescript": "1.0.13", "@tsrx/runtime": "0.2.4", "@types/estree": "1.0.9", "@types/estree-jsx": "1.0.5", "acorn": "8.18.0", "esrap": "2.3.7", "get-tsconfig": "5.0.0-beta.6", "magic-string": "0.30.21", "zimmerframe": "1.1.5" } }, "sha512-22Eym4Dtxm1d4INJHT560WQC9cxKT/YWXKztM7utjzHLtVB8egSycFmFt3D9g01Tb6G4g7GiF5YpgCOexx15uA=="],
 
-    "octane/es-module-lexer": ["es-module-lexer@1.7.0", "", {}, "sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA=="],
-
     "ora/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "4.3.0", "supports-color": "7.2.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
+
+    "ora/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "oxc-parser/@oxc-project/types": ["@oxc-project/types@0.127.0", "", {}, "sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ=="],
 
@@ -7870,11 +7861,11 @@
 
     "router/path-to-regexp": ["path-to-regexp@8.4.2", "", {}, "sha512-qRcuIdP69NPm4qbACK+aDogI5CBDMi1jKe0ry5rSQJz8JVLsC7jV8XpiJjGRLLol3N+R5ihGYcrPLTno6pAdBA=="],
 
-    "sameframe/ajv": ["ajv@8.17.1", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
-
     "sameframe/yaml": ["yaml@2.8.1", "", { "bin": { "yaml": "bin.mjs" } }, "sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw=="],
 
     "sass/source-map-js": ["source-map-js@1.2.2", "", {}, "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="],
+
+    "schema-utils/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
     "socks-proxy-agent/agent-base": ["agent-base@7.1.4", "", {}, "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ=="],
 
@@ -7892,19 +7883,27 @@
 
     "string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
 
+    "string-width/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
     "string-width-cjs/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
 
-    "strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+    "string-width-cjs/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "strip-ansi-cjs/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
     "supports-hyperlinks/supports-color": ["supports-color@7.2.0", "", { "dependencies": { "has-flag": "4.0.0" } }, "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw=="],
+
+    "table/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-uri": "3.1.8", "json-schema-traverse": "1.0.0", "require-from-string": "2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+
+    "table/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "terser/commander": ["commander@2.20.3", "", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
 
     "test-exclude/glob": ["glob@7.2.3", "", { "dependencies": { "fs.realpath": "1.0.0", "inflight": "1.0.6", "inherits": "2.0.4", "minimatch": "3.1.5", "once": "1.4.0", "path-is-absolute": "1.0.1" } }, "sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q=="],
 
     "test-exclude/minimatch": ["minimatch@3.1.5", "", { "dependencies": { "brace-expansion": "1.1.21" } }, "sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w=="],
+
+    "tsrx-typegen/typescript": ["typescript@7.1.0-beta", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.1.0-beta", "@typescript/typescript-android-arm64": "7.1.0-beta", "@typescript/typescript-darwin-arm64": "7.1.0-beta", "@typescript/typescript-darwin-x64": "7.1.0-beta", "@typescript/typescript-freebsd-arm64": "7.1.0-beta", "@typescript/typescript-freebsd-x64": "7.1.0-beta", "@typescript/typescript-linux-arm": "7.1.0-beta", "@typescript/typescript-linux-arm64": "7.1.0-beta", "@typescript/typescript-linux-loong64": "7.1.0-beta", "@typescript/typescript-linux-mips64el": "7.1.0-beta", "@typescript/typescript-linux-ppc64": "7.1.0-beta", "@typescript/typescript-linux-riscv64": "7.1.0-beta", "@typescript/typescript-linux-s390x": "7.1.0-beta", "@typescript/typescript-linux-x64": "7.1.0-beta", "@typescript/typescript-netbsd-arm64": "7.1.0-beta", "@typescript/typescript-netbsd-x64": "7.1.0-beta", "@typescript/typescript-openbsd-arm64": "7.1.0-beta", "@typescript/typescript-openbsd-x64": "7.1.0-beta", "@typescript/typescript-sunos-x64": "7.1.0-beta", "@typescript/typescript-win32-arm64": "7.1.0-beta", "@typescript/typescript-win32-x64": "7.1.0-beta" }, "bin": { "tsc": "bin/tsc" } }, "sha512-cjWjZAJDsmZzsNC5GwHNlW0YPM65jZa5oR0KyQcYX3KSVIfTvtBq//vewISyatKk4OLi5grZjHhIVE9fdrw1UQ=="],
 
     "type-is/content-type": ["content-type@2.1.0", "", {}, "sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag=="],
 
@@ -7914,13 +7913,21 @@
 
     "typeorm/yargs": ["yargs@17.7.3", "", { "dependencies": { "cliui": "8.0.1", "escalade": "3.2.0", "get-caller-file": "2.0.5", "require-directory": "2.1.1", "string-width": "4.2.3", "y18n": "5.0.8", "yargs-parser": "21.1.1" } }, "sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g=="],
 
+    "vitest/es-module-lexer": ["es-module-lexer@2.3.2", "", {}, "sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw=="],
+
     "vitest/magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "1.6.0" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 
     "vitest-plugin-vis/pixelmatch": ["pixelmatch@7.2.0", "", { "dependencies": { "pngjs": "7.0.0" }, "bin": { "pixelmatch": "bin/pixelmatch" } }, "sha512-xhcb4yHu9sM/G7foGzoLtXYcC0zHEaOXXjRKhGup0fw78Nf2Tkiapv4EQyMzrbcmQPsllAI7DbFY2UT7PlI9Pg=="],
 
     "webpack/browserslist": ["browserslist@4.29.0", "", { "dependencies": { "baseline-browser-mapping": "2.11.25", "caniuse-lite": "1.0.30001810", "electron-to-chromium": "1.5.433", "node-releases": "2.0.56", "update-browserslist-db": "1.3.3" }, "bin": { "browserslist": "cli.js" } }, "sha512-3GSvyjvDI4Dur1Meg2BekJquu5uF+9R9a1+5M1Mde192eZoXbeXjzgOsgqPS2V8D5wrrip0gR5Hf/GhWQ9ZzaA=="],
 
+    "webpack/es-module-lexer": ["es-module-lexer@2.3.2", "", {}, "sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw=="],
+
     "wrangler/esbuild": ["esbuild@0.28.1", "", { "optionalDependencies": { "@esbuild/aix-ppc64": "0.28.1", "@esbuild/android-arm": "0.28.1", "@esbuild/android-arm64": "0.28.1", "@esbuild/android-x64": "0.28.1", "@esbuild/darwin-arm64": "0.28.1", "@esbuild/darwin-x64": "0.28.1", "@esbuild/freebsd-arm64": "0.28.1", "@esbuild/freebsd-x64": "0.28.1", "@esbuild/linux-arm": "0.28.1", "@esbuild/linux-arm64": "0.28.1", "@esbuild/linux-ia32": "0.28.1", "@esbuild/linux-loong64": "0.28.1", "@esbuild/linux-mips64el": "0.28.1", "@esbuild/linux-ppc64": "0.28.1", "@esbuild/linux-riscv64": "0.28.1", "@esbuild/linux-s390x": "0.28.1", "@esbuild/linux-x64": "0.28.1", "@esbuild/netbsd-arm64": "0.28.1", "@esbuild/netbsd-x64": "0.28.1", "@esbuild/openbsd-arm64": "0.28.1", "@esbuild/openbsd-x64": "0.28.1", "@esbuild/openharmony-arm64": "0.28.1", "@esbuild/sunos-x64": "0.28.1", "@esbuild/win32-arm64": "0.28.1", "@esbuild/win32-ia32": "0.28.1", "@esbuild/win32-x64": "0.28.1" }, "hasInstallScript": true, "bin": { "esbuild": "bin/esbuild" } }, "sha512-HrJrvZv5ayxBzPfwphOoNzkzOIIlifzk0KJrGK2c8R4+LKpMtpYLQeUdjnwjWv/LZlkH2laZk+4w78pi99D4Vw=="],
+
+    "wrap-ansi/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
+    "wrap-ansi-cjs/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "write-file-atomic/signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
@@ -8168,11 +8175,59 @@
 
     "@octane-xplat/macos-build/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
 
+    "@octane-xplat/probe/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "@octane-xplat/routing-eval/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
     "@octane-xplat/shortcuts/@nativescript/core/@csstools/css-calc": ["@csstools/css-calc@2.1.4", "", { "peerDependencies": { "@csstools/css-parser-algorithms": "^3.0.5", "@csstools/css-tokenizer": "^3.0.4" } }, "sha512-3N8oaj+0juUw/1H3YwmDDJXCgTB1gKU6Hc/bB502u9zR0q2vd786XJH9QfrKIEgFlZmhZiq6epXl4rHqhzsIgQ=="],
 
     "@octane-xplat/shortcuts/@nativescript/core/css-what": ["css-what@7.0.0", "", {}, "sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ=="],
 
     "@octane-xplat/shortcuts/@nativescript/core/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "@octane-xplat/verification/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "@octane-xplat/windows/@nativescript/core/@csstools/css-calc": ["@csstools/css-calc@2.1.4", "", { "peerDependencies": { "@csstools/css-parser-algorithms": "^3.0.5", "@csstools/css-tokenizer": "^3.0.4" } }, "sha512-3N8oaj+0juUw/1H3YwmDDJXCgTB1gKU6Hc/bB502u9zR0q2vd786XJH9QfrKIEgFlZmhZiq6epXl4rHqhzsIgQ=="],
+
+    "@octane-xplat/windows/@nativescript/core/css-what": ["css-what@7.0.0", "", {}, "sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ=="],
+
+    "@octane-xplat/windows/@nativescript/core/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core": ["@babel/core@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/generator": "7.29.8", "@babel/helper-compilation-targets": "7.29.7", "@babel/helper-module-transforms": "7.29.7", "@babel/helpers": "7.29.7", "@babel/parser": "7.29.9", "@babel/template": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@jridgewell/remapping": "2.3.5", "convert-source-map": "2.0.0", "debug": "4.4.3", "gensync": "1.0.0-beta.2", "json5": "2.2.3", "semver": "6.3.1" } }, "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/generator": ["@babel/generator@7.29.8", "", { "dependencies": { "@babel/parser": "7.29.9", "@babel/types": "7.29.8", "@jridgewell/gen-mapping": "0.3.13", "@jridgewell/trace-mapping": "0.3.31", "jsesc": "3.1.0" } }, "sha512-gZbepsdh3WDtgZKWL+vTPh71LSBrm/Y4/QDZBVCcYfmeTEEuoOYwlSy+G1StfJg+/Zy550u/3TATbm7qDbbMtg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/parser": ["@babel/parser@7.29.9", "", { "dependencies": { "@babel/types": "7.29.8" }, "bin": "./bin/babel-parser.js" }, "sha512-CjXrNHTnvqBVqHgdBysY3vk2T8tpJHb5/RMeHJBTyVa9xgugCB0CJTx/3oO8RV2QRQP391RWpB7D6hLjm8V9uA=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript": ["@babel/plugin-transform-typescript@7.29.9", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "@babel/helper-create-class-features-plugin": "7.29.7", "@babel/helper-plugin-utils": "7.29.7", "@babel/helper-skip-transparent-expression-wrappers": "7.29.7", "@babel/plugin-syntax-typescript": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-FFwIwzU+7SCOuxxV4YtJql6T9981ZVTm+FHO5GhVsRqCTdy0WwrEZh3l42ARpXruJUDGOptdduHW6Zr7pNPLNg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex": ["@babel/plugin-transform-unicode-property-regex@7.29.7", "", { "dependencies": { "@babel/helper-create-regexp-features-plugin": "7.29.7", "@babel/helper-plugin-utils": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-OgZ+zoAJgZLUCunsTRQ5LAjOywDv5zzZ2/hQ5aMw1pGXyY2rtE8/chXYUmu3AlVHKpm10KEdG9aMwbI/K76ZGw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse": ["@babel/traverse@7.29.8", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/generator": "7.29.8", "@babel/helper-globals": "7.29.7", "@babel/parser": "7.29.9", "@babel/template": "7.29.7", "@babel/types": "7.29.8", "debug": "4.4.3" } }, "sha512-I5z7H3bf/41ktsNVLtpN0wAa336HkqIHQ5BuPLEhTkt1jVSyZpeNKIzTgEWmlxjdg81R0IgUCcaE+Ok3NvrfZg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/types": ["@babel/types@7.29.8", "", { "dependencies": { "@babel/helper-string-parser": "7.29.7", "@babel/helper-validator-identifier": "7.29.7" } }, "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/vite": ["vite@8.3.0", "", { "dependencies": { "lightningcss": "1.33.0", "picomatch": "4.0.7", "postcss": "8.5.32", "rolldown": "1.2.9", "tinyglobby": "0.2.17" }, "optionalDependencies": { "fsevents": "2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.7.1", "esbuild": "0.27.7", "jiti": ">=1.21.0", "less": "^4.0.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ=="],
+
+    "@octane-xplat/windows/nativescript/glob": ["glob@10.5.0", "", { "dependencies": { "foreground-child": "3.3.1", "jackspeak": "3.4.3", "minimatch": "9.0.9", "minipass": "7.1.3", "package-json-from-dist": "1.0.1", "path-scurry": "1.11.1" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg=="],
+
+    "@octane-xplat/windows/nativescript/ios-device-lib": ["ios-device-lib@0.9.6", "", { "dependencies": { "bufferpack": "0.0.6", "uuid": "11.1.1" } }, "sha512-gzWdgJIdEu+oVQ+YVgRttw5lRYoaQq0ulbhy3BMB32QEBHh8HEu05Oz1yolgKkQzDeQGdDd1LqerdCX+NoQEZQ=="],
+
+    "@octane-xplat/windows/nativescript/ios-sim-portable": ["ios-sim-portable@4.5.3", "", { "dependencies": { "bplist-parser": "0.3.2", "lodash": "4.18.1", "plist": "3.0.6", "shelljs": "0.9.2", "yargs": "17.7.1" }, "bin": { "isim": "bin/ios-sim-portable.js", "ios-sim-portable": "bin/ios-sim-portable.js" } }, "sha512-GcrxMqa4DiNilOs0nil/VNxMY9TVCQPfLPXxIBegyb5G+v/XBUsuk6swrceLods52zrsR8UHLjbxIJ9lhtTGAQ=="],
+
+    "@octane-xplat/windows/nativescript/marked": ["marked@15.0.12", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA=="],
+
+    "@octane-xplat/windows/nativescript/marked-terminal": ["marked-terminal@7.3.0", "", { "dependencies": { "ansi-escapes": "7.3.0", "ansi-regex": "6.4.0", "chalk": "5.6.2", "cli-highlight": "2.1.11", "cli-table3": "0.6.5", "node-emoji": "2.2.0", "supports-hyperlinks": "3.2.0" }, "peerDependencies": { "marked": ">=1 <16" } }, "sha512-t4rBvPsHc57uE/2nJOLmMbZCQ4tgAccAED3ngXQqW6g+TxA488JzJ+FK3lQkzBQOI1mRV/r/Kq+1ZlJ4D0owQw=="],
+
+    "@octane-xplat/windows/nativescript/minimatch": ["minimatch@10.2.6", "", { "dependencies": { "brace-expansion": "5.0.12" } }, "sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A=="],
+
+    "@octane-xplat/windows/nativescript/semver": ["semver@7.7.3", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q=="],
+
+    "@octane-xplat/windows/nativescript/source-map": ["source-map@0.8.0", "", {}, "sha512-d8EqvL+k/SOXCreS/SUzg2ciyHqBBLcN/yuRjFsbvVhHTE2pgei7oAhmPM7kWFbkX6OSMQfUq4KbkF3au9lhYQ=="],
+
+    "@octane-xplat/windows/nativescript/typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
+
+    "@octane-xplat/windows/nativescript/ws": ["ws@8.21.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw=="],
 
     "@opentelemetry/instrumentation-fetch/@opentelemetry/sdk-trace-web/@opentelemetry/sdk-trace-base": ["@opentelemetry/sdk-trace-base@2.9.0", "", { "dependencies": { "@opentelemetry/core": "2.9.0", "@opentelemetry/resources": "2.9.0", "@opentelemetry/sdk-trace": "2.9.0", "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.3.0 <1.10.0" } }, "sha512-cp9zmTl62R8PJrpvFcmc8N2JQU/xfa0S+61q511Nji+QxCfZ8Ifvg7H27G8cANe4crg4RTrWsVvanHiXjSp6ag=="],
 
@@ -8195,54 +8250,6 @@
     "@vue/compiler-core/@babel/parser/@babel/types": ["@babel/types@7.29.8", "", { "dependencies": { "@babel/helper-string-parser": "7.29.7", "@babel/helper-validator-identifier": "7.29.7" } }, "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg=="],
 
     "@vue/compiler-sfc/@babel/parser/@babel/types": ["@babel/types@7.29.8", "", { "dependencies": { "@babel/helper-string-parser": "7.29.7", "@babel/helper-validator-identifier": "7.29.7" } }, "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg=="],
-
-    "@xplat/probe/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
-
-    "@xplat/routing-eval/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
-
-    "@xplat/verification/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
-
-    "@xplat/windows/@nativescript/core/@csstools/css-calc": ["@csstools/css-calc@2.1.4", "", { "peerDependencies": { "@csstools/css-parser-algorithms": "^3.0.5", "@csstools/css-tokenizer": "^3.0.4" } }, "sha512-3N8oaj+0juUw/1H3YwmDDJXCgTB1gKU6Hc/bB502u9zR0q2vd786XJH9QfrKIEgFlZmhZiq6epXl4rHqhzsIgQ=="],
-
-    "@xplat/windows/@nativescript/core/css-what": ["css-what@7.0.0", "", {}, "sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ=="],
-
-    "@xplat/windows/@nativescript/core/tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core": ["@babel/core@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/generator": "7.29.8", "@babel/helper-compilation-targets": "7.29.7", "@babel/helper-module-transforms": "7.29.7", "@babel/helpers": "7.29.7", "@babel/parser": "7.29.9", "@babel/template": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@jridgewell/remapping": "2.3.5", "convert-source-map": "2.0.0", "debug": "4.4.3", "gensync": "1.0.0-beta.2", "json5": "2.2.3", "semver": "6.3.1" } }, "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/generator": ["@babel/generator@7.29.8", "", { "dependencies": { "@babel/parser": "7.29.9", "@babel/types": "7.29.8", "@jridgewell/gen-mapping": "0.3.13", "@jridgewell/trace-mapping": "0.3.31", "jsesc": "3.1.0" } }, "sha512-gZbepsdh3WDtgZKWL+vTPh71LSBrm/Y4/QDZBVCcYfmeTEEuoOYwlSy+G1StfJg+/Zy550u/3TATbm7qDbbMtg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/parser": ["@babel/parser@7.29.9", "", { "dependencies": { "@babel/types": "7.29.8" }, "bin": "./bin/babel-parser.js" }, "sha512-CjXrNHTnvqBVqHgdBysY3vk2T8tpJHb5/RMeHJBTyVa9xgugCB0CJTx/3oO8RV2QRQP391RWpB7D6hLjm8V9uA=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript": ["@babel/plugin-transform-typescript@7.29.9", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "@babel/helper-create-class-features-plugin": "7.29.7", "@babel/helper-plugin-utils": "7.29.7", "@babel/helper-skip-transparent-expression-wrappers": "7.29.7", "@babel/plugin-syntax-typescript": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-FFwIwzU+7SCOuxxV4YtJql6T9981ZVTm+FHO5GhVsRqCTdy0WwrEZh3l42ARpXruJUDGOptdduHW6Zr7pNPLNg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex": ["@babel/plugin-transform-unicode-property-regex@7.29.7", "", { "dependencies": { "@babel/helper-create-regexp-features-plugin": "7.29.7", "@babel/helper-plugin-utils": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-OgZ+zoAJgZLUCunsTRQ5LAjOywDv5zzZ2/hQ5aMw1pGXyY2rtE8/chXYUmu3AlVHKpm10KEdG9aMwbI/K76ZGw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/traverse": ["@babel/traverse@7.29.8", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/generator": "7.29.8", "@babel/helper-globals": "7.29.7", "@babel/parser": "7.29.9", "@babel/template": "7.29.7", "@babel/types": "7.29.8", "debug": "4.4.3" } }, "sha512-I5z7H3bf/41ktsNVLtpN0wAa336HkqIHQ5BuPLEhTkt1jVSyZpeNKIzTgEWmlxjdg81R0IgUCcaE+Ok3NvrfZg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/types": ["@babel/types@7.29.8", "", { "dependencies": { "@babel/helper-string-parser": "7.29.7", "@babel/helper-validator-identifier": "7.29.7" } }, "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg=="],
-
-    "@xplat/windows/@nativescript/vite/vite": ["vite@8.3.0", "", { "dependencies": { "lightningcss": "1.33.0", "picomatch": "4.0.7", "postcss": "8.5.32", "rolldown": "1.2.9", "tinyglobby": "0.2.17" }, "optionalDependencies": { "fsevents": "2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.7.1", "esbuild": "0.27.7", "jiti": ">=1.21.0", "less": "^4.0.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ=="],
-
-    "@xplat/windows/nativescript/glob": ["glob@10.5.0", "", { "dependencies": { "foreground-child": "3.3.1", "jackspeak": "3.4.3", "minimatch": "9.0.9", "minipass": "7.1.3", "package-json-from-dist": "1.0.1", "path-scurry": "1.11.1" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg=="],
-
-    "@xplat/windows/nativescript/ios-device-lib": ["ios-device-lib@0.9.6", "", { "dependencies": { "bufferpack": "0.0.6", "uuid": "11.1.1" } }, "sha512-gzWdgJIdEu+oVQ+YVgRttw5lRYoaQq0ulbhy3BMB32QEBHh8HEu05Oz1yolgKkQzDeQGdDd1LqerdCX+NoQEZQ=="],
-
-    "@xplat/windows/nativescript/ios-sim-portable": ["ios-sim-portable@4.5.3", "", { "dependencies": { "bplist-parser": "0.3.2", "lodash": "4.18.1", "plist": "3.0.6", "shelljs": "0.9.2", "yargs": "17.7.1" }, "bin": { "isim": "bin/ios-sim-portable.js", "ios-sim-portable": "bin/ios-sim-portable.js" } }, "sha512-GcrxMqa4DiNilOs0nil/VNxMY9TVCQPfLPXxIBegyb5G+v/XBUsuk6swrceLods52zrsR8UHLjbxIJ9lhtTGAQ=="],
-
-    "@xplat/windows/nativescript/marked": ["marked@15.0.12", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA=="],
-
-    "@xplat/windows/nativescript/marked-terminal": ["marked-terminal@7.3.0", "", { "dependencies": { "ansi-escapes": "7.3.0", "ansi-regex": "6.4.0", "chalk": "5.6.2", "cli-highlight": "2.1.11", "cli-table3": "0.6.5", "node-emoji": "2.2.0", "supports-hyperlinks": "3.2.0" }, "peerDependencies": { "marked": ">=1 <16" } }, "sha512-t4rBvPsHc57uE/2nJOLmMbZCQ4tgAccAED3ngXQqW6g+TxA488JzJ+FK3lQkzBQOI1mRV/r/Kq+1ZlJ4D0owQw=="],
-
-    "@xplat/windows/nativescript/minimatch": ["minimatch@10.2.6", "", { "dependencies": { "brace-expansion": "5.0.12" } }, "sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A=="],
-
-    "@xplat/windows/nativescript/semver": ["semver@7.7.3", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q=="],
-
-    "@xplat/windows/nativescript/source-map": ["source-map@0.8.0", "", {}, "sha512-d8EqvL+k/SOXCreS/SUzg2ciyHqBBLcN/yuRjFsbvVhHTE2pgei7oAhmPM7kWFbkX6OSMQfUq4KbkF3au9lhYQ=="],
-
-    "@xplat/windows/nativescript/typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
-
-    "@xplat/windows/nativescript/ws": ["ws@8.21.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw=="],
 
     "babel-loader/@babel/core/@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "7.29.7", "js-tokens": "4.0.0", "picocolors": "1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
 
@@ -8269,6 +8276,8 @@
     "cli-highlight/yargs/cliui": ["cliui@7.0.4", "", { "dependencies": { "string-width": "4.2.3", "strip-ansi": "6.0.1", "wrap-ansi": "7.0.0" } }, "sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ=="],
 
     "cli-highlight/yargs/yargs-parser": ["yargs-parser@20.2.9", "", {}, "sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w=="],
+
+    "cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
     "form-data/mime-types/mime-db": ["mime-db@1.52.0", "", {}, "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="],
 
@@ -8358,6 +8367,8 @@
 
     "ora/chalk/supports-color": ["supports-color@7.2.0", "", { "dependencies": { "has-flag": "4.0.0" } }, "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw=="],
 
+    "ora/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
     "parse-bmfont-xml/xml2js/xmlbuilder": ["xmlbuilder@11.0.1", "", {}, "sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA=="],
 
     "pkg-dir/find-up/locate-path": ["locate-path@7.2.0", "", { "dependencies": { "p-locate": "6.0.0" } }, "sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA=="],
@@ -8378,7 +8389,27 @@
 
     "streamroller/fs-extra/universalify": ["universalify@0.1.2", "", {}, "sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg=="],
 
+    "string-width-cjs/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "string-width/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "table/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
     "test-exclude/minimatch/brace-expansion": ["brace-expansion@1.1.21", "", { "dependencies": { "balanced-match": "1.0.2", "concat-map": "0.0.1" } }, "sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-darwin-arm64": ["@typescript/typescript-darwin-arm64@7.1.0-beta", "", { "os": "darwin", "cpu": "arm64" }, "sha512-q7mxblcyX0E7hXsY4k+Q6KWKK5mGmfVq+BDesdTgRVgjodk27aIxER77Zyj9+TgSTlCje8F7+JM6f6hl2BuNdw=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-darwin-x64": ["@typescript/typescript-darwin-x64@7.1.0-beta", "", { "os": "darwin", "cpu": "x64" }, "sha512-D5EYqG5Wm/guw9+0j8+Mn1Jbr/gfS/VtFTuoH8PJtFbcqeDaQGMulc7SW8q51QG6Y3wGOGX3nbsTOw6fIKWWAA=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-linux-arm": ["@typescript/typescript-linux-arm@7.1.0-beta", "", { "os": "linux", "cpu": "arm" }, "sha512-AvN9HmzOQh46G4312ooSgMHhbB7DtnLwg8D9mo324X49B7weMwtJrBG1MxT9IyI8kzDd7YRtW+1hWGun7WG7Qw=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-linux-arm64": ["@typescript/typescript-linux-arm64@7.1.0-beta", "", { "os": "linux", "cpu": "arm64" }, "sha512-hNqQBgQ5b5oGqN76QqbAU6CwYhJZ6iOcWc2kPTUs2OentgpxZktETziH6KIyRFJPaiBncognwn2ZLu3DNhHiWw=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-linux-x64": ["@typescript/typescript-linux-x64@7.1.0-beta", "", { "os": "linux", "cpu": "x64" }, "sha512-kcD51ihf+pnI5KT4uQQYG04OpwznaZYBlIQhDhl8fflFd27NktxXsUeguxZyvUMyWfum7IF2bBS6Jv7ox0AgFQ=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.1.0-beta", "", { "os": "win32", "cpu": "arm64" }, "sha512-lJbo71IEOfL7ZZIZnArRaOLqjn9BAfoSzyUQn0aSjfSpDZL4ru0afUsdBfo6PQEjD6ssdmi0n/RwaPADX6bsvQ=="],
+
+    "tsrx-typegen/typescript/@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.1.0-beta", "", { "os": "win32", "cpu": "x64" }, "sha512-UKcHvbybY2tDTvFW2b1vwiAvDlIRooo69lh8CXWVhOQejcvpM5+IgbiFW9EIwR5Wi5X/v+BdN7gdWbigBuJ3rw=="],
 
     "typeorm/glob/minimatch": ["minimatch@9.0.9", "", { "dependencies": { "brace-expansion": "2.1.7" } }, "sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg=="],
 
@@ -8436,6 +8467,10 @@
 
     "wrangler/esbuild/@esbuild/win32-x64": ["@esbuild/win32-x64@0.28.1", "", { "os": "win32", "cpu": "x64" }, "sha512-bm4Mowrv+GXMlpWX++EcXw/iLyd1o3+bJkC2DkWXYVvgZCqD/bSj9ctZeAMC3cIxgjRVR2Dufaiu4YPxr5gW1A=="],
 
+    "wrap-ansi-cjs/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "wrap-ansi/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
     "@babel/helper-member-expression-to-functions/@babel/traverse/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
     "@babel/helper-member-expression-to-functions/@babel/traverse/@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
@@ -8465,8 +8500,6 @@
     "@lingui/cli/@babel/core/@babel/traverse/@babel/helper-globals": ["@babel/helper-globals@7.29.7", "", {}, "sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA=="],
 
     "@lingui/cli/ora/cli-cursor/restore-cursor": ["restore-cursor@5.1.0", "", { "dependencies": { "onetime": "7.0.0", "signal-exit": "4.1.0" } }, "sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA=="],
-
-    "@lingui/cli/ora/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "6.4.0" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "@nano-sql/core/chalk/ansi-styles/color-convert": ["color-convert@1.9.3", "", { "dependencies": { "color-name": "1.1.3" } }, "sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg=="],
 
@@ -8534,6 +8567,52 @@
 
     "@octane-xplat/cli/@babel/core/@babel/generator/@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.4.0-beta.0", "", { "dependencies": { "@jridgewell/sourcemap-codec": "1.6.0", "@jridgewell/trace-mapping": "0.3.31" } }, "sha512-JdGNkbE4GlNPYQhM0L95fBQr7ctLZJ276QXQLTad4t1oSdnnCI3fDq9DW3BqYAWv8Wc3+HS+4Gsii1oPMCfz1w=="],
 
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "7.29.7", "js-tokens": "4.0.0", "picocolors": "1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets": ["@babel/helper-compilation-targets@7.29.7", "", { "dependencies": { "@babel/compat-data": "7.29.7", "@babel/helper-validator-option": "7.29.7", "browserslist": "4.29.0", "lru-cache": "5.1.1", "semver": "6.3.1" } }, "sha512-wem6WaBj4NaVYVdNhLPPVacES6ZJ+KBBfSkTMD3YZxbP3rm3Di85tJU5ljaUNhaOynt+Aj0xruhYuzQBt8n71g=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-module-transforms": ["@babel/helper-module-transforms@7.29.7", "", { "dependencies": { "@babel/helper-module-imports": "7.29.7", "@babel/helper-validator-identifier": "7.29.7", "@babel/traverse": "7.29.8" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helpers": ["@babel/helpers@7.29.7", "", { "dependencies": { "@babel/template": "7.29.7", "@babel/types": "7.29.8" } }, "sha512-1k2lAGRMfHTcwuNYcCNUmaUffmQv8KWMfh2iJUUeRlwlwH4FdNG7mfPI10NPfLHJFThE4Tyr4mv7kTNZOiPuBg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/template": ["@babel/template@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/parser": "7.29.9", "@babel/types": "7.29.8" } }, "sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-annotate-as-pure": ["@babel/helper-annotate-as-pure@7.29.7", "", { "dependencies": { "@babel/types": "7.29.8" } }, "sha512-OoK6239jHPuSQOoS0kfTVKn0b/rVTk0seKq4Gd2UMLtmOVLjDC0ki3e+c90Trqv2gMfvJFqkiljrr568+qddiw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin": ["@babel/helper-create-class-features-plugin@7.29.7", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "@babel/helper-member-expression-to-functions": "7.29.7", "@babel/helper-optimise-call-expression": "7.29.7", "@babel/helper-replace-supers": "7.29.7", "@babel/helper-skip-transparent-expression-wrappers": "7.29.7", "@babel/traverse": "7.29.8", "semver": "6.3.1" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-IY3ZD9Tmooqr3TUhc3DUWxiuo8xx1DWLhd5M7hQ+ZWJamqM2BbalrBJb2MisSLoYorOj75U03qULCxQTY9r3hg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-plugin-utils": ["@babel/helper-plugin-utils@7.29.7", "", {}, "sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/plugin-syntax-typescript": ["@babel/plugin-syntax-typescript@7.29.7", "", { "dependencies": { "@babel/helper-plugin-utils": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-ngr+82Sh0xMz25TPCZi+nC2iTzjfCdWS2ONXTp/PtSCHCgaCNBpdMqgvJ2ccdLlClVZ7sisIgB914j/JFe+RZA=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin": ["@babel/helper-create-regexp-features-plugin@7.29.7", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "regexpu-core": "6.4.0", "semver": "6.3.1" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-907Uymvqgg1dwUA+7IGwFAOSYzQOuzPXKNJ1yxzwPffzkYFg2q2eHi1fIOs6sXkG9NbIUMunnUlkYsfRFNvomg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-plugin-utils": ["@babel/helper-plugin-utils@7.29.7", "", {}, "sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "7.29.7", "js-tokens": "4.0.0", "picocolors": "1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse/@babel/helper-globals": ["@babel/helper-globals@7.29.7", "", {}, "sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse/@babel/template": ["@babel/template@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/parser": "7.29.9", "@babel/types": "7.29.8" } }, "sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@7.29.7", "", {}, "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw=="],
+
+    "@octane-xplat/windows/@nativescript/vite/@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
+
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown": ["rolldown@1.2.9", "", { "dependencies": { "@oxc-project/types": "0.150.0", "@rolldown/pluginutils": "1.0.1" }, "optionalDependencies": { "@rolldown/binding-android-arm-eabi": "1.2.9", "@rolldown/binding-android-arm64": "1.2.9", "@rolldown/binding-darwin-arm64": "1.2.9", "@rolldown/binding-darwin-x64": "1.2.9", "@rolldown/binding-freebsd-x64": "1.2.9", "@rolldown/binding-linux-arm-gnueabihf": "1.2.9", "@rolldown/binding-linux-arm64-gnu": "1.2.9", "@rolldown/binding-linux-arm64-musl": "1.2.9", "@rolldown/binding-linux-ppc64-gnu": "1.2.9", "@rolldown/binding-linux-s390x-gnu": "1.2.9", "@rolldown/binding-linux-x64-gnu": "1.2.9", "@rolldown/binding-linux-x64-musl": "1.2.9", "@rolldown/binding-openharmony-arm64": "1.2.9", "@rolldown/binding-win32-arm64-msvc": "1.2.9", "@rolldown/binding-win32-x64-msvc": "1.2.9" }, "bin": { "rolldown": "./bin/cli.mjs" } }, "sha512-hx/Pv0N1haXRb11qkfnK5MXB/iqr7i0yjWQqmO9uHqZpBgQSqzc8UsSnEpalsh+j1I8qQ2CkXAkJC8Br3dKSlg=="],
+
+    "@octane-xplat/windows/nativescript/glob/minimatch": ["minimatch@9.0.9", "", { "dependencies": { "brace-expansion": "2.1.7" } }, "sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg=="],
+
+    "@octane-xplat/windows/nativescript/glob/path-scurry": ["path-scurry@1.11.1", "", { "dependencies": { "lru-cache": "10.4.3", "minipass": "7.1.3" } }, "sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA=="],
+
+    "@octane-xplat/windows/nativescript/ios-sim-portable/plist": ["plist@3.0.6", "", { "dependencies": { "base64-js": "1.5.1", "xmlbuilder": "15.1.1" } }, "sha512-WiIVYyrp8TD4w8yCvyeIr+lkmrGRd5u0VbRnU+tP/aRLxP/YadJUYOMZJ/6hIa3oUyVCsycXvtNRgd5XBJIbiA=="],
+
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs": ["shelljs@0.9.2", "", { "dependencies": { "execa": "1.0.0", "fast-glob": "3.3.3", "interpret": "1.4.0", "rechoir": "0.6.2" }, "bin": { "shjs": "bin/shjs" } }, "sha512-S3I64fEiKgTZzKCC46zT/Ib9meqofLrQVbpSswtjFfAVDW+AZ54WTnAM/3/yENoxz/V1Cy6u3kiiEbQ4DNphvw=="],
+
+    "@octane-xplat/windows/nativescript/ios-sim-portable/yargs": ["yargs@17.7.1", "", { "dependencies": { "cliui": "8.0.1", "escalade": "3.2.0", "get-caller-file": "2.0.5", "require-directory": "2.1.1", "string-width": "4.2.3", "y18n": "5.0.8", "yargs-parser": "21.1.1" } }, "sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw=="],
+
     "@opentelemetry/instrumentation-fetch/@opentelemetry/sdk-trace-web/@opentelemetry/sdk-trace-base/@opentelemetry/resources": ["@opentelemetry/resources@2.9.0", "", { "dependencies": { "@opentelemetry/core": "2.9.0", "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.3.0 <1.10.0" } }, "sha512-jyA5MBLQ+Dkl3+JsZkUoUvL7yHvU64kLsvpXKarWm6347Sl1t1bXFTFykUePNpT5WH5pm9a2Qtt03iIYQhZ1Fg=="],
 
     "@opentelemetry/instrumentation-xml-http-request/@opentelemetry/sdk-trace-web/@opentelemetry/sdk-trace-base/@opentelemetry/resources": ["@opentelemetry/resources@2.9.0", "", { "dependencies": { "@opentelemetry/core": "2.9.0", "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.3.0 <1.10.0" } }, "sha512-jyA5MBLQ+Dkl3+JsZkUoUvL7yHvU64kLsvpXKarWm6347Sl1t1bXFTFykUePNpT5WH5pm9a2Qtt03iIYQhZ1Fg=="],
@@ -8545,52 +8624,6 @@
     "@vue/compiler-sfc/@babel/parser/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@7.29.7", "", {}, "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw=="],
 
     "@vue/compiler-sfc/@babel/parser/@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "7.29.7", "js-tokens": "4.0.0", "picocolors": "1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets": ["@babel/helper-compilation-targets@7.29.7", "", { "dependencies": { "@babel/compat-data": "7.29.7", "@babel/helper-validator-option": "7.29.7", "browserslist": "4.29.0", "lru-cache": "5.1.1", "semver": "6.3.1" } }, "sha512-wem6WaBj4NaVYVdNhLPPVacES6ZJ+KBBfSkTMD3YZxbP3rm3Di85tJU5ljaUNhaOynt+Aj0xruhYuzQBt8n71g=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-module-transforms": ["@babel/helper-module-transforms@7.29.7", "", { "dependencies": { "@babel/helper-module-imports": "7.29.7", "@babel/helper-validator-identifier": "7.29.7", "@babel/traverse": "7.29.8" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helpers": ["@babel/helpers@7.29.7", "", { "dependencies": { "@babel/template": "7.29.7", "@babel/types": "7.29.8" } }, "sha512-1k2lAGRMfHTcwuNYcCNUmaUffmQv8KWMfh2iJUUeRlwlwH4FdNG7mfPI10NPfLHJFThE4Tyr4mv7kTNZOiPuBg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/template": ["@babel/template@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/parser": "7.29.9", "@babel/types": "7.29.8" } }, "sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-annotate-as-pure": ["@babel/helper-annotate-as-pure@7.29.7", "", { "dependencies": { "@babel/types": "7.29.8" } }, "sha512-OoK6239jHPuSQOoS0kfTVKn0b/rVTk0seKq4Gd2UMLtmOVLjDC0ki3e+c90Trqv2gMfvJFqkiljrr568+qddiw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin": ["@babel/helper-create-class-features-plugin@7.29.7", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "@babel/helper-member-expression-to-functions": "7.29.7", "@babel/helper-optimise-call-expression": "7.29.7", "@babel/helper-replace-supers": "7.29.7", "@babel/helper-skip-transparent-expression-wrappers": "7.29.7", "@babel/traverse": "7.29.8", "semver": "6.3.1" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-IY3ZD9Tmooqr3TUhc3DUWxiuo8xx1DWLhd5M7hQ+ZWJamqM2BbalrBJb2MisSLoYorOj75U03qULCxQTY9r3hg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-plugin-utils": ["@babel/helper-plugin-utils@7.29.7", "", {}, "sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/plugin-syntax-typescript": ["@babel/plugin-syntax-typescript@7.29.7", "", { "dependencies": { "@babel/helper-plugin-utils": "7.29.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-ngr+82Sh0xMz25TPCZi+nC2iTzjfCdWS2ONXTp/PtSCHCgaCNBpdMqgvJ2ccdLlClVZ7sisIgB914j/JFe+RZA=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin": ["@babel/helper-create-regexp-features-plugin@7.29.7", "", { "dependencies": { "@babel/helper-annotate-as-pure": "7.29.7", "regexpu-core": "6.4.0", "semver": "6.3.1" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-907Uymvqgg1dwUA+7IGwFAOSYzQOuzPXKNJ1yxzwPffzkYFg2q2eHi1fIOs6sXkG9NbIUMunnUlkYsfRFNvomg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-plugin-utils": ["@babel/helper-plugin-utils@7.29.7", "", {}, "sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame": ["@babel/code-frame@7.29.7", "", { "dependencies": { "@babel/helper-validator-identifier": "7.29.7", "js-tokens": "4.0.0", "picocolors": "1.1.1" } }, "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/traverse/@babel/helper-globals": ["@babel/helper-globals@7.29.7", "", {}, "sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/traverse/@babel/template": ["@babel/template@7.29.7", "", { "dependencies": { "@babel/code-frame": "7.29.7", "@babel/parser": "7.29.9", "@babel/types": "7.29.8" } }, "sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@7.29.7", "", {}, "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw=="],
-
-    "@xplat/windows/@nativescript/vite/@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
-
-    "@xplat/windows/@nativescript/vite/vite/rolldown": ["rolldown@1.2.9", "", { "dependencies": { "@oxc-project/types": "0.150.0", "@rolldown/pluginutils": "1.0.1" }, "optionalDependencies": { "@rolldown/binding-android-arm-eabi": "1.2.9", "@rolldown/binding-android-arm64": "1.2.9", "@rolldown/binding-darwin-arm64": "1.2.9", "@rolldown/binding-darwin-x64": "1.2.9", "@rolldown/binding-freebsd-x64": "1.2.9", "@rolldown/binding-linux-arm-gnueabihf": "1.2.9", "@rolldown/binding-linux-arm64-gnu": "1.2.9", "@rolldown/binding-linux-arm64-musl": "1.2.9", "@rolldown/binding-linux-ppc64-gnu": "1.2.9", "@rolldown/binding-linux-s390x-gnu": "1.2.9", "@rolldown/binding-linux-x64-gnu": "1.2.9", "@rolldown/binding-linux-x64-musl": "1.2.9", "@rolldown/binding-openharmony-arm64": "1.2.9", "@rolldown/binding-win32-arm64-msvc": "1.2.9", "@rolldown/binding-win32-x64-msvc": "1.2.9" }, "bin": { "rolldown": "./bin/cli.mjs" } }, "sha512-hx/Pv0N1haXRb11qkfnK5MXB/iqr7i0yjWQqmO9uHqZpBgQSqzc8UsSnEpalsh+j1I8qQ2CkXAkJC8Br3dKSlg=="],
-
-    "@xplat/windows/nativescript/glob/minimatch": ["minimatch@9.0.9", "", { "dependencies": { "brace-expansion": "2.1.7" } }, "sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg=="],
-
-    "@xplat/windows/nativescript/glob/path-scurry": ["path-scurry@1.11.1", "", { "dependencies": { "lru-cache": "10.4.3", "minipass": "7.1.3" } }, "sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA=="],
-
-    "@xplat/windows/nativescript/ios-sim-portable/plist": ["plist@3.0.6", "", { "dependencies": { "base64-js": "1.5.1", "xmlbuilder": "15.1.1" } }, "sha512-WiIVYyrp8TD4w8yCvyeIr+lkmrGRd5u0VbRnU+tP/aRLxP/YadJUYOMZJ/6hIa3oUyVCsycXvtNRgd5XBJIbiA=="],
-
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs": ["shelljs@0.9.2", "", { "dependencies": { "execa": "1.0.0", "fast-glob": "3.3.3", "interpret": "1.4.0", "rechoir": "0.6.2" }, "bin": { "shjs": "bin/shjs" } }, "sha512-S3I64fEiKgTZzKCC46zT/Ib9meqofLrQVbpSswtjFfAVDW+AZ54WTnAM/3/yENoxz/V1Cy6u3kiiEbQ4DNphvw=="],
-
-    "@xplat/windows/nativescript/ios-sim-portable/yargs": ["yargs@17.7.1", "", { "dependencies": { "cliui": "8.0.1", "escalade": "3.2.0", "get-caller-file": "2.0.5", "require-directory": "2.1.1", "string-width": "4.2.3", "y18n": "5.0.8", "yargs-parser": "21.1.1" } }, "sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw=="],
 
     "babel-loader/@babel/core/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
@@ -8611,6 +8644,8 @@
     "babel-loader/@babel/core/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@7.29.7", "", {}, "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw=="],
 
     "babel-loader/@babel/core/@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
+
+    "cli-highlight/yargs/cliui/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
 
     "ios-sim-portable/shelljs/execa/cross-spawn": ["cross-spawn@6.0.6", "", { "dependencies": { "nice-try": "1.0.5", "path-key": "2.0.1", "semver": "5.7.2", "shebang-command": "1.2.0", "which": "1.3.1" } }, "sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw=="],
 
@@ -8726,71 +8761,73 @@
 
     "@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/regexpu-core/regenerate-unicode-properties": ["regenerate-unicode-properties@10.2.2", "", { "dependencies": { "regenerate": "1.5.0" } }, "sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/@babel/compat-data": ["@babel/compat-data@7.29.7", "", {}, "sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/@babel/compat-data": ["@babel/compat-data@7.29.7", "", {}, "sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/@babel/helper-validator-option": ["@babel/helper-validator-option@7.29.7", "", {}, "sha512-N9ZErrD+yW5geCDtBqnOoxmR8+tNKiGuxKlDpuJxfsqpa2dFcexaziGAE/qoHLiDDreVNMupxGmSoNlyvsA3gw=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/@babel/helper-validator-option": ["@babel/helper-validator-option@7.29.7", "", {}, "sha512-N9ZErrD+yW5geCDtBqnOoxmR8+tNKiGuxKlDpuJxfsqpa2dFcexaziGAE/qoHLiDDreVNMupxGmSoNlyvsA3gw=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/browserslist": ["browserslist@4.29.0", "", { "dependencies": { "baseline-browser-mapping": "2.11.25", "caniuse-lite": "1.0.30001810", "electron-to-chromium": "1.5.433", "node-releases": "2.0.56", "update-browserslist-db": "1.3.3" }, "bin": { "browserslist": "cli.js" } }, "sha512-3GSvyjvDI4Dur1Meg2BekJquu5uF+9R9a1+5M1Mde192eZoXbeXjzgOsgqPS2V8D5wrrip0gR5Hf/GhWQ9ZzaA=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/browserslist": ["browserslist@4.29.0", "", { "dependencies": { "baseline-browser-mapping": "2.11.25", "caniuse-lite": "1.0.30001810", "electron-to-chromium": "1.5.433", "node-releases": "2.0.56", "update-browserslist-db": "1.3.3" }, "bin": { "browserslist": "cli.js" } }, "sha512-3GSvyjvDI4Dur1Meg2BekJquu5uF+9R9a1+5M1Mde192eZoXbeXjzgOsgqPS2V8D5wrrip0gR5Hf/GhWQ9ZzaA=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "3.1.1" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "3.1.1" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-module-transforms/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-module-transforms/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin/@babel/helper-replace-supers": ["@babel/helper-replace-supers@7.29.7", "", { "dependencies": { "@babel/helper-member-expression-to-functions": "7.29.7", "@babel/helper-optimise-call-expression": "7.29.7", "@babel/traverse": "7.29.8" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-atfGXWSeCiF4DnKZIfmJfQRkSw9b9gNNXR1kqKjbhG4pGYCOnkp8OcTB8E3NXjBu8NpheSnOeNKz8KT7UNFTmQ=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin/@babel/helper-replace-supers": ["@babel/helper-replace-supers@7.29.7", "", { "dependencies": { "@babel/helper-member-expression-to-functions": "7.29.7", "@babel/helper-optimise-call-expression": "7.29.7", "@babel/traverse": "7.29.8" }, "peerDependencies": { "@babel/core": "^7.0.0" } }, "sha512-atfGXWSeCiF4DnKZIfmJfQRkSw9b9gNNXR1kqKjbhG4pGYCOnkp8OcTB8E3NXjBu8NpheSnOeNKz8KT7UNFTmQ=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-typescript/@babel/helper-create-class-features-plugin/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/@babel/helper-annotate-as-pure": ["@babel/helper-annotate-as-pure@7.29.7", "", { "dependencies": { "@babel/types": "7.29.8" } }, "sha512-OoK6239jHPuSQOoS0kfTVKn0b/rVTk0seKq4Gd2UMLtmOVLjDC0ki3e+c90Trqv2gMfvJFqkiljrr568+qddiw=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/@babel/helper-annotate-as-pure": ["@babel/helper-annotate-as-pure@7.29.7", "", { "dependencies": { "@babel/types": "7.29.8" } }, "sha512-OoK6239jHPuSQOoS0kfTVKn0b/rVTk0seKq4Gd2UMLtmOVLjDC0ki3e+c90Trqv2gMfvJFqkiljrr568+qddiw=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/regexpu-core": ["regexpu-core@6.4.0", "", { "dependencies": { "regenerate": "1.5.0", "regenerate-unicode-properties": "10.2.2", "regjsgen": "0.8.0", "regjsparser": "0.13.3", "unicode-match-property-ecmascript": "2.0.0", "unicode-match-property-value-ecmascript": "2.2.1" } }, "sha512-0ghuzq67LI9bLXpOX/ISfve/Mq33a4aFRzoQYhnnok1JOFpmE/A2TBGkNVenOGEeSBCjIiWcc6MVOG5HEQv0sA=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/regexpu-core": ["regexpu-core@6.4.0", "", { "dependencies": { "regenerate": "1.5.0", "regenerate-unicode-properties": "10.2.2", "regjsgen": "0.8.0", "regjsparser": "0.13.3", "unicode-match-property-ecmascript": "2.0.0", "unicode-match-property-value-ecmascript": "2.2.1" } }, "sha512-0ghuzq67LI9bLXpOX/ISfve/Mq33a4aFRzoQYhnnok1JOFpmE/A2TBGkNVenOGEeSBCjIiWcc6MVOG5HEQv0sA=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/traverse/@babel/code-frame/js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-android-arm-eabi": ["@rolldown/binding-android-arm-eabi@1.2.9", "", { "os": "android", "cpu": "arm" }, "sha512-tNISae1QEf/vkb3xkRcjV5SEdzPE97We5IVaa2Z8jSszQPZ8U60B/YCYpw4QI7VidYsBtKavczXf+DyDs9WGxw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-android-arm-eabi": ["@rolldown/binding-android-arm-eabi@1.2.9", "", { "os": "android", "cpu": "arm" }, "sha512-tNISae1QEf/vkb3xkRcjV5SEdzPE97We5IVaa2Z8jSszQPZ8U60B/YCYpw4QI7VidYsBtKavczXf+DyDs9WGxw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-android-arm64": ["@rolldown/binding-android-arm64@1.2.9", "", { "os": "android", "cpu": "arm64" }, "sha512-YC8YsI30o606GTZi0VyzYlsDKFP8W61i/QzayHDkLbNEz/IShqAmTa+hsJRj13xTHA0H+6fk4b2UmGn+Q/cMlg=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-android-arm64": ["@rolldown/binding-android-arm64@1.2.9", "", { "os": "android", "cpu": "arm64" }, "sha512-YC8YsI30o606GTZi0VyzYlsDKFP8W61i/QzayHDkLbNEz/IShqAmTa+hsJRj13xTHA0H+6fk4b2UmGn+Q/cMlg=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-darwin-arm64": ["@rolldown/binding-darwin-arm64@1.2.9", "", { "os": "darwin", "cpu": "arm64" }, "sha512-IwhlH3qK5urrY8hZiEgGkHKEFN901p/p2bjxCxJlr4GyNnF7wYpUvK+Y43uaRYuC4hpfjzbR3SJC3arX1jGvmw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-darwin-arm64": ["@rolldown/binding-darwin-arm64@1.2.9", "", { "os": "darwin", "cpu": "arm64" }, "sha512-IwhlH3qK5urrY8hZiEgGkHKEFN901p/p2bjxCxJlr4GyNnF7wYpUvK+Y43uaRYuC4hpfjzbR3SJC3arX1jGvmw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-darwin-x64": ["@rolldown/binding-darwin-x64@1.2.9", "", { "os": "darwin", "cpu": "x64" }, "sha512-XxpJfVzFh+jilRxIXUqcfYAYcunIc/XEzIizsOL1fcJee5Sf7H3mH8WlLmfHfluz5amqR88QQo9izKtmMlavAw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-darwin-x64": ["@rolldown/binding-darwin-x64@1.2.9", "", { "os": "darwin", "cpu": "x64" }, "sha512-XxpJfVzFh+jilRxIXUqcfYAYcunIc/XEzIizsOL1fcJee5Sf7H3mH8WlLmfHfluz5amqR88QQo9izKtmMlavAw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-freebsd-x64": ["@rolldown/binding-freebsd-x64@1.2.9", "", { "os": "freebsd", "cpu": "x64" }, "sha512-kSfvhmgeWyfkbT3p/1s5vSgboogoah2zkm9fX2zjg2hHxSV7T4KhMWRUUaRk4OXNqoD3QAUeRqLcs1aZOK4U1g=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-freebsd-x64": ["@rolldown/binding-freebsd-x64@1.2.9", "", { "os": "freebsd", "cpu": "x64" }, "sha512-kSfvhmgeWyfkbT3p/1s5vSgboogoah2zkm9fX2zjg2hHxSV7T4KhMWRUUaRk4OXNqoD3QAUeRqLcs1aZOK4U1g=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm-gnueabihf": ["@rolldown/binding-linux-arm-gnueabihf@1.2.9", "", { "os": "linux", "cpu": "arm" }, "sha512-1RVzG17pxqbTfYLC352JlLt6kKLG+6Hr30n8DlIJqsnV5luUDd2Qdx9Ayw1Cabfyb1K9k0jXEZ7evxkRoT+uiw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm-gnueabihf": ["@rolldown/binding-linux-arm-gnueabihf@1.2.9", "", { "os": "linux", "cpu": "arm" }, "sha512-1RVzG17pxqbTfYLC352JlLt6kKLG+6Hr30n8DlIJqsnV5luUDd2Qdx9Ayw1Cabfyb1K9k0jXEZ7evxkRoT+uiw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm64-gnu": ["@rolldown/binding-linux-arm64-gnu@1.2.9", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-BXqPvZ2drqVD+/Z8UpKwcs4Mp7grM+eGFku4CAEKrEtcbAsUpzREphK1sogCRZGreVPiMkiiBtw0n3TPteuqvw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm64-gnu": ["@rolldown/binding-linux-arm64-gnu@1.2.9", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-BXqPvZ2drqVD+/Z8UpKwcs4Mp7grM+eGFku4CAEKrEtcbAsUpzREphK1sogCRZGreVPiMkiiBtw0n3TPteuqvw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm64-musl": ["@rolldown/binding-linux-arm64-musl@1.2.9", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-11vWvo8YDwLzukt27J3aYDWU+gg2P7J+ZOmiJ0hkF5BXZDW7pVya7r40MXDy6ya0i9KamoENSVKIugvJNgFXIA=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-arm64-musl": ["@rolldown/binding-linux-arm64-musl@1.2.9", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-11vWvo8YDwLzukt27J3aYDWU+gg2P7J+ZOmiJ0hkF5BXZDW7pVya7r40MXDy6ya0i9KamoENSVKIugvJNgFXIA=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-ppc64-gnu": ["@rolldown/binding-linux-ppc64-gnu@1.2.9", "", { "os": "linux", "cpu": "ppc64", "libc": "glibc" }, "sha512-a1tijMkdwsIARtc0F39ApURROkf3NwqinI6TOiSSWCTR7dT96dffNvMUtDHnq64wKNTIZOIlzKrFvvFUznJiyw=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-ppc64-gnu": ["@rolldown/binding-linux-ppc64-gnu@1.2.9", "", { "os": "linux", "cpu": "ppc64", "libc": "glibc" }, "sha512-a1tijMkdwsIARtc0F39ApURROkf3NwqinI6TOiSSWCTR7dT96dffNvMUtDHnq64wKNTIZOIlzKrFvvFUznJiyw=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-s390x-gnu": ["@rolldown/binding-linux-s390x-gnu@1.2.9", "", { "os": "linux", "cpu": "s390x", "libc": "glibc" }, "sha512-x6SQNdAvv4c3hWqTMaWuawzMX9myaCs/yEmlGsxJzkdClnHW7FbrjQuSiRDhuSYzEYoEMhsaJy9qHG/XNemJPQ=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-s390x-gnu": ["@rolldown/binding-linux-s390x-gnu@1.2.9", "", { "os": "linux", "cpu": "s390x", "libc": "glibc" }, "sha512-x6SQNdAvv4c3hWqTMaWuawzMX9myaCs/yEmlGsxJzkdClnHW7FbrjQuSiRDhuSYzEYoEMhsaJy9qHG/XNemJPQ=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-x64-gnu": ["@rolldown/binding-linux-x64-gnu@1.2.9", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-9s0AZ8BFK5/n7B/TBoa2yJE3gI3KURrbXcPBlsAsvjU4VeJKgE90y1YtNxyEUIcHPQkg6/yfF3qihUrcM/Kf0Q=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-x64-gnu": ["@rolldown/binding-linux-x64-gnu@1.2.9", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-9s0AZ8BFK5/n7B/TBoa2yJE3gI3KURrbXcPBlsAsvjU4VeJKgE90y1YtNxyEUIcHPQkg6/yfF3qihUrcM/Kf0Q=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-x64-musl": ["@rolldown/binding-linux-x64-musl@1.2.9", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-P7VWAmV+WdJluH7ovnRGoiv2i8To7GAZ+kGzfGup635cyL7SyYl3lSUaA3Gp5THf0n/Co5EyEqb2zbqq+nMOHQ=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-linux-x64-musl": ["@rolldown/binding-linux-x64-musl@1.2.9", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-P7VWAmV+WdJluH7ovnRGoiv2i8To7GAZ+kGzfGup635cyL7SyYl3lSUaA3Gp5THf0n/Co5EyEqb2zbqq+nMOHQ=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-openharmony-arm64": ["@rolldown/binding-openharmony-arm64@1.2.9", "", { "os": "none", "cpu": "arm64" }, "sha512-1qixtsE4BK8h+yS3BfmZ09UhA7O/N4IACva6YBr7EBvCJraByTuRcgOTaiA62Tm0vey3UcKXLOaoGHtYmNGEVg=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-openharmony-arm64": ["@rolldown/binding-openharmony-arm64@1.2.9", "", { "os": "none", "cpu": "arm64" }, "sha512-1qixtsE4BK8h+yS3BfmZ09UhA7O/N4IACva6YBr7EBvCJraByTuRcgOTaiA62Tm0vey3UcKXLOaoGHtYmNGEVg=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-win32-arm64-msvc": ["@rolldown/binding-win32-arm64-msvc@1.2.9", "", { "os": "win32", "cpu": "arm64" }, "sha512-ok8IQjcEPs1AKZfuEUznVBrJw+gK4soq+bx8b1X2XoMqVClarc1q5JDmVtWXY1xfr6ZuHTAsPXHTgTrqKTZeww=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-win32-arm64-msvc": ["@rolldown/binding-win32-arm64-msvc@1.2.9", "", { "os": "win32", "cpu": "arm64" }, "sha512-ok8IQjcEPs1AKZfuEUznVBrJw+gK4soq+bx8b1X2XoMqVClarc1q5JDmVtWXY1xfr6ZuHTAsPXHTgTrqKTZeww=="],
 
-    "@xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-win32-x64-msvc": ["@rolldown/binding-win32-x64-msvc@1.2.9", "", { "os": "win32", "cpu": "x64" }, "sha512-Ip2mXoU0hM0boq3Rf+ekuT653OROSo6aSYcPT1VHE4q52KvyxgFkQgrgb/IEsxOuvQ2fZZbs8khJAyCEPM24/g=="],
+    "@octane-xplat/windows/@nativescript/vite/vite/rolldown/@rolldown/binding-win32-x64-msvc": ["@rolldown/binding-win32-x64-msvc@1.2.9", "", { "os": "win32", "cpu": "x64" }, "sha512-Ip2mXoU0hM0boq3Rf+ekuT653OROSo6aSYcPT1VHE4q52KvyxgFkQgrgb/IEsxOuvQ2fZZbs8khJAyCEPM24/g=="],
 
-    "@xplat/windows/nativescript/glob/minimatch/brace-expansion": ["brace-expansion@2.1.7", "", { "dependencies": { "balanced-match": "1.0.2" } }, "sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g=="],
+    "@octane-xplat/windows/nativescript/glob/minimatch/brace-expansion": ["brace-expansion@2.1.7", "", { "dependencies": { "balanced-match": "1.0.2" } }, "sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g=="],
 
-    "@xplat/windows/nativescript/glob/path-scurry/lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
+    "@octane-xplat/windows/nativescript/glob/path-scurry/lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa": ["execa@1.0.0", "", { "dependencies": { "cross-spawn": "6.0.6", "get-stream": "4.1.0", "is-stream": "1.1.0", "npm-run-path": "2.0.2", "p-finally": "1.0.0", "signal-exit": "3.0.7", "strip-eof": "1.0.0" } }, "sha512-adbxcyWV46qiHyvSp50TKt05tB4tK3HcmF7/nxfAdhnox83seTDbwnaqKO4sXRy7roHAIFqJP/Rw/AuEbX61LA=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa": ["execa@1.0.0", "", { "dependencies": { "cross-spawn": "6.0.6", "get-stream": "4.1.0", "is-stream": "1.1.0", "npm-run-path": "2.0.2", "p-finally": "1.0.0", "signal-exit": "3.0.7", "strip-eof": "1.0.0" } }, "sha512-adbxcyWV46qiHyvSp50TKt05tB4tK3HcmF7/nxfAdhnox83seTDbwnaqKO4sXRy7roHAIFqJP/Rw/AuEbX61LA=="],
 
     "babel-loader/@babel/core/@babel/helper-compilation-targets/lru-cache/yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
+
+    "cli-highlight/yargs/cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
     "ios-sim-portable/shelljs/execa/cross-spawn/path-key": ["path-key@2.0.1", "", {}, "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw=="],
 
@@ -8814,32 +8851,32 @@
 
     "@nativescript-community/sqlite-core/@nativescript/hook/glob/minimatch/brace-expansion/balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/lru-cache/yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/core/@babel/helper-compilation-targets/lru-cache/yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
 
-    "@xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/regexpu-core/regenerate-unicode-properties": ["regenerate-unicode-properties@10.2.2", "", { "dependencies": { "regenerate": "1.5.0" } }, "sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g=="],
+    "@octane-xplat/windows/@nativescript/vite/@babel/plugin-transform-unicode-property-regex/@babel/helper-create-regexp-features-plugin/regexpu-core/regenerate-unicode-properties": ["regenerate-unicode-properties@10.2.2", "", { "dependencies": { "regenerate": "1.5.0" } }, "sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g=="],
 
-    "@xplat/windows/nativescript/glob/minimatch/brace-expansion/balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
+    "@octane-xplat/windows/nativescript/glob/minimatch/brace-expansion/balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn": ["cross-spawn@6.0.6", "", { "dependencies": { "nice-try": "1.0.5", "path-key": "2.0.1", "semver": "5.7.2", "shebang-command": "1.2.0", "which": "1.3.1" } }, "sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn": ["cross-spawn@6.0.6", "", { "dependencies": { "nice-try": "1.0.5", "path-key": "2.0.1", "semver": "5.7.2", "shebang-command": "1.2.0", "which": "1.3.1" } }, "sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/get-stream": ["get-stream@4.1.0", "", { "dependencies": { "pump": "3.0.4" } }, "sha512-GMat4EJ5161kIy2HevLlr4luNjBgvmj413KaQA7jt4V8B4RDsfpHk7WQ9GVqfYyyx8OS/L66Kox+rJRNklLK7w=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/get-stream": ["get-stream@4.1.0", "", { "dependencies": { "pump": "3.0.4" } }, "sha512-GMat4EJ5161kIy2HevLlr4luNjBgvmj413KaQA7jt4V8B4RDsfpHk7WQ9GVqfYyyx8OS/L66Kox+rJRNklLK7w=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/is-stream": ["is-stream@1.1.0", "", {}, "sha512-uQPm8kcs47jx38atAcWTVxyltQYoPT68y9aWYdV6yWXSyW8mzSat0TL6CiWdZeCdF3KrAvpVtnHbTv4RN+rqdQ=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/is-stream": ["is-stream@1.1.0", "", {}, "sha512-uQPm8kcs47jx38atAcWTVxyltQYoPT68y9aWYdV6yWXSyW8mzSat0TL6CiWdZeCdF3KrAvpVtnHbTv4RN+rqdQ=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/npm-run-path": ["npm-run-path@2.0.2", "", { "dependencies": { "path-key": "2.0.1" } }, "sha512-lJxZYlT4DW/bRUtFh1MQIWqmLwQfAxnqWG4HhEdjMlkrJYnJn0Jrr2u3mgxqaWsdiBc76TYkTG/mhrnYTuzfHw=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/npm-run-path": ["npm-run-path@2.0.2", "", { "dependencies": { "path-key": "2.0.1" } }, "sha512-lJxZYlT4DW/bRUtFh1MQIWqmLwQfAxnqWG4HhEdjMlkrJYnJn0Jrr2u3mgxqaWsdiBc76TYkTG/mhrnYTuzfHw=="],
 
     "ios-sim-portable/shelljs/execa/cross-spawn/shebang-command/shebang-regex": ["shebang-regex@1.0.0", "", {}, "sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/path-key": ["path-key@2.0.1", "", {}, "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/path-key": ["path-key@2.0.1", "", {}, "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/semver": ["semver@5.7.2", "", { "bin": { "semver": "bin/semver" } }, "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/semver": ["semver@5.7.2", "", { "bin": { "semver": "bin/semver" } }, "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/shebang-command": ["shebang-command@1.2.0", "", { "dependencies": { "shebang-regex": "1.0.0" } }, "sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/shebang-command": ["shebang-command@1.2.0", "", { "dependencies": { "shebang-regex": "1.0.0" } }, "sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/which": ["which@1.3.1", "", { "dependencies": { "isexe": "2.0.0" }, "bin": { "which": "./bin/which" } }, "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/which": ["which@1.3.1", "", { "dependencies": { "isexe": "2.0.0" }, "bin": { "which": "./bin/which" } }, "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/npm-run-path/path-key": ["path-key@2.0.1", "", {}, "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/npm-run-path/path-key": ["path-key@2.0.1", "", {}, "sha512-fEHGKCSmUSDPv4uoj8AlD+joPlq3peND+HRYyxFz4KPw4z926S/b8rIuFs2FYJg3BwsxJf6A9/3eIdLaYC+9Dw=="],
 
-    "@xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/shebang-command/shebang-regex": ["shebang-regex@1.0.0", "", {}, "sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ=="],
+    "@octane-xplat/windows/nativescript/ios-sim-portable/shelljs/execa/cross-spawn/shebang-command/shebang-regex": ["shebang-regex@1.0.0", "", {}, "sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ=="],
   }
 }

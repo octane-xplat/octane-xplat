@@ -1,0 +1,26 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../linux-gtk-renderer/src/host-globals.d.ts",
+		"../src/index.gtk.ts",
+		"../../linux-gtk-renderer/src/gi.d.ts",
+		"./isolation-gtk.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".gtk",
+			""
+		],
+		"customConditions": [
+			"gtk",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

@@ -1,0 +1,36 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/index.ts",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

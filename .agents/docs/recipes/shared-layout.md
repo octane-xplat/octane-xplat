@@ -39,12 +39,12 @@ the behavior differences between DOM and NativeScript.
 - AC3: [Layout component index](../../../docs/app/components.md#layout) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
 - AC4: [Grouped fields](../../../docs/app/primitives.md#grouped-fields) and maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
-- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx), and [percentage-image track-minimum regression](../../../apps/mobile/src/tests/image-percentage-grid.spec.tsrx).
+- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/harness/src/tests/screen-grid-width.spec.tsrx), maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx), and [percentage-image track-minimum regression](../../../apps/harness/src/tests/image-percentage-grid.spec.tsrx).
 
-- AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives/layout.md#retained-screen-layers), maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx), and [intrinsic-content/parent-resize regression](../../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
+- AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../guides/primitives/layout.md#retained-screen-layers), maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx), and [intrinsic-content/parent-resize regression](../../../apps/harness/src/tests/foreign-screen-height.spec.tsrx).
 
 - AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/components/layout/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).
 
-- AC8: [Page defaults](../../../docs/app/primitives.md#safe-area-edges), [agent layout guidance](../../skills/octane-xplat/references/primitives/layout.md#vertical-page-sizing), and [shared geometry and scrolling regression](../../../packages/ui/tests/fixtures/page-layout/page.tsrx).
+- AC8: [Page defaults](../../../docs/app/primitives.md#safe-area-edges), [agent layout guidance](../guides/primitives/layout.md#vertical-page-sizing), and [shared geometry and scrolling regression](../../../packages/ui/tests/fixtures/page-layout/page.tsrx).
 
 - AC9: [Container defaults](../../../docs/app/primitives.md#predictable-container-defaults), [block sizing prerequisite](../../../packages/ui/tests/fixtures/page-layout/block-flow.tsrx), and [neutral defaults and live override regression](../../../packages/ui/tests/fixtures/page-layout/neutral-containers.tsrx).

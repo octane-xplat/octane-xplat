@@ -6,9 +6,9 @@
   must export the same names and types.
 - Put shared prop contracts in `src/props.ts` and document public exports.
 - The unsuffixed `.tsx` file is the NativeScript implementation. Add a
-  `.web.tsx` sibling when browser behavior or markup needs to differ. Native
-  files start with `/** @jsxImportSource @octane-xplat/jsx */`; browser files
-  start with `/** @jsxImportSource @octane-xplat/jsx/dom */`.
+  `.web.tsx` sibling when browser behavior or markup needs to differ. Native files
+  inherit JSX types from `tsconfig.json`. Browser files use
+  `/** @jsxImportSource @octane-xplat/jsx/dom */` on the first line.
 - Keep DOM globals out of native files. Use the shared `@octane-xplat/ui`
   elements when behavior can be shared.
 - Give every exported function and value an explicit type; `bun run typegen`

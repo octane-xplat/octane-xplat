@@ -1,0 +1,33 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/index.windows.ts",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/stripe": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

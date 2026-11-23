@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/index.windows.ts",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/global-shortcuts": [
+				"../src/index.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

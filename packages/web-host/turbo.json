@@ -7,14 +7,14 @@
 			"dependsOn": ["^typegen", "^build"]
 		},
 		"build:example": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/web-rendering/**"],
+			"cache": false,
 			"dependsOn": [
 				"build",
 				"^build",
 				"^typegen"
 			],
-			"outputs": [
-				"example/dist/**"
-			]
+			"outputs": []
 		},
 		"test:packed": {
 			"dependsOn": [
@@ -29,6 +29,7 @@
 			]
 		},
 		"typecheck": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/web-rendering/**"],
 			"dependsOn": [
 				"typegen",
 				"build"

@@ -6,7 +6,7 @@ import ts from 'typescript-classic'
 import { createStore } from '../../ui/src/data/store.ts'
 
 const source = await readFile(
-  new URL('../../demos/src/billing-guide/purchases.ts', import.meta.url),
+  new URL('../../../examples/payments/purchases.ts', import.meta.url),
   'utf8',
 )
 

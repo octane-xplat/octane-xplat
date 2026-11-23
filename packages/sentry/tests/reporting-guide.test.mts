@@ -11,8 +11,8 @@ const compile = (source) =>
   })
 
 const [exampleSource, filterSource, leafSource] = await Promise.all([
-  readFile(new URL('../examples/reporting.web.ts', import.meta.url), 'utf8'),
-  readFile(new URL('../examples/reporting-filter.ts', import.meta.url), 'utf8'),
+  readFile(new URL('../../../examples/observability/reporting.web.ts', import.meta.url), 'utf8'),
+  readFile(new URL('../../../examples/observability/reporting-filter.ts', import.meta.url), 'utf8'),
   readFile(new URL('../src/sentry.web.ts', import.meta.url), 'utf8'),
 ])
 

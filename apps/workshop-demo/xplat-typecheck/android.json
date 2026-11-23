@@ -1,0 +1,44 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../packages/cli/src/typecheck-globals/native.d.ts",
+		"../src/counter.tsrx",
+		"../src/stories/counter.stories.tsrx",
+		"../src/stories/failing.stories.tsrx",
+		"../src/stories/gtk-only.stories.tsrx",
+		"../src/stories/inputs.stories.tsrx",
+		"../src/stories/ios-only.stories.tsrx",
+		"../src/stories/isolation-fixture.ts",
+		"../src/stories/isolation.stories.tsrx",
+		"../src/stories/providers.stories.tsrx",
+		"../src/stories/style-merge.ts",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-android@9.1.1/node_modules/@nativescript/types-android/index.d.ts"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

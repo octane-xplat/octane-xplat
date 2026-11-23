@@ -119,8 +119,10 @@ import './card.web.css'
 - Use `.macos` or `.windows` for native frontend implementations. Keep
   existing `.linux` overrides compatible; do not add new ones for behavior a
   `.web` frontend can provide.
-- Keep the exported props and return values compatible. Callers should not
-  need to know which file the resolver selected.
+- Every implementation exposes identical exported names and public types.
+  Define the props once in a shared file such as `props.ts` and import the
+  same type in the default implementation and every leaf. Keep host-specific
+  globals out of code that runs on several platforms.
 
 For example, a share action can use the browser share API on web, the native
 default elsewhere, and a shared mobile sheet on iOS and Android:
@@ -168,15 +170,25 @@ uses that platform's standard TypeScript resolution and SDK declarations.
 Shared files are checked in every applicable program. A passing check does not
 prove that the app runs on a device.
 For TSRX modules, include `.tsrx` but leave out the platform name. TypeScript
-checks the unsuffixed contract; the platform preset selects the runtime leaf.
+and the platform build select the matching leaf when one exists.
+The starter includes matching leaves as starting files in each platform program,
+so the web checker also checks `Card.web.tsrx` directly. If you customize
+`tsconfig.envs.json`, make sure the web entry's `include` or `files` covers it.
 Every platform family needs an unsuffixed module; lint checks this for source
 files. If no default implementation
 exists, use a declaration-only contract and provide implementations for the
 targets that import it. The build rejects a contract without an implementation.
 
+```ts
+// props.ts — import this type from every Card implementation.
+export type CardProps = { title: string }
+```
+
 ```tsrx
 // Card.tsrx — contract for a module implemented only by platform leaves.
-export declare function Card(props: { title: string }): unknown
+import type { CardProps } from './props'
+
+export declare function Card(props: CardProps): unknown
 ```
 
 New apps directly depend on `@octane-xplat/jsx` and select its shared native
@@ -197,12 +209,14 @@ export function Card() {
 }
 ```
 
-Native JSX files inherit the shared vocabulary, or select it explicitly.
-A renderer-specific pragma overrides the app default, so use the facade:
+Native `.tsx` files inherit the shared vocabulary from the app config. In a
+`.tsrx` file that uses native host elements such as `masonview` and `label`,
+put the shared JSX comment on the first line. The TSRX mapper honors the
+program's JSX source, and Xplat lint requires the explicit comment for raw
+native elements.
 
-```tsx
+```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
-
 export function Card() {
   return (
     <masonview style={{ display: 'grid' }}>
@@ -216,7 +230,6 @@ Target programs bind the shared `HostElement` through platform conditions.
 Name the concrete host type where a native ref is declared:
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 // Spinner.ios.tsx
 import type { View } from '@nativescript/core'
 import { useRef } from 'octane'
@@ -306,14 +319,19 @@ bun run xplat typecheck
 
 ### Editor project context
 
-After installing dependencies, run the app's typecheck once to generate its
-platform configurations. Run it again when you change manifest roots. New
-starters include a root `tsconfig.json` with solution references, which lets the
-language server discover those configurations from source files. These
-references exist for editor discovery only — while a generated program is still
-absent, the framework's Vite preset pins the transform to the committed
-`tsconfig.envs.json` instead, so installs, tests, and builds never wait on
-them:
+The typecheck writes each platform configuration into the tracked
+`xplat-typecheck/` directory beside the manifest. Commit that directory: the
+programs are generated but project-relative, so the language server discovers
+them right after dependency installation without a first typecheck run.
+Run the typecheck again to regenerate them when you change the manifest, its
+roots, or the dependency layout it resolves through. New starters include a
+root `tsconfig.json` with solution references, which lets the language server
+discover those configurations from source files. These references exist for
+editor discovery. While an app's generated program is absent, the framework's
+Vite preset uses its committed `tsconfig.envs.json`. When Vite discovers
+TypeScript configs for individual files, the preset also uses a linked
+package's own manifest if its generated program is missing. Run the typecheck
+when you want to check types and refresh the editor's platform projects:
 
 ```sh
 bun run typecheck
@@ -322,7 +340,8 @@ bun run typecheck
 For an existing manifest-based app, keep common compiler options and the mapper
 entry in the root config, replace its broad `include`/`files` with an empty root
 list, and reference each generated program. This example matches the web/native
-manifest above. The cache files by themselves do not establish editor support:
+manifest above. The solution references let the editor discover the generated
+projects.
 
 ```json
 {
@@ -340,9 +359,9 @@ manifest above. The cache files by themselves do not establish editor support:
   },
   "files": [],
   "references": [
-    { "path": "./node_modules/.cache/xplat-typecheck/web.json" },
-    { "path": "./node_modules/.cache/xplat-typecheck/ios.json" },
-    { "path": "./node_modules/.cache/xplat-typecheck/android.json" }
+    { "path": "./xplat-typecheck/web.json" },
+    { "path": "./xplat-typecheck/ios.json" },
+    { "path": "./xplat-typecheck/android.json" }
   ]
 }
 ```
@@ -354,7 +373,7 @@ any old `all.json` or `linux.json` reference:
 {
   "files": [],
   "references": [
-    { "path": "./node_modules/.cache/xplat-typecheck/gtk.json" }
+    { "path": "./xplat-typecheck/gtk.json" }
   ]
 }
 ```
@@ -381,7 +400,7 @@ isolated linker. For an older app, add the same supported compiler version, then
 select it in the editor settings:
 
 ```sh
-bun add --dev typescript@7.1.0-beta
+bun add --dev typescript@7.1.0-dev.20261121.1
 ```
 
 ```json
@@ -402,7 +421,7 @@ the manifest. This fragment replaces only that field:
 
 ```json
 {
-  "references": [{ "path": "./node_modules/.cache/xplat-typecheck/ios.json" }]
+  "references": [{ "path": "./xplat-typecheck/ios.json" }]
 }
 ```
 
@@ -414,7 +433,9 @@ for native compiler and editor limitations.
 
 ```ts
 import { Card } from './Card.tsrx'
-// The web build selects Card.web.tsrx; the checker reads Card.tsrx.
+// TypeScript resolves this import to Card.tsrx.
+// The web program can also check Card.web.tsrx as a starting file.
+// The web build selects Card.web.tsrx.
 ```
 
 NativeScript build helpers still use TypeScript's classic compiler API for

@@ -23,7 +23,7 @@ function run(args: string[], env: Record<string, string> = {}) {
 
 const browsers = ['chromium', 'firefox', 'webkit']
 
-run(['--cwd', 'apps/web', 'playwright', 'install', ...browsers])
+run(['--cwd', 'tools/web-verification', 'playwright', 'install', ...browsers])
 for (const browser of browsers) {
   const env = { XPLAT_WEB_BROWSER: browser }
 
@@ -34,7 +34,7 @@ for (const browser of browsers) {
     'sheet:readiness',
     'smoke',
   ]) {
-    run(['turbo', 'run', name, '--filter=@xplat/web'], env)
+    run(['turbo', 'run', name, '--filter=@octane-xplat/web'], env)
   }
 
   run(['turbo', 'run', 'test:e2e', '--filter=@octane-xplat/lightbox'], env)

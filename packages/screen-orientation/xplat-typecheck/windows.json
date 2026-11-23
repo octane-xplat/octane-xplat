@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/index.windows.ts",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/screen-orientation": [
+				"../src/index.ts"
+			],
+			"@nativescript/core": [
+				"../node_modules/@nativescript/core"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

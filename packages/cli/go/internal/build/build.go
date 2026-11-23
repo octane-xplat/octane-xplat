@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-type projectBuildEngine struct{ Platform, Entry string }
+type projectBuildEngine struct{ Platform, Entry, Directory string }
 
 func buildSelection(available []string, requested *string) ([]string, error) {
 	if requested == nil {
@@ -106,9 +106,14 @@ func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []str
 	if _, err := project.NodeExecutable(ctx); err != nil {
 		return nil, errors.New("Node is required for the project's build engines")
 	}
+	manifest, err := projectManifest(projectRoot)
+	if err != nil {
+		return nil, err
+	}
 	for _, kind := range selected {
 		var entry string
 		var err error
+		directory := projectRoot
 		switch kind {
 		case "web":
 			entry, err = project.InstalledProjectEntry(projectRoot, "vite", "bin", "vite")
@@ -116,10 +121,16 @@ func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []str
 			if kind == "ios" && runtime.GOOS != "darwin" {
 				return nil, errors.New("iOS builds require a Mac")
 			}
-			if kind == "windows" && runtime.GOOS != "windows" {
-				return nil, errors.New("Windows NativeScript builds require Windows")
+			if kind == "windows" {
+				directory, err = project.WindowsToolchainRoot(projectRoot, manifest)
+				if err != nil {
+					return nil, err
+				}
+				if runtime.GOOS != "windows" {
+					return nil, errors.New("Windows NativeScript builds require Windows")
+				}
 			}
-			entry, err = project.InstalledProjectEntry(projectRoot, "nativescript", "bin", "ns")
+			entry, err = project.InstalledProjectEntry(directory, "nativescript", "bin", "ns")
 		case "macos":
 			if runtime.GOOS != "darwin" {
 				return nil, errors.New("macOS builds require a Mac")
@@ -142,7 +153,7 @@ func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []str
 		if err != nil {
 			return nil, err
 		}
-		engines = append(engines, projectBuildEngine{kind, entry})
+		engines = append(engines, projectBuildEngine{kind, entry, directory})
 	}
 	return engines, nil
 }
@@ -273,7 +284,7 @@ func Command(ctx context.Context, values map[string]any) error {
 			}
 		}
 		environment := append(project.ToolEnvironment(), "XPLAT_TARGET="+engine.Platform)
-		result, err := proc.RunForegroundProcessIO(ctx, args, projectRoot, environment, os.Stdout, os.Stderr)
+		result, err := proc.RunForegroundProcessIO(ctx, args, engine.Directory, environment, os.Stdout, os.Stderr)
 		if err != nil {
 			return err
 		}

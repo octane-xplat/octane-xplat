@@ -5,6 +5,7 @@ import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { registerRootLayout, unregisterRootLayout } from './root-layout'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
+import { useCallback, useRef } from 'octane'
 
 // The screen shell is a RootLayout so RootLayout.open() can layer overlays
 // over it (decision #22). Self-registers on loaded/unloaded — overlay and
@@ -22,6 +23,19 @@ import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
  * @see ScreenProps, SafeAreaProps.
  */
 export function Screen(props: ScreenProps): unknown @{
+  // A stable ref identity keeps the renderer from re-invoking it per render;
+  // the view-identity guard still covers swaps, and null detaches on unmount —
+  // attachTapToBlur's returned cleanup owns the iOS ref-counted recognizer.
+  const tapBlur = useRef<{ view: any; detach: () => void } | undefined>(undefined)
+  const bindTapBlur = useCallback((v: any) => {
+    if (v === tapBlur.current?.view) {
+      return
+    }
+
+    tapBlur.current?.detach()
+    tapBlur.current = v ? { view: v, detach: attachTapToBlur(v) } : undefined
+  }, [])
+
   <rootlayout
     iosIgnoreSafeArea={true}
     className="vx-screen-shell"
@@ -34,11 +48,7 @@ export function Screen(props: ScreenProps): unknown @{
       iosIgnoreSafeArea={true}
       className={['vx-screen-content', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
-      ref={(v: any) => {
-        if (v) {
-          attachTapToBlur(v)
-        }
-      }}
+      ref={bindTapBlur}
     >
       {props.children}
     </masonview>

@@ -2,18 +2,19 @@
 
 Recipes specify what documentation must enable an app developer to accomplish.
 They are internal task specifications, not tutorials or a public feature list.
-The collection defines the required coverage floor, including workflows whose
-documentation is still missing. It grows as the framework evolves.
+Recipes retain complex workflows that span packages, platforms, or lifecycle steps.
+Focused guides and walkthroughs own smaller feature examples.
 
 ## Find or add a recipe
 
 Start from the developer's outcome and search the recipe titles and related API
-names. Add a recipe when a supported workflow coordinates APIs, files,
-configuration, platform differences, or lifecycle states that a signature alone
-cannot explain. Extend an existing recipe when the outcome stays the same.
+names. Add a recipe for a complex workflow that spans packages, platforms, or
+lifecycle steps. Extend an existing recipe when the outcome stays the same.
 Pure refactors ordinarily need no recipe change.
 
 Workflows:
+
+- [Find AppKit-specific workflow recipes](../appkit-recipe-index.md)
 
 - [Compile Tailwind utilities through Xplat](tailwind-css.md)
 
@@ -37,6 +38,7 @@ Workflows:
 - [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
 - [Qualify a consumer app through development MCP](mcp-consumer-workflow.md)
 - [Edit running-app values and styles from devtools](live-tweaks.md)
+- [Slow down motion in a running app](motion-speed.md)
 - [Read development diagnostics](development-logs.md)
 - [Diagnose a production error](production-errors.md)
 
@@ -44,7 +46,6 @@ Workflows:
 
 - [Animate route changes](route-transitions.md)
 - [Animate shared components](component-motion.md)
-- [Animate a changing text label](rolling-text.md)
 - [Animate a view through a ref](imperative-animation.md)
 - [Settle a dragged value with a spring](gesture-motion.md)
 - [Compose motion patterns](motion-patterns.md)
@@ -57,7 +58,6 @@ Workflows:
 - [Keep an illustration when Canvas drawing is unavailable](canvas-fallback.md)
 - [Draw a browser shader with vgpu](vgpu.md)
 
-- [Select an image crop inline](inline-image-crop.md)
 - [Produce a transformed image file](image-manipulation.md)
 - [Hash and encrypt app-owned bytes](crypto.md)
 - [Print a document and own its PDF file](print-pdf.md)
@@ -74,7 +74,6 @@ Workflows:
 - [Open a screen from an incoming link](incoming-links.md)
 - [Sign in with a passkey or hosted auth ceremony](passkey-sign-in.md)
 - [Sign in with Apple or Google provider SDKs](provider-sign-in.md)
-- [Send a local notification](local-notifications.md)
 - [Receive push notifications](push-notifications.md)
 - [Register routes from runtime data](programmatic-routes.md)
 - [Show loading and recovery during navigation](navigation-feedback.md)
@@ -82,6 +81,7 @@ Workflows:
 - [Give a routed modal its own history](route-modals.md)
 - [Retain native route controls](native-navigation-retention.md)
 - [Keep route contracts current while developing](route-generation.md)
+- [Keep page focus and document scroll coherent](navigation-focus.md)
 - [Return after sign-in and replace account-owned screens](authentication-routing.md)
 - [Bake route data into the bundle](baked-routes.md)
 - [Build a responsive navigation shell](navigation-shell.md)
@@ -90,6 +90,7 @@ Workflows:
 - [Play a Lottie animation on web and native](lottie-animation.md)
 - [Render a long vertical collection](virtual-list.md)
 - [Manage an interactive data grid](interactive-data-grid.md)
+- [Add shared action menus and breadcrumb overflow](shared-menus.md)
 - [Build a settings list with reusable rows](settings-list.md)
 - [Open System Settings on AppKit](appkit-settings.md)
 - [Render a bounded content list](content-list.md)
@@ -110,12 +111,12 @@ Workflows:
 - [Package a Linux GTK4/GJS app](linux-gtk-package.md)
 - [Build and check an accessible screen](accessible-screen.md)
 - [Announce a status without moving focus](accessibility-announcements.md)
-- [Share text and URLs from an app](share-content.md)
 - [Ship native code in a macOS leaf](macos-native-code.md)
 - [Put an iOS material behind interactive content](liquid-glass.md)
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)
+- [Render streamed Markdown](stream-markdown.md)
 - [Shape a panel without changing child overflow](smooth-corners.md)
 - [Add portable date and file inputs](date-picker.md)
 - [Switch views with AppKit segments](appkit-segmented-control.md)
@@ -134,7 +135,6 @@ Workflows:
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
 - [Ship a custom font across web and native](custom-fonts.md)
 - [Add rich text editing](rich-text-editing.md)
-- [Measure and lay out text with Pretext](pretext-text-layout.md)
 - [Render SVG images on AppKit](appkit-svg-images.md)
 - [Load and replace images on AppKit](appkit-image-loading.md)
 - [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)
@@ -193,6 +193,7 @@ If no recipe is affected, briefly say why. Explicit gaps allow incremental work;
 they never count as complete coverage.
 
 - [Observe and choose the primary window's screen orientation](screen-orientation.md)
+- [Deliver a phone update between binary releases](ota-updates.md)
 - [Capture an app-owned view and release the image](view-shot.md)
 
 - [Request tracking authorization from an app action](tracking-transparency.md)

@@ -95,10 +95,25 @@ function fixture(t) {
         'src/Shared.tsrx',
       ],
       ...(['ios', 'android'].includes(env)
-        ? { compilerOptions: { types: ['@nativescript/types'] } }
+        ? {
+            compilerOptions: {
+              // The iOS leaf declares its SDK bare: only the umbrella is
+              // linked, so this entry must resolve transitively like the
+              // umbrella request Android keeps below.
+              types: [env === 'ios' ? '@nativescript/types-ios' : '@nativescript/types'],
+            },
+          }
         : {}),
     }
   }
+
+  put('src/Card.tsrx', "export const platform = 'fallback' as const\n")
+  put('src/Card.web.tsrx', "export const platform = 'web' as const\n")
+  put(
+    'src/card-entry.web.ts',
+    "import { platform } from './Card.tsrx'\nexport const checkedPlatform: 'web' = platform\n",
+  )
+  environments.web.files.push('src/Card.tsrx', 'src/Card.web.tsrx', 'src/card-entry.web.ts')
 
   put('src/shared.ts', 'export const sharedContext = platformContext\n')
   put(

@@ -3,9 +3,8 @@
   "ignorePatterns": [
     ".agents/",
     "tools/platform-qualification/",
-    "tools/desktop-support/*.json",
-    "tools/desktop-support/*.tsv",
     "**/*.gen.*",
+    "**/xplat-typecheck/**",
     "packages/ui/src/index.shared.web.ts",
     "packages/ui/src/routing/index.web.ts",
     "packages/ui/src/data/index.web.ts",
@@ -13,13 +12,7 @@
     "packages/ui/src/chat/index.web.ts",
     "**/vendor/**",
     "**/pnpm-workspace.yaml",
-    "packages/lingui/types/**",
-    "packages/**/types/generated/**",
-    "packages/*/types/types.d.ts",
-    "packages/*/types/props.d.ts",
-    "packages/motion/types/clock-types.d.ts",
-    "packages/motion/types/engine.d.ts",
-    "packages/motion/types/value.d.ts"
+    "packages/**/types/generated/**"
   ],
   "semi": false,
   "useTabs": false,

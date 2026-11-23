@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from 'jose'
-import { createApi } from './api.ts'
+import { createApi } from '../../../examples/auth/server/api.ts'
 
 const issuer = 'https://login.example.test/'
 const audience = 'https://api.example.test'

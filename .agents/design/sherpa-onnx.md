@@ -724,7 +724,7 @@ Record recipe coverage separately from target verification in Silo and run
 `bun run check:recipes`. Add a small maintained demo with explicit model download,
 progress, transcript, playback, and cleanup, using the qualified fixtures.
 
-Review the [Octane skill](../skills/octane-xplat/SKILL.md) and service/limit
+Review the [contributor guides](../docs/README.md#contributor-guides) and service/limit
 references during implementation. Add task-oriented guidance for choosing
 the audio integrations, model ownership, platform prerequisites, and proven
 limits. This proposal alone changes no supported workflow or public API,

@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/print-native-fixture",
+	"name": "@octane-xplat/print-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

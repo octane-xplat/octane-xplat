@@ -25,7 +25,7 @@ limits instead of assuming web behavior proves native delivery.
 
 ## Documentation
 
-- AC1: [First form](../../../docs/app/accessibility.md#build-the-first-form) and [maintained form](../../../packages/demos/src/accessibility-guide/AccessibleTripForm.tsx).
+- AC1: [First form](../../../docs/app/accessibility.md#build-the-first-form) and [maintained form](../../../examples/accessibility/AccessibleTripForm.tsx).
 - AC2: [Focus](../../../docs/app/accessibility.md#preserve-useful-focus-and-status), [action names/states](../../../docs/app/accessibility.md#name-actions-and-show-unavailable-work) and [real-input journey](../../../docs/app/accessibility.md#check-the-screen-with-real-input).
 - AC3: [Status and focus](../../../docs/app/accessibility.md#preserve-useful-focus-and-status) and [platform announcement guidance](../../../docs/platform/platform-services.md#announce-a-status).
 - AC4: [Modal focus qualification](../../../docs/app/accessibility.md#qualify-modal-focus-separately) links current host behavior and explicit input-focus recovery.

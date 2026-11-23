@@ -14,8 +14,8 @@ drivers, browser input, native callbacks and OS input establish different things
 
    ```sh
    bun install --frozen-lockfile
-   bun run --filter @xplat/web build
-   node apps/web/scripts/navigation.ts
+   bun run --filter @octane-xplat/web build
+   node tools/web-verification/scripts/navigation.ts
    ```
 
    The script serves `dist` on an ephemeral loopback port and drives Chromium.
@@ -25,7 +25,7 @@ drivers, browser input, native callbacks and OS input establish different things
 2. Run the isolated CSR contract fixture:
 
    ```sh
-   bun run --filter @xplat/web smoke:routing
+   bun run --filter @octane-xplat/web smoke:routing
    ```
 
    Its generated startup supplies the catalog, context, stacks and incoming-link
@@ -39,8 +39,8 @@ drivers, browser input, native callbacks and OS input establish different things
    ```sh
    xcrun simctl list devices available
    adb devices -l
-   python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-   python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+   python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+   python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
    ```
 
    Android needs JDK 21; the runner resolves it with
@@ -48,15 +48,18 @@ drivers, browser input, native callbacks and OS input establish different things
    dependencies and excludes optional service plugins. It has its own app ID,
    `org.nativescript.xplat.navigation`, and excludes the ordinary harness timers.
 
-The native runner holds `/tmp/octane-xplat-ios.lock` or
-`/tmp/octane-xplat-android.lock` through generation, build, installation, launch,
-link delivery and collection. An occupied lock stops the run before device work.
+The native runner holds the shared per-target lock
+(`$TMPDIR/octane-xplat-target-locks/ios.lock` or `android.lock`, the same
+directory protocol as `scripts/with-target-lock.ts` and
+`scripts/with-native-target-lock.py`) through generation, build, installation,
+launch, link delivery and collection. An occupied lock stops the run before
+device work.
 To wait for it, use the explicit setting below. `build-only` checks compilation
 and performs no runtime qualification.
 
 ```sh
-XPLAT_NAVIGATION_WAIT_FOR_LOCK=1 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android build-only
+XPLAT_NAVIGATION_WAIT_FOR_LOCK=1 python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android build-only
 ```
 
 The runner refuses to overwrite a running fixture. It stops only its own app
@@ -66,8 +69,8 @@ signing. Shut down any simulator or emulator you started before releasing its
 resource reservation.
 
 ```text
-apps/mobile/navigation-results/ios/result.json
-apps/mobile/navigation-results/android/result.json
+apps/harness/navigation-results/ios/result.json
+apps/harness/navigation-results/android/result.json
 ```
 
 On iOS, the runner uses `simctl install/openurl`. Some simulator versions ask
@@ -76,7 +79,7 @@ metadata and accepts only this fixture's confirmation button. No image analysis
 or shared desktop input is needed.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 ```
 
 ## Guarded browser history and native event contracts
@@ -91,7 +94,7 @@ new owned base if the browser refuses or fails to acknowledge the traversal.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts src/routing-core.test.ts src/default-router-runtime.test.ts src/routing-package.test.ts src/browser-route-transitions.web.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Fresh native release runs passed **184 iOS** and **196 Android assertions**.
@@ -104,8 +107,8 @@ The remaining native retained-history integration is explicit in the
 No fresh AppKit/Linux runtime was run for this refinement; Windows has no VM.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 A temporary probe copied the harness's URL schemes into its distinct app ID and
@@ -127,7 +130,7 @@ exports, lint and recipe-link checks also pass.
 
 ```sh
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/render-router-host.mobile.test.tsrx src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Frame/OS Back, native modal-dismissal preparation and cross-stack pane redirects
@@ -137,8 +140,8 @@ object checks do not establish OS hit-testing or gesture behavior. The owned
 simulator and emulator were shut down after qualification.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 ## Guarded Frame Back
@@ -154,7 +157,7 @@ the declaration graph pass.
 
 ```sh
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/render-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 The original runs qualified programmatic iOS Back. Later checks below cover
@@ -166,8 +169,8 @@ emulator. Both were shut down after qualification. Linux/Windows evidence is
 source/types for this increment, and Windows has no VM.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-node apps/macos/test/verify-routing.mts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Declared and runtime contract checks
@@ -193,7 +196,7 @@ the declaration graph passed. These are not fresh desktop runtime runs;
 Windows still has no VM available.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@octane-xplat/mobile --concurrency=2
 bun run --filter @octane-xplat/ui pack:check
 ```
 
@@ -220,8 +223,8 @@ packed exports. Desktop evidence for this refinement is source/type checking;
 Windows has no VM. Owned simulators/emulators were shut down afterward.
 
 ```sh
-bun run --filter @xplat/web smoke:routing
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/web --concurrency=2
+bun run --filter @octane-xplat/web smoke:routing
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/mobile --filter=...@octane-xplat/web --concurrency=2
 ```
 
 ## Scoped search editing
@@ -246,8 +249,8 @@ behavior. Linux and Windows have source/type evidence for this refinement;
 Windows has no VM. Owned mobile devices were shut down after qualification.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/web-verification/scripts/routing-contract.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 The AppKit fixture also migrated its synthetic file catalog to generated-style
@@ -283,8 +286,8 @@ do not establish OS touch/hit-testing. Linux and Windows have source/type
 coverage for this refinement; Windows runtime remains unavailable.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/web-verification/scripts/routing-contract.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Loading and recovery feedback
@@ -314,8 +317,8 @@ and Windows have source/type evidence for this refinement; no Windows VM was
 available. The owned mobile devices were shut down afterward.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/web-verification/scripts/routing-contract.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Browser root-owner teardown
@@ -331,7 +334,7 @@ application-owned stores are preserved.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Only browser runtime behavior changed. Native targets retain the preceding
@@ -353,7 +356,7 @@ plus real View Transition completion, custom forward/Back types, animated modal
 retention, overlapping animation, reduced motion and unsupported-browser skips.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Window scroll restoration, decoded fragments, modal scroll preservation, direct
@@ -398,8 +401,8 @@ reset, Back and owner cleanup. Modal checks cover multiple screens, nested
 surfaces, dismissal, retained state and failed root takeover.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 Shared Tabs checks preserve inactive pane state and bind navigation to the
@@ -435,7 +438,7 @@ production JS and runs the
 JavaScriptCore/AppKit host.
 
 ```sh
-bun run --filter @xplat/macos test:routing
+bun run --filter @octane-xplat/macos test:routing
 ```
 
 The current canonical fixture passed **202 checks** with a locally built
@@ -462,7 +465,7 @@ system reduced-motion skips and live preference changes use deterministic tests.
 
 ```sh
 bun run --cwd packages/ui vitest run src/appkit-route-transition.test.ts
-bun run --filter @xplat/macos test:routing
+bun run --filter @octane-xplat/macos test:routing
 ```
 
 The helper uses the existing numeric controller and AppKit writer. These are
@@ -546,9 +549,9 @@ These checks inspect native objects and data; they do not inspect visual
 animation snapshots or establish OS hit-testing.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 
@@ -572,11 +575,11 @@ it. Linux and Windows have source/type evidence for this refinement; Windows
 runtime remains unavailable.
 
 ```sh
-bun run --filter @xplat/web build
-node apps/web/scripts/navigation.ts
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+bun run --filter @octane-xplat/web build
+node tools/web-verification/scripts/navigation.ts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Callable Standard Schema search validation
@@ -616,7 +619,7 @@ Run the shared controlled sign-in example in unit tests and production Chromium:
 
 ```sh
 bun run --cwd packages/ui vitest run src/authentication-routing.web.test.tsrx
-bun run --filter @xplat/web smoke:routing-auth
+bun run --filter @octane-xplat/web smoke:routing-auth
 ```
 
 The four Octane DOM renderer/jsdom cases and **20 production Chromium checks**
@@ -672,7 +675,7 @@ the target's results directory. Timeouts, occupied resources, unavailable SDKs
 and missing devices are unsuccessful runs, never runtime passes.
 
 ```sh
-cat apps/mobile/navigation-results/android/result.json
+cat apps/harness/navigation-results/android/result.json
 ```
 
 Windows has no VM in this task and is checked through source/types only. The
@@ -682,8 +685,8 @@ the native navigation fixture does not qualify every renderer boundary,
 accessibility behavior or unrelated UI component.
 
 ```sh
-bun run turbo run typecheck --filter=@xplat/windows
-bun run turbo run typecheck --filter=@xplat/linux
+bun run turbo run typecheck --filter=@octane-xplat/windows
+bun run turbo run typecheck --filter=@octane-xplat/linux
 ```
 
 
@@ -696,7 +699,7 @@ a modal redirect without restoring the rejected target.
 
 ```sh
 bun run --cwd packages/ui vitest run src/routing-core.test.ts src/router-instance.test.ts src/browser-router-host.web.test.tsrx src/router-hooks.web.test.tsrx src/default-router-runtime.test.ts src/routing-package.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Fresh release runs passed **210 iOS** and **223 Android assertions**. They check
@@ -710,8 +713,8 @@ These checks predate the [iOS Frame edge qualification](#qualify-ios-frame-edge-
 and do not establish native modal-dismissal gesture interception.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 The dependent type gate passed **50 tasks**, including platform programs, and
@@ -720,7 +723,7 @@ evidence for this refinement; there is no Windows VM. The earlier Linux
 WebKitGTK runtime result remains historical.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/macos --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/mobile --filter=...@octane-xplat/macos --concurrency=2
 bun run --filter @octane-xplat/ui pack:check
 ```
 
@@ -748,7 +751,7 @@ behavior for the programmatic map example. The earlier rendered baked-file
 checks remain separate evidence.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@octane-xplat/mobile --concurrency=2
 ```
 
 
@@ -764,7 +767,7 @@ Back transition after release and admission; it provides no interactive preview.
 
 ```sh
 # Requires an owned iOS 26+ simulator and idb. No images are captured.
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 ```
 
 The runner sends each requested OS swipe once and acknowledges it through the
@@ -800,8 +803,8 @@ refreshes the presenter once and closes normally. Forced native closure remains
 a cleanup reconciliation path, not guarded user navigation.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 NativeScript 9.1.3 uses the cancellation option for iOS presentation blocking and
@@ -820,7 +823,7 @@ context once. Browser Back/Forward refusal corrects URL position; a later attemp
 can proceed in its original direction.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Native release checks use real iOS edge swipes and Android Back key events, then
@@ -832,9 +835,9 @@ These checks do not establish native confirmation-button hit-testing, OS RTL,
 predictive animation, interactive modal dismissal, document unload or process exit.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Focused controller/protocol tests cover multiple registrations, reset, removal,
@@ -863,8 +866,8 @@ closure and whole-owner cleanup. AppKit modal effects report skipped separately
 from successful navigation. No screenshots were captured or inspected.
 
 ```sh
-node apps/macos/test/verify-routing.mts
-node apps/macos/test/verify-overlays.mts
+node tools/macos-verification/test/verify-routing.mts
+node tools/macos-verification/test/verify-overlays.mts
 ```
 
 The renderer's **285 tests**, including per-view native-layout reentry and hidden
@@ -933,7 +936,7 @@ rendered through the generated client without restarting the server; removed
 destinations stopped matching. Browser and generation error arrays were empty.
 
 ```sh
-bun run --filter @xplat/web smoke:routing-watch
+bun run --filter @octane-xplat/web smoke:routing-watch
 ```
 
 The fixture uses the real watcher and generator against its own temporary files,
@@ -1103,7 +1106,7 @@ replacement after revalidation. A remaining parent modal supplies the fallback.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 The focused suite passed 49 tests. It covers dialog naming, per-flow focus
@@ -1131,7 +1134,7 @@ its own DOM container, so hidden outlet/staging content does not become the targ
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx src/browser-route-effects.web.test.ts
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 The focused suite passed 55 tests. The production Chromium suite passed 108
@@ -1183,9 +1186,9 @@ released refs. The shared protocol is
 `packages/ui/tests/route-retention-example.tsrx`.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_UDID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_UDID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
 ```
@@ -1299,7 +1302,7 @@ measure language-service work, rather than target rendering or a running editor.
 
 ## Qualify owned pane hosts
 
-The [complete pane walkthrough](../app/navigation.md#bind-a-custom-router-to-rendering)
+The [complete pane walkthrough](../../docs/app/navigation.md#bind-a-custom-router-to-rendering)
 uses public imports throughout. Its maintained shared example checks prepared
 screen data, retained view identity/local state, entry-owned matches, live source
 providers, independent histories, explicit modal refusal, and flow cleanup.
@@ -1307,7 +1310,7 @@ The creator disposes the instance; removing one pane leaves another usable.
 
 ```sh
 bun run --cwd packages/ui vitest run src/RouterPane.web.test.tsrx src/routing-package.test.ts
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 Qualification on 2026-10-20 passed 244 focused routing tests, 78 native
@@ -1339,7 +1342,7 @@ routing_ui_package='/absolute/path/to/disposable/extracted/package'
 ln -s "$PWD/packages/ui/node_modules" "$routing_ui_package/node_modules"
 XPLAT_ROUTING_UI_PACKAGE="$routing_ui_package" \
   bun run --cwd packages/ui vitest run src/routing-package.test.ts
-bun run --filter @xplat/web smoke:routing-pane-packed "$routing_ui_package"
+bun run --filter @octane-xplat/web smoke:routing-pane-packed "$routing_ui_package"
 ```
 
 The shared fixture uses module-level JSX components. The installed universal
@@ -1359,9 +1362,9 @@ starter, adds the guides as `.xplat-docs/`, runs your agent command, then
 grades the result. The agent never sees the graders.
 
 ```sh
-bun run --filter @xplat/routing-eval eval --mode reference
-bun run --filter @xplat/routing-eval eval --mode baseline
-bun run --filter @xplat/routing-eval eval --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
+bun run --filter @octane-xplat/routing-eval eval --mode reference
+bun run --filter @octane-xplat/routing-eval eval --mode baseline
+bun run --filter @octane-xplat/routing-eval eval --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
 ```
 
 The six tasks are a first typed detail route, validated search with history-

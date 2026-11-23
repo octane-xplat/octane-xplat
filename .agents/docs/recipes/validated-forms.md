@@ -22,9 +22,9 @@ valid values, reset edits, and release conditional fields without stale readers.
 
 ## Documentation
 
-- AC1: [First form and subscriptions](../../../docs/packages/package-form.md#make-a-small-form), [shared fields](../../../docs/packages/package-form.md#share-the-form-across-fields), and the [maintained example](../../../packages/form/examples/TripForm.tsrx).
-- AC2: [Validation and saving](../../../docs/packages/package-form.md#validation-and-saving), the [maintained example](../../../packages/form/examples/TripForm.tsrx), and [adapter regressions](../../../packages/form/src/adapter.web.test.tsrx).
-- AC3: [First form](../../../docs/packages/package-form.md#make-a-small-form), [save failures](../../../docs/packages/package-form.md#validation-and-saving), and the [maintained example](../../../packages/form/examples/TripForm.tsrx).
+- AC1: [First form and subscriptions](../../../docs/packages/package-form.md#make-a-small-form), [shared fields](../../../docs/packages/package-form.md#share-the-form-across-fields), and the [maintained example](../../../examples/forms/trip-form.tsrx).
+- AC2: [Validation and saving](../../../docs/packages/package-form.md#validation-and-saving), the [maintained example](../../../examples/forms/trip-form.tsrx), and [adapter regressions](../../../packages/form/src/adapter.web.test.tsrx).
+- AC3: [First form](../../../docs/packages/package-form.md#make-a-small-form), [save failures](../../../docs/packages/package-form.md#validation-and-saving), and the [maintained example](../../../examples/forms/trip-form.tsrx).
 - AC4: [Field ownership](../../../docs/packages/package-form.md#share-the-form-across-fields), [lifecycle boundaries](../../../docs/packages/package-form.md#platform-and-lifecycle-boundaries), and [universal regressions](../../../packages/form/src/adapter.mobile.test.tsrx).
 
 ## Verification boundaries

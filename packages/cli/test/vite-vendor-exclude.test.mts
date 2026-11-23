@@ -213,7 +213,7 @@ for (const packageName of ['@nativescript/vite', 'nativescript-vite-8-0-21']) {
         ['index.ts', 'dist/compiled.js'],
       )
 
-      const app = join(workspace, 'apps/mobile')
+      const app = join(workspace, 'apps/harness')
 
       mkdirSync(join(app, 'src'), { recursive: true })
       writeFileSync(join(app, 'package.json'), '{"name":"app"}')

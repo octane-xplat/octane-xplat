@@ -120,7 +120,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
       const targetPath = join(modules, dependency)
 
       mkdirSync(dirname(targetPath), { recursive: true })
-      symlinkSync(join(repoRoot, 'apps/macos/node_modules', dependency), targetPath, 'dir')
+      symlinkSync(join(repoRoot, 'tools/macos-verification/node_modules', dependency), targetPath, 'dir')
     }
 
     // The overlay-only consumer stays independent from the full macOS barrel

@@ -1,0 +1,40 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/counter.tsrx",
+		"../src/stories/counter.stories.tsrx",
+		"../src/stories/failing.stories.tsrx",
+		"../src/stories/gtk-only.stories.tsrx",
+		"../src/stories/inputs.stories.web.tsrx",
+		"../src/stories/ios-only.stories.tsrx",
+		"../src/stories/isolation-fixture.ts",
+		"../src/stories/isolation.stories.web.tsrx",
+		"../src/stories/providers.stories.tsrx",
+		"../src/stories/style-merge.ts",
+		"../workshop.config.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

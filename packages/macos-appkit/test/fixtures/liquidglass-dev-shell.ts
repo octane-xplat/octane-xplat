@@ -6,13 +6,13 @@ import * as signalClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import { NSApplication, NSView } from '@octane-xplat/platform/macos'
 
-globalThis.__xplatDevModules = {
+renderer.__installDevelopmentModules({
   '@octane-xplat/macos-appkit': renderer,
   'octane/universal/native': native,
   'octane/signals': signals,
   'octane/signals/client': signalClient,
   'octane/internal/client': internal,
-}
+})
 
 const app = NSApplication.sharedApplication
 const hostView = NSView.alloc().initWithFrame({
@@ -31,7 +31,7 @@ function reload() {
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
 
   if (!live) {
-    live = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
+    live = native.hmrUniversalComponent(renderer.__rendererId, loaded.default ?? loaded)
     root.render(live, {})
     setTimeout(() => {
       retained = debug.findId('hmr-glass')

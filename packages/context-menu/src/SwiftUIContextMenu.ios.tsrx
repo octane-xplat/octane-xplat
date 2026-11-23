@@ -2,13 +2,9 @@
 import './ContextMenu.css'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
-import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
+import { SwiftUI, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
-import {
-  getSwiftUIHostLifecycle,
-  registerSwiftUIHost,
-  unregisterSwiftUIHost,
-} from '@octane-xplat/lib'
+import { registerContextMenuHosts, releaseContextMenuHosts } from './swiftui-hosts.ios'
 
 import {
   createPortal as createUniversalPortal,
@@ -19,7 +15,6 @@ import { useEffect, useRef, useState } from 'octane'
 import type { SwiftUIContextMenuProps } from './ios/types'
 
 declare const XplatContextMenuProvider: any
-declare const NativeScriptViewFactory: any
 
 declare module '@octane-xplat/jsx/intrinsics' {
   interface NativeElements<TElement> {
@@ -42,27 +37,6 @@ registerSwiftUI(
 
 function createPortal(children: unknown, target: unknown) {
   return createUniversalPortal(children as UniversalRenderable, target)
-}
-
-function ensureNativeScriptViewFactory(): void {
-  if (!NativeScriptViewFactory.shared) {
-    NativeScriptViewFactory.initShared()
-  }
-}
-
-function registerHosts(
-  triggerId: string,
-  trigger: GridLayout,
-  previewId: string,
-  preview: GridLayout,
-): void {
-  ensureNativeScriptViewFactory()
-  registerSwiftUIHost(triggerId, { create: () => trigger })
-  registerSwiftUIHost(previewId, { create: () => preview })
-  SwiftUIManager.registerNativeScriptViews(
-    { [triggerId]: true, [previewId]: true },
-    getSwiftUIHostLifecycle(),
-  )
 }
 
 function TriggerRoot(props: { render: () => any }) @{
@@ -91,12 +65,11 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
     const trigger = new GridLayout()
     const preview = new GridLayout()
 
-    registerHosts(triggerId.current, trigger, previewId, preview)
+    registerContextMenuHosts(triggerId.current, trigger, previewId, preview)
     setPortalHosts({ trigger, preview })
 
     return () => {
-      unregisterSwiftUIHost(triggerId.current)
-      unregisterSwiftUIHost(previewId)
+      releaseContextMenuHosts(triggerId.current, previewId)
     }
   }, [])
 

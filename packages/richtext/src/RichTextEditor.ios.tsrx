@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
+import { useImperativeHandle, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { View } from '@nativescript/core'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
@@ -47,13 +47,47 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
   const lastEmitted = useRef<string | undefined>(undefined)
   const applyingValue = useRef(false)
   const emitTimer = useRef<any>(null)
+  const loadedOff = useRef<(() => void) | null>(null)
+  // The XplatAztecEditorView widget — created by the host view's
+  // `_setupUI`, which is deferred while the tree above isn't loaded yet.
+  // `null` until `loaded` delivers it; the ref and the init effect below
+  // key off this.
+  const [nativeView, setNativeView] = useState<any>(null)
+
+  // The handle fires only once the native editor exists — before that a
+  // consumer gets null, not a stub that throws on every method.
+  useImperativeHandle<RichTextEditorHandle | null>(props.ref, () => (nativeView ? handle : null), [
+    nativeView,
+  ])
 
   // Stable identity — an inline closure re-fires ref(null)/ref(v) per
   // render, which would bounce host.current around the effects below.
-  useImperativeHandle(props.ref, () => handle(editor()), [])
-
   const bindHost = useCallback((v: any) => {
+    loadedOff.current?.()
+    loadedOff.current = null
     host.current = v
+    if (!v) {
+      return
+    }
+
+    if (v.ios) {
+      setNativeView(v.ios)
+      return
+    }
+
+    setNativeView(null)
+
+    // `.ios` arrives with `loaded`; subscribe until it does.
+    const onLoaded = () => {
+      const e = editor()
+
+      if (e) {
+        setNativeView(e)
+      }
+    }
+
+    v.on('loaded', onLoaded)
+    loadedOff.current = () => v.off('loaded', onLoaded)
   }, [])
 
   const editor = () => host.current?.ios
@@ -80,9 +114,17 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     }, 150)
   }
 
-  const handle = (e: any): RichTextEditorHandle => ({
-    getHTML: () => e.getHTML(),
+  // Methods resolve the editor at call time so a host-view swap can't
+  // strand them on a dead widget.
+  const handle: RichTextEditorHandle = {
+    getHTML: () => editor()?.getHTML() ?? '',
     setHTML: (html: string) => {
+      const e = editor()
+
+      if (!e) {
+        return
+      }
+
       applyingValue.current = true
       try {
         e.setHTML(html)
@@ -96,7 +138,19 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
         throw new RangeError('Use linkTo(url, anchor) to apply a link')
       }
 
-      if (UNSUPPORTED.has(format) || !e.applyFormat(format)) {
+      if (UNSUPPORTED.has(format)) {
+        throw new RangeError(
+          `[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
+        )
+      }
+
+      const e = editor()
+
+      if (!e) {
+        return
+      }
+
+      if (!e.applyFormat(format)) {
         throw new RangeError(
           `[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
         )
@@ -105,18 +159,39 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       emitChange()
     },
     linkTo: (url: string, anchor?: string) => {
+      const e = editor()
+
+      if (!e) {
+        return
+      }
+
       e.linkTo(url, anchor ?? null)
       emitChange()
     },
     removeLink: () => {
+      const e = editor()
+
+      if (!e) {
+        return
+      }
+
       e.removeLink()
       emitChange()
     },
-    isActive: (format: RichTextFormat) =>
-      !UNSUPPORTED.has(format) && Boolean(e.isFormatActive(format)),
-    undo: () => e.undo(),
-    redo: () => e.redo(),
+    isActive: (format: RichTextFormat) => {
+      const e = editor()
+
+      return Boolean(e && !UNSUPPORTED.has(format) && e.isFormatActive(format))
+    },
+    undo: () => editor()?.undo(),
+    redo: () => editor()?.redo(),
     split: () => {
+      const e = editor()
+
+      if (!e) {
+        return false
+      }
+
       const ok = Boolean(e.split())
 
       if (ok) {
@@ -126,6 +201,12 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       return ok
     },
     join: () => {
+      const e = editor()
+
+      if (!e) {
+        return false
+      }
+
       const ok = Boolean(e.join())
 
       if (ok) {
@@ -135,6 +216,12 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       return ok
     },
     indent: () => {
+      const e = editor()
+
+      if (!e) {
+        return false
+      }
+
       const ok = Boolean(e.indent())
 
       if (ok) {
@@ -144,6 +231,12 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       return ok
     },
     outdent: () => {
+      const e = editor()
+
+      if (!e) {
+        return false
+      }
+
       const ok = Boolean(e.outdent())
 
       if (ok) {
@@ -152,23 +245,40 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
       return ok
     },
-    canIndent: () => Boolean(e.canIndent()),
-    canOutdent: () => Boolean(e.canOutdent()),
-    focus: () => e.focus(),
-    blur: () => e.blur(),
-    isFocused: () => e.focused(),
-    native: e,
-  })
+    canIndent: () => Boolean(editor()?.canIndent()),
+    canOutdent: () => Boolean(editor()?.canOutdent()),
+    focus: () => editor()?.focus(),
+    blur: () => editor()?.blur(),
+    isFocused: () => editor()?.focused() ?? false,
+    get native() {
+      return editor()
+    },
+  }
 
-  useEffect(() => {
-    const e = editor()
+  // Runs once the native editor exists — after `loaded` on a deferred
+  // mount, or right at mount on an already-loaded tree — and again if the
+  // platform view is ever recreated. Layout phase keeps the ref publish →
+  // value seed → onReady order inside one commit. Listeners guard on
+  // `alive` so teardown can't call back into a dead component.
+  useLayoutEffect(() => {
+    const e = nativeView
 
     if (!e) {
       return
     }
 
-    e.onTextChange = () => emitChange()
+    let alive = true
+
+    e.onTextChange = () => {
+      if (alive) {
+        emitChange()
+      }
+    }
     e.onSelectionChange = (start: number, end: number, active: any) => {
+      if (!alive) {
+        return
+      }
+
       const formats: RichTextFormat[] = []
       const count = active?.count ?? 0
 
@@ -179,8 +289,16 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       props.onSelectionChange?.({ start, end, active: formats })
     }
 
-    e.onFocus = () => props.onFocus?.()
-    e.onBlur = () => props.onBlur?.()
+    e.onFocus = () => {
+      if (alive) {
+        props.onFocus?.()
+      }
+    }
+    e.onBlur = () => {
+      if (alive) {
+        props.onBlur?.()
+      }
+    }
 
     if (props.placeholder !== undefined) {
       e.placeholder = props.placeholder
@@ -208,13 +326,14 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     props.onReady?.()
 
     return () => {
+      alive = false
       clearTimeout(emitTimer.current)
       e.onTextChange = null
       e.onSelectionChange = null
       e.onFocus = null
       e.onBlur = null
     }
-  }, [])
+  }, [nativeView])
 
   // `value` lands like a controlled prop, minus the loop: text the editor
   // emitted through onChange is never pushed back; any other change is an

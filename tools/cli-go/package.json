@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/cli-go-probe",
+	"name": "@octane-xplat/cli-go-probe",
 	"private": true,
 	"type": "module",
 	"scripts": {

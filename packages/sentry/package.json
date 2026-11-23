@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/sentry",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Sentry error and performance reporting for Octane xplat — @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
 	"keywords": [
 		"android",
@@ -64,7 +64,7 @@
 		"@octane-xplat/vite-octane": "workspace:*",
 		"@nativescript/vite": "8.0.20",
 		"@octane-xplat/cli": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"@octanejs/vite-plugin": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",

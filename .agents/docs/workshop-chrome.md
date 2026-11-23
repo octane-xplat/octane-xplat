@@ -113,11 +113,11 @@ packed mobile check compiles consumer entries without launching a device.
 
 ```sh
 bun run turbo run typecheck --filter=...@octane-xplat/workshop
-bun run turbo run test:browser --filter=@xplat/component-workshop
+bun run turbo run test:browser --filter=@octane-xplat/component-workshop
 bun run turbo run test --filter=@octane-xplat/workshop
-bun run turbo run test:e2e --filter=@xplat/workshop-demo
-bun run turbo run test:e2e:macos --filter=@xplat/workshop-demo
-bun run turbo run test:e2e:gtk --filter=@xplat/workshop-demo
+bun run turbo run test:e2e --filter=@octane-xplat/workshop-demo
+bun run turbo run test:e2e:macos --filter=@octane-xplat/workshop-demo
+bun run turbo run test:e2e:gtk --filter=@octane-xplat/workshop-demo
 bun run turbo run test:packed:mobile --filter=@octane-xplat/workshop
 bun run check:recipes
 bun run check:css

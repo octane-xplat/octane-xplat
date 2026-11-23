@@ -7,10 +7,9 @@ import { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@oc
 
 // Vite 8's oxc transform resolves each file's governing tsconfig.json and
 // follows its project references. Workspace packages whose root tsconfig is
-// a references-only solution point at generated env programs under
-// node_modules/.cache/xplat-typecheck — which exist only after a typecheck
-// run — so transforming cross-package imports fails on an ungenerated
-// checkout. Pin the transform to a committed config (env manifest when one
+// a references-only solution point at the tracked xplat-typecheck/ programs;
+// a stale or missing program still dangles and fails cross-package
+// transforms. Pin the transform to a committed config (env manifest when one
 // exists, then the declaration config, else this app's own tsconfig) so dev
 // and test runs never depend on generated typecheck state.
 const appFile = (name) => new URL(`./${name}`, import.meta.url).pathname

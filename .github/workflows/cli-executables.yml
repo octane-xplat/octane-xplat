@@ -50,7 +50,27 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: packages/cli/go/go.mod
+      - name: Set the commit-stamped nightly version
+        if: github.event_name == 'release' && github.event.release.tag_name == 'nightly'
+        shell: bash
+        run: |
+          sha="$(git rev-parse HEAD)"
+          version="0.0.0-nightly.g${sha:0:7}"
+          node scripts/bump-versions.ts "$version"
+          bun install --lockfile-only --ignore-scripts
+          echo "XPLAT_DEVTOOLS_RELEASE_TAG=devtools-v$version" >> "$GITHUB_ENV"
       - run: bun install --frozen-lockfile
+      - name: Pin the published DevTools asset in the macOS executable
+        if: github.event_name == 'release' && runner.os == 'macOS'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          archive=xplat-devtools-macos-universal.zip
+          gh release download "${XPLAT_DEVTOOLS_RELEASE_TAG:-$RELEASE_TAG}" --pattern "$archive" --dir "$RUNNER_TEMP"
+          digest="$(shasum -a 256 "$RUNNER_TEMP/$archive" | cut -d ' ' -f 1)"
+          echo "XPLAT_GO_DEVTOOLS_SHA256=$digest" >> "$GITHUB_ENV"
       - uses: pnpm/action-setup@v4
         with:
           version: 11.24.0

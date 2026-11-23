@@ -140,6 +140,7 @@ type devServerStore struct {
 	app       string
 	directory string
 	published *devServerRecord
+	webAssets string
 }
 
 // Only the explicit foreground dev entry opens a store or takes this claim.
@@ -221,6 +222,9 @@ func (store *devServerStore) close() error {
 		} else if !os.IsNotExist(err) {
 			failure = errors.New("dev server discovery changed; its record was preserved")
 		}
+	}
+	if store.webAssets != "" {
+		failure = errors.Join(failure, store.root.RemoveAll(store.webAssets))
 	}
 	osfs.ReleaseCacheLock(store.lease)
 	return errors.Join(failure, store.lease.Close(), store.root.Close())

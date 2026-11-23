@@ -50,6 +50,7 @@ var devServerCommands = map[string]bool{
 	"session list": true, "session status": true, "diagnostics": true,
 	"inspect": true, "interact": true,
 	"evidence list": true, "evidence retain": true, "evidence delete": true,
+	"motion get-rate": true, "motion set-rate": true,
 	"actions list": true, "actions invoke": true, "actions status": true,
 }
 
@@ -100,6 +101,12 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 			InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity(), DevtoolsToken: osfs.Identity() + osfs.Identity(),
 		},
 	}
+	webAssets := devtoolsWebDirectory(server.record.InstanceID)
+	if err := store.root.Mkdir(webAssets, 0700); err != nil {
+		cancel()
+		return nil, errors.Join(err, listener.Close(), store.close())
+	}
+	store.webAssets = webAssets
 	server.actions = newDevActions(server)
 	server.inspection = newDevInspection(server)
 	server.http = &http.Server{
@@ -146,7 +153,7 @@ func (server *devServer) request(w http.ResponseWriter, r *http.Request) {
 		server.devtoolsSocket(w, r)
 		return
 	}
-	if r.URL.Path == "/devtools/app" || r.URL.Path == "/devtools/servers" || strings.HasPrefix(r.URL.Path, "/devtools/app/") || strings.HasPrefix(r.URL.Path, "/devtools/dist/") {
+	if r.URL.Path == "/devtools/app" || r.URL.Path == "/devtools/servers" || strings.HasPrefix(r.URL.Path, "/devtools/app/") || strings.HasPrefix(r.URL.Path, "/devtools/dist/") || strings.HasPrefix(r.URL.Path, devtoolsProjectMount) {
 		server.devtoolsApp(w, r)
 		return
 	}

@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../linux-gtk-renderer/src/host-globals.d.ts",
+		"../src/index.linux.ts",
+		"./isolation-gtk.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-library": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/image-manipulator": [
+				"../../image-manipulator/types/generated/index.d.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".gtk",
+			""
+		],
+		"customConditions": [
+			"gtk",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

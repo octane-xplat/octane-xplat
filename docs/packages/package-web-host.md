@@ -15,13 +15,13 @@ server rendering:
 bun add @octane-xplat/web-host
 ```
 
-To try the [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/web-host/example/build.mjs),
+To try the [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/web-rendering/build.mjs),
 run these commands from a framework checkout. It builds separate server and
 browser entries, then starts a local server:
 
 ```sh
 bun run turbo run build:example --filter=@octane-xplat/web-host
-node packages/web-host/example/serve.mjs
+node examples/web-rendering/serve.mjs
 ```
 
 For a minimal route, save this as `src/routes.web.tsx`:

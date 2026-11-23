@@ -1,5 +1,5 @@
 // Uses the maintained SelectorOptionShowcase example; do not copy its implementation here.
-import { SelectorOptionShowcase as Example } from '@xplat/astryx-sandbox/examples/selector/SelectorOptionShowcase.tsrx'
+import { SelectorOptionShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/selector/SelectorOptionShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

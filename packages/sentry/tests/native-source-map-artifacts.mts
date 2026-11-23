@@ -44,7 +44,7 @@ try {
         private: true,
         main: 'src/index.ts',
         dependencies: {
-          '@octane-xplat/nativescript-mason-core': '1.0.0-beta.12',
+          '@octane-xplat/nativescript-mason-core': '1.0.0-beta.13',
           '@octane-xplat/sentry': '0.0.0',
           '@nativescript/core': '9.1.3',
           '@nativescript-community/sentry': '4.6.49',
@@ -72,7 +72,7 @@ try {
   // Mirror the guide's copy step: the app owns the example modules under src/.
   await mkdir(join(fixture, 'src'), { recursive: true })
   for (const file of ['reporting.mobile.ts', 'reporting-filter.ts']) {
-    await copyFile(join(root, 'examples', file), join(fixture, 'src', file))
+    await copyFile(join(root, '../../examples/observability', file), join(fixture, 'src', file))
   }
 
   await writeFile(

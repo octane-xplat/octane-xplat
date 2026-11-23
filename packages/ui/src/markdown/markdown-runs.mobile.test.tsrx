@@ -3,7 +3,7 @@
 // (milestone-6): nested Markdown marks emit flat spans carrying merged
 // styles, and `display="inline"` contributes bare runs that fold into the
 // enclosing label alongside sibling text. The real FormattedString/Span
-// wiring is device-qualified in apps/mobile's markdown spec; this pins the
+// wiring is device-qualified in apps/harness's markdown spec; this pins the
 // emitted structure and run props only. The composition below matches what
 // `Inlines` emits for `**bold _em_**`, `[plain **bold**](url)`, and
 // surrounding text.

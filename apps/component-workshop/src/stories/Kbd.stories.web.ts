@@ -1,5 +1,5 @@
 // Uses the maintained KbdShowcase example; do not copy its implementation here.
-import { KbdShowcase as Example } from '@xplat/astryx-sandbox/examples/kbd/KbdShowcase.tsrx'
+import { KbdShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/kbd/KbdShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

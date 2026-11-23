@@ -15,7 +15,7 @@ import {
 } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
+const appRoot = fileURLToPath(new URL('../../../tools/macos-verification', import.meta.url))
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/appkit-display-link')
 
 await mkdir(scratch, { recursive: true })

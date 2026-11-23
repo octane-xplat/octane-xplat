@@ -24,7 +24,7 @@ await mkdir(join(plugin, 'platforms/ios'), { recursive: true })
 await writeFile(
   join(plugin, 'package.json'),
   JSON.stringify({
-    name: '@xplat/stripe-sdk-fixture',
+    name: '@octane-xplat/stripe-sdk-fixture',
     version: '1.0.0',
     private: true,
     nativescript: { platforms: { ios: '9.1.0' } },
@@ -59,8 +59,8 @@ async function visit(directory) {
 await visit(sdk)
 assert.ok(count, 'Official SDK frameworks are required')
 for (const [name, source] of [
-  ['@xplat/stripe-sdk-fixture', plugin],
-  ['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
+  ['@octane-xplat/stripe-sdk-fixture', plugin],
+  ['@nativescript/core', join(repo, 'apps/harness/node_modules/@nativescript/core')],
   ['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')],
 ]) {
   const destination = join(packageRoot, 'node_modules', name)
@@ -77,7 +77,7 @@ for (const [name, source] of [
 
 const resources = join(runtime, 'App_Resources')
 
-await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
+await cp(join(repo, 'apps/harness/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
 })
@@ -99,7 +99,7 @@ const result = spawnSync(
     '--device',
     device,
     '--deps',
-    '@xplat/stripe-sdk-fixture,@octane-xplat/lib',
+    '@octane-xplat/stripe-sdk-fixture,@octane-xplat/lib',
     '--resources',
     resources,
     '--timeout',

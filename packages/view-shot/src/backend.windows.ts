@@ -215,13 +215,25 @@ export const backend: CaptureBackend = {
       return
     }
 
-    if (File.exists(path)) {
-      File.fromPath(path).removeSync((error) => {
-        throw error
-      })
+    if (!File.exists(path)) {
+      owned.delete(uri)
+      return
     }
 
-    owned.delete(uri)
+    // Upstream File.remove()/removeSync() is broken on this runtime —
+    // FileSystemAccess.deleteFile calls DeleteAsync on the pending
+    // IAsyncOperation rather than the entity, so nothing is deleted.
+    // Await the WinRT path instead; a failure keeps the map entry so a
+    // retry can still own the file.
+    const { Windows, NSWinRT } = projection()
+
+    void Promise.resolve()
+      .then(() => NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(path)))
+      .then((file: { DeleteAsync(): unknown }) => NSWinRT.toPromise(file.DeleteAsync()))
+      .then(
+        () => owned.delete(uri),
+        () => {},
+      )
   },
   async waitForLayout(target, cancelled) {
     const start = Date.now()

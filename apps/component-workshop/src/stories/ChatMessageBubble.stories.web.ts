@@ -1,5 +1,5 @@
 // Uses the maintained ChatMessageBubbleShowcase example; do not copy its implementation here.
-import { ChatMessageBubbleShowcase as Example } from '@xplat/astryx-sandbox/examples/chatmessagebubble/ChatMessageBubbleShowcase.tsrx'
+import { ChatMessageBubbleShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/chatmessagebubble/ChatMessageBubbleShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -133,7 +133,7 @@ try {
   write(join(app, 'package.json'), manifest)
   write(
     join(app, 'src/main.macos.js'),
-    `import '@nativescript/macos-node-api';\nconst app=NSApplication.sharedApplication;app.setActivationPolicy(2);const value=xplat_c_value();if(value!==40){throw Error('Native compiler value differs')}console.log('XPLAT_MACOS_VALUE='+value);setTimeout(()=>app.terminate(null),30);\n`,
+    `import '@nativescript/macos-node-api';\nconst app=NSApplication.sharedApplication;app.setActivationPolicy(2);const value=xplat_c_value();if(value!==40){throw Error('Native compiler value differs')}console.info('XPLAT_MACOS_VALUE='+value);setTimeout(()=>app.terminate(null),30);\n`,
   )
 
   const config = `export default {build:{outDir:'dist',lib:{entry:'src/main.macos.js',formats:['cjs'],fileName:'main'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}};\n`

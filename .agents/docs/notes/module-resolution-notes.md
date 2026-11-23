@@ -18,7 +18,7 @@
 > `PlatformBadge.ios.tsrx` wins over `.native.tsrx` — `[badge] ios variant
 evaluated` logged on device. `.android > .native` is the same
 > `resolve.extensions` ordering (`.android.tsrx` precedes `.native.tsrx` in
-> `apps/mobile/vite.config.mts`) — desk-verified, device-pending (no Android
+> `apps/harness/vite.config.mts`) — desk-verified, device-pending (no Android
 > SDK). `PlatformBadge.android.tsrx` exists as the probe for that run.
 > **Typecheck caveat (measured)**: `tsrx-tsc` does NOT follow extensionless
 > imports to suffixed `.tsrx` despite `moduleSuffixes` — barrels must name
@@ -65,7 +65,7 @@ divergent behavior (SF Symbols vs font icons, safe-area quirks).
 > [!NOTE]
 > Verified on iOS sim: `PlatformBadge.ios.tsrx` wins over `.native.tsrx`
 > — `[badge] ios variant evaluated` logged on device. `.android > .native`
-> uses the same `resolve.extensions` ordering in `apps/mobile/vite.config.mts`.
+> uses the same `resolve.extensions` ordering in `apps/harness/vite.config.mts`.
 
 ## Mechanism (verified against octane 0.4.0 + vite-octane source)
 
@@ -85,7 +85,7 @@ So suffix resolution only has to produce the right filename. Two options:
 the full ordered list per app:
 
 ```ts
-// apps/mobile/vite.config.ts
+// apps/harness/vite.config.ts
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -207,9 +207,9 @@ emission still uses its fixed unsuffixed-first order; a declaration emit does no
 prove platform isolation or runtime selection.
 
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":
-"./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
+"./src/*"` maps `@octane-xplat/app/platform/storage` to a literal extensionless
   path that neither tsc nor vite/rolldown can load. Deep platform imports must
-  go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
+  go through a barrel (`@octane-xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative
   specifier, not on the exports target.
 - **`moduleSuffixes` only covers `.ts`/`.tsx`** (verified — superseded

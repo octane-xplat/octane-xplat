@@ -6,14 +6,9 @@
 		"tools/routing-eval/tasks/",
 		"tools/routing-eval/grader/",
 		"**/*.gen.*",
+		"**/xplat-typecheck/**",
 		"packages/**/types/generated/**",
-		"packages/*/types/types.d.ts",
-		"packages/*/types/props.d.ts",
-		"packages/motion/types/clock-types.d.ts",
-		"packages/motion/types/engine.d.ts",
-		"packages/motion/types/value.d.ts",
 		"**/vendor/**",
-		"packages/lingui/types/**",
 		"packages/platform/src/types/macos*/**",
 		"packages/macos-appkit/types/**"
 	],
@@ -26,11 +21,10 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/harness/web/",
 					"apps/docs/",
-					"apps/linux/",
-					"apps/macos/",
-					"apps/astryx-sandbox/",
+					"tools/macos-verification/",
 					"packages/cli/test/fixtures/",
 					"scripts/"
 				]
@@ -40,10 +34,9 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
-					"apps/docs/",
-					"apps/linux/",
-					"apps/astryx-sandbox/"
+					"tools/web-verification/",
+					"apps/harness/web/",
+					"apps/docs/"
 				]
 			}
 		],
@@ -51,11 +44,11 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/harness/web/",
 					"apps/docs/",
-					"apps/mobile/",
-					"apps/windows/",
-					"apps/astryx-sandbox/",
+					"apps/harness/",
+					"tools/windows-host/",
 					"packages/typegen-fixture/"
 				]
 			}
@@ -64,10 +57,13 @@
 			"error",
 			{
 				"exclude": [
-					"apps/mobile/",
+					"apps/harness/",
 					"packages/nativescript-octane/",
 					"packages/vite-octane/",
-					"apps/windows/",
+					"tools/windows-host/",
+					"tools/macos-verification/webview-proof-host.ts",
+					"tools/macos-verification/webview-packaged-proof-host.ts",
+					"tools/macos-verification/webview-camera-proof-host.ts",
 					"packages/cli/test/fixtures/"
 				]
 			}
@@ -85,9 +81,9 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
-					"apps/docs/",
-					"apps/astryx-sandbox/"
+					"tools/web-verification/",
+					"apps/harness/web/",
+					"apps/docs/"
 				]
 			}
 		],
@@ -127,9 +123,25 @@
 		"xplat/no-route-augmentation": "error",
 		"xplat/no-destination-cast": "error",
 		"xplat/no-interpolated-route-path": "error",
-		"xplat/require-default-tsrx": "error"
+		"xplat/require-default-tsrx": [
+			"error",
+			{
+				"exclude": [
+					"apps/tweaks-playground/src/main.web.tsrx",
+					"packages/devtools/src/desktop/Shell.macos.tsrx",
+					"packages/devtools/src/panel/main.web.tsrx"
+				]
+			}
+		]
 	},
 	"overrides": [
+		{
+			"files": ["packages/macos-appkit/platforms/nativescript/**/*.js"],
+			"rules": {
+				"xplat/no-nativescript-import": "off",
+				"xplat/no-ns-deep-import": "off"
+			}
+		},
 		{
 			"files": [
 				"tools/tailwind-qualification/fixtures/app/**"
@@ -143,14 +155,6 @@
 						]
 					}
 				]
-			}
-		},
-		{
-			"files": [
-				"packages/ui/tests/fixtures/icon-currentcolor/paint.ios.ts"
-			],
-			"rules": {
-				"typescript/triple-slash-reference": "off"
 			}
 		}
 	]

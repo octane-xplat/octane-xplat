@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Screen, ScrollableArea, View, HStack, Text, Pressable, Switch } from '@octane-xplat/ui'
-import { DEMOS } from '@xplat/demos'
+import { DEMOS } from '@octane-xplat/demos'
 // './probes-host' is extensionless on purpose: moduleSuffixes resolves the
 // .web.ts/.mobile.ts twin — the suffix-resolution seam itself is the probe,
 // both leaves now re-export the same shared Probes.

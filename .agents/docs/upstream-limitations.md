@@ -143,7 +143,7 @@ reading:
   `GetTextAsync`/`SetText` through the projection mangles non-BMP code points
   to `?` per UTF-16 unit (`'😀'` reads back `'??'`, `'🇯🇵'` reads back
   `'????'`), maps `U+0301` combining acute to `'`, and truncates the payload
-  at the first `U+0000` (`'before after'` reads back `'before'`). The exact
+  at the first `U+0000` (`'before\u0000after'` reads back `'before'`). The exact
   mojibake varies across launches (e.g. `?` U+003F vs `�` U+FFFD render
   alike; a lone `U+1F600` read back as `??` on some launches and as the real
   emoji on others), so only the invariants are stable: the unicode+NUL
@@ -211,6 +211,20 @@ Upstream status: reported — [NativeScript/NativeScript#11613](https://github.c
 `Task`-returning methods on the caller thread). Revisit all when the
 Windows core runtime rev changes.
 
+## Octane universal core: synchronous host batch acceptance (0.17.0)
+
+Octane accepts a synchronous host batch when it starts `apply()`. If the
+driver throws, the core still publishes the logical tree and reports the
+error. The [NativeScript driver](../../packages/nativescript-octane/src/driver.ts)
+checks registered tags, host IDs, portal handles, and ownership cycles in
+`prepareBatch` so these failures reject the batch before Octane accepts it.
+Custom constructors, setters, and native attachment methods can still throw
+during application. This follows the
+[upstream commit contract](https://github.com/octanejs/octane/blob/c86fe7d3c90c4add5e81e700b16a10c63f7e5dd2/packages/octane/src/universal-core.ts#L13655-L13670).
+The renderer's Node tests exercise recovery through a real Octane root over a
+mock NativeScript host. Revisit failure handling if a future core can reject
+or recover from synchronous apply failures.
+
 ## Upstream NativeScript Octane driver: text-run parenting gaps (0.2.5)
 
 Upstream `@nativescript-community/octane` 0.2.5 accepts
@@ -222,6 +236,26 @@ ordered FormattedString and folds text under Span. Maintain that behavior in
 source, rather than restoring a dependency patch. Nested styled Span trees
 still require flattening by the text-owner layer; source ownership does not
 establish additional device qualification.
+
+## @nativescript/core: TabViewItem.view is single-assignment (9.1.3)
+
+Source evidence in `@nativescript/core` 9.1.3
+(`ui/tab-view/tab-view-common.js`): the `TabViewItem.view` setter throws
+`Changing the view of an already loaded TabViewItem is not currently
+supported.` on any assignment once `_view` is set, and detaching the child
+via `_removeView` never clears the backing `_view`. A tab item's content
+view therefore cannot be swapped for the lifetime of the item — including
+after the child is removed from the hierarchy — on iOS and Android alike.
+
+Xplat leaves this unsupported: the
+[NativeScript driver](../../packages/nativescript-octane/src/driver.ts)
+assigns `item.view` directly in `addViewChild` and detaches via
+`_removeView`, so re-inserting or recreating a previously removed content
+child of an item hits the upstream throw. The driver does not hide the
+limitation behind an implicit item swap; apps that need swappable tab
+content must wrap it in an element the item owns (its `view` is set once).
+This is source evidence, not a device-run result; a recheck is warranted
+if upstream makes `view` re-assignable or clears `_view` on removal.
 
 ## octane universal `useMediaQuery`: prefers-reduced-motion unsupported on native leaves
 
@@ -519,6 +553,42 @@ its npm and pkg.pr.new tarballs diverge in these files, so a single shared
 patch cannot target both safely. Regression coverage:
 `packages/cli/test/vite-ns-m-dep-freshness.test.mts`. Tracking:
 [#161](https://github.com/octane-xplat/octane-xplat/issues/161).
+
+## @nativescript/vite: bare package resolvers keep symlink spellings (8.0.20)
+
+Two `enforce: 'pre'` resolvers — `nativescript-package-resolver`
+(helpers/nativescript-package-resolver.js) and
+`ns-package-platform-resolver` (helpers/package-platform-aliases.js) — locate
+packages with `findPackageInNodeModules(name, projectRoot)`
+(helpers/module-resolution.js), which returns `<app>/node_modules/<pkg>`
+without realpathing. When `main` is extensionless (`"main": "index"`),
+`resolveMainFieldPlatformVariant` rewrites the bare root import to
+`<app>/node_modules/<pkg>/index.ios.js` — the symlink spelling under an
+isolated linker — while `native()`'s `preserveSymlinks: false` resolves
+subpath imports of the same package to the real store path. Rolldown keys
+modules by id, so the package is bundled and evaluated twice.
+
+Observed symptom: the iOS app crashes at launch with
+`TypeError: Cannot redefine property: default:maskSize` —
+`@octane-xplat/nativescript-mason-core`'s `properties.js` registers CSS
+animation properties on `@nativescript/core`'s shared `Style`, and the second
+module copy's registration throws before the Vitest worker can connect (zero
+tests run, 1800 s worker timeout). `@nativescript/font-manager` (also
+`main: "index"`) is duplicated under both spellings the same way, currently
+without a visible symptom.
+
+Local workaround: `nativeCanonicalPackageIds` in
+`packages/cli/src/vite.ts` — a `resolveId` `order: 'pre'` plugin scoped to
+`native()` that delegates bare specifiers to the downstream resolution and
+then replaces the returned id with its realpath, preserving any `?query`/
+`#hash` suffix, so every spelling of a package lands on one canonical id.
+Bounds: only bare specifiers are canonicalized — absolute ids produced by an
+earlier `resolve.alias` replacement are passed through as-is; the dev-server
+`/ns/m` serving path is not separately qualified. Regression coverage:
+`packages/cli/test/vite-platform-resolution.test.mts`. Remove when upstream's
+resolvers realpath under `preserveSymlinks: false` or its
+`normalizeModuleId` helper canonicalizes symlinks.
+
 ## NativeScript 9.1.3: iOS variable-font computed weights
 
 Upstream `ui/styling/font.ios.ts` creates a UIFont from family/weight traits,
@@ -541,7 +611,7 @@ Owning upstream source:
 [font.ios.ts at 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/styling/font.ios.ts).
 The CLI's `test:fonts` lane executes the installed patched module against a
 CoreText boundary model. Actual platform behavior is owned by
-`apps/mobile/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
+`apps/harness/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
 Geist spec; run `test:ios:fonts` on the selected, prebooted simulator. Host
 checks alone do not qualify UIKit behavior or root font-family inheritance.
 
@@ -825,13 +895,13 @@ repair is established; do not remove intentional dynamic entry imports based
 on these warnings.
 
 The [test-only native override](../../tools/platform-qualification/ios-module-graph/timeout-override.m)
-changes the effective request deadline in the same runtime binary; it is not
-a production workaround. The candidate 30-second source repair has not been
-rebuilt or release-qualified. Upstream should reconcile request/retry,
-server-transform and total graph deadlines, and preserve the original
-fetch-failure reason in fallback diagnostics. Raising only the async session
-timeout is insufficient. The runtime deadline and diagnostics are tracked in
-[NativeScript iOS #583](https://github.com/NativeScript/ios/issues/583).
+isolates the request deadline in the same 9.1.0 binary.
+[NativeScript iOS PR #552](https://github.com/NativeScript/ios/pull/552)
+merged a 30-second debug budget for both fetch paths, with async retries
+bounded by the graph deadline. Release requests retain the five-second
+budget and the graph-miss diagnostic is unchanged. [NativeScript iOS #583](https://github.com/NativeScript/ios/issues/583)
+closed citing that fix. The Opals startup runs here use the pinned 9.1.0
+runtime. They leave the newer runtime's startup behavior unverified.
 
 Xplat mitigates server-side rather than patching the runtime: the canonical
 @nativescript/vite 8.0.20 patch adds a boot graph crawl that walks the same
@@ -842,8 +912,17 @@ outlast its 5-second request budget. Crawl traffic marks
 `x-ns-vite-boot-crawl` and queues behind live device demand in the shared
 transform runner's priority lanes; the dev link-check's nested target
 transforms share that runner (deduped, still checked) and each target's
-default-export verdict is cached by served code. The runtime's budget,
-request/retry and graph deadlines remain upstream's to reconcile.
+default-export verdict is cached by served code. The crawl skips the import
+map, which lists resolution targets including unused host tooling. It queues
+each discovered module URL once and keeps idle workers available while parent
+responses can add more work. [Xplat #311](https://github.com/octane-xplat/octane-xplat/issues/311)
+tracks those crawl issues.
+
+NativeScript CLI 9.1.1 waits for the bootstrap build and the Vite TCP listener.
+The crawl runs independently, so a fast native rebuild can reach live module
+requests while the server still has cold transforms. The crawl reduces that
+work during startup. On 9.1.0, uncached requests still use the five-second
+module fetch budget and can fall back to blocking fetches.
 
 The Octane flavor disables Vite's speculative client pre-transforms so the
 NativeScript crawl can warm the actual `/ns/m` response path without a second

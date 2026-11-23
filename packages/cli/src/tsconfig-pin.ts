@@ -1,15 +1,17 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { parse as parseJsonc } from 'jsonc-parser'
 
 /**
  * Vite 8's oxc transform resolves each file's governing tsconfig.json and
  * follows its project references. References-style configs point at the env
- * programs `xplat typecheck` generates under node_modules/.cache — absent
- * on a fresh install, so every plain-source transform fails with
- * TSCONFIG_ERROR. Return the committed env manifest beside the nearest
- * governing tsconfig.json while a reference dangles; ordinary discovery
- * resumes once the programs exist.
+ * programs `xplat typecheck` generates under the tracked xplat-typecheck/
+ * directory — while a reference dangles (programs never generated, pruned,
+ * or a legacy node_modules/.cache reference), every plain-source transform
+ * fails with TSCONFIG_ERROR. Return the committed env manifest beside the
+ * nearest governing tsconfig.json; ordinary discovery resumes once the
+ * programs exist.
  */
 export function transformTsconfig(root) {
   let dir = resolve(root)
@@ -35,11 +37,17 @@ export function transformTsconfig(root) {
     return undefined
   }
 
-  const references = readFileSync(join(dir, 'tsconfig.json'), 'utf8').matchAll(
-    /"path"\s*:\s*"([^"]+)"/g,
-  )
+  const config = parseJsonc(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+  const references = Array.isArray(config?.references) ? config.references : []
 
-  return [...references].some(([, path]) => !existsSync(resolve(dir, path)))
+  return references.some((reference) => {
+    const path = reference?.path
+    return (
+      typeof path === 'string' &&
+      /(?:^|\/)xplat-typecheck\//.test(path.replaceAll('\\', '/')) &&
+      !existsSync(resolve(dir, path))
+    )
+  })
     ? manifest
     : undefined
 }

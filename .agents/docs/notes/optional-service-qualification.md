@@ -76,7 +76,7 @@ measure playback state, not audible output. They neither capture screenshots
 nor render selected images. They do not mock a successful provider sign-in or
 push delivery. CI uses `--types-only` because its package suites already run
 the Node tests. The three-engine browser probes run locally through
-`bun run turbo run test:e2e --filter=@xplat/verification` or the explicit command below.
+`bun run turbo run test:e2e --filter=@octane-xplat/verification` or the explicit command below.
 
 ```sh
 bun run check:optional-services --browser
@@ -189,8 +189,10 @@ available locked target session as well as the feature-specific prerequisites. N
 ## Qualify a configured app
 
 Use a separate app identity and test data. Acquire the shared per-target
-advisory lock (`/tmp/octane-xplat-ios.lock` or
-`/tmp/octane-xplat-android.lock` on this host) for builds and device operations;
+advisory lock (`$TMPDIR/octane-xplat-target-locks/ios.lock` or
+`android.lock` on this host, the protocol shared by
+`scripts/with-target-lock.ts` and `scripts/with-native-target-lock.py`) for
+builds and device operations;
 keep it held for the whole operation. Do not remove lock files, reset another
 app's permissions/data, or reuse an occupied device session. Use Temurin JDK 21
 for Android. Install/launch an iOS build with `simctl` when the simulator is

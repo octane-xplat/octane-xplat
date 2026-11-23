@@ -1,9 +1,12 @@
 {
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"paths": { "@octane-xplat/global-shortcuts": ["../src/index.ts"] }
+	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts"]
+			"include": ["src/**/*.ts", "../../examples/keyboard-shortcuts/global-quick-entry.ts"]
 		},
 		"macos": {
 			"files": ["src/index.macos.ts"]

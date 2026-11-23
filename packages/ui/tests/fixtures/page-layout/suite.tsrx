@@ -2,6 +2,7 @@
 import BlockFlow, { run as blockFlow } from './block-flow.tsrx'
 import { run as neutralContainers } from './neutral-containers.tsrx'
 import { run as contentFlow } from './content-flow.tsrx'
+import { run as buttonLoading } from './button-loading.tsrx'
 import { run as page } from './page.tsrx'
 import type { ProbeContext } from '../../../../../tools/probe/context'
 
@@ -14,4 +15,7 @@ export async function run(ctx: ProbeContext) {
   await neutralContainers(ctx)
   await contentFlow(ctx)
   await page(ctx)
+  if (ctx.target === 'ios') {
+    await buttonLoading(ctx)
+  }
 }

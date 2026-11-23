@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
@@ -46,6 +46,29 @@ test('NIGHTLY_PATHS extends the lockstep publish set with workspace wiring', () 
   assert.ok(NIGHTLY_PATHS.includes(':(exclude)packages/tsrx-typegen/**'))
   assert.ok(NIGHTLY_PATHS.includes('package.json'))
   assert.ok(NIGHTLY_PATHS.includes('bun.lock'))
+})
+
+// A private package that lands without a paths exclusion starts counting
+// toward releasable changes — guard the list against drift instead of
+// rediscovering empty version bumps.
+test('NIGHTLY_PATHS excludes every private package', () => {
+  const excluded = new Set(
+    NIGHTLY_PATHS.filter((p) => p.startsWith(':(exclude)packages/')).map(
+      (p) => p.slice(':(exclude)packages/'.length, -'/**'.length),
+    ),
+  )
+
+  const packagesDir = join(import.meta.dirname, '../packages')
+
+  for (const dir of readdirSync(packagesDir)) {
+    try {
+      const pkg = JSON.parse(readFileSync(join(packagesDir, dir, 'package.json'), 'utf8'))
+
+      if (pkg.private) {
+        assert.ok(excluded.has(dir), `private package ${dir} is not excluded from the publish set`)
+      }
+    } catch {}
+  }
 })
 
 test('nightlyDecision publishes when no nightly exists or it is unreadable', (t) => {

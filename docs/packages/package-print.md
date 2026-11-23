@@ -96,7 +96,7 @@ export async function withPdf<T>(html: string, consume: (uri: string) => Promise
 }
 ```
 
-The maintained [upload action](../../packages/print/examples/upload-pdf.ts) follows this pattern.
+The maintained [upload action](../../examples/printing/upload-pdf.ts) follows this pattern.
 Its upload callback must resolve after it finishes reading the file. For a
 preview, keep the result until the preview closes. A share chooser can return
 before another app reads a file, particularly on Android; copy to an appropriate

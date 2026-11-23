@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { HeadingProps } from '../../props'
 import { normStyle } from '../layout/layout-child.web'
 import { applyWebProps } from '../../internal/platform/platformProps.web'

@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/screen-orientation-native-fixture",
+	"name": "@octane-xplat/screen-orientation-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

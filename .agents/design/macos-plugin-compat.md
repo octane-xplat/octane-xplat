@@ -57,7 +57,7 @@ wrap, grid, dock keep their specialized code), virtual/non-view elements
 A leaf package (working name `@octane-xplat/macos-ns-compat`) that apps alias
 `@nativescript/core` to under the macOS renderer:
 
-```ts
+```text
 class Observable {
   on(event: string, cb: (...args: any[]) => void): void
   off(event: string, cb?): void

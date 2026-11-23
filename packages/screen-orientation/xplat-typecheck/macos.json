@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../macos-appkit/src/host-globals.d.ts",
+		"../src/backend.macos.ts",
+		"../src/index.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/screen-orientation": [
+				"../src/index.ts"
+			],
+			"@nativescript/core": [
+				"../node_modules/@nativescript/core"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

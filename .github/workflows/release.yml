@@ -143,7 +143,7 @@ jobs:
       # turbo so the declared workspace dep graph builds first — the docs
       # vite config imports @octane-xplat/cli/vite, which resolves to dist/.
       - name: Build docs site
-        run: bun run turbo run build --filter=@xplat/docs
+        run: bun run turbo run build --filter=@octane-xplat/docs
 
       - name: Deploy to Cloudflare Pages
         run: bun run --cwd apps/docs wrangler pages deploy dist --project-name octane-xplat-docs --branch=main
@@ -417,19 +417,32 @@ jobs:
     with:
       sha: ${{ needs.gate.outputs.lockstep_sha }}
 
+  stable-devtools:
+    needs: [gate, qualify]
+    if: >-
+      always() &&
+      needs.gate.outputs.channel == 'ci' &&
+      needs.gate.outputs.lockstep_pending == 'true' &&
+      (needs.gate.outputs.qualified == 'true' || needs.qualify.result == 'success')
+    uses: ./.github/workflows/devtools-archive.yml
+    with:
+      sha: ${{ needs.gate.outputs.lockstep_sha }}
+      version: ${{ needs.gate.outputs.version }}
+      artifact: devtools-stable
+
   # Lockstep release: every publishable package except tsrx-typegen ships at
   # the same version. The release commit already bumped versions and consumed
   # the changelog notes — this job tags the tested revision, publishes, and
   # rebuilds the release PR for the next version. Nothing commits to main.
   lockstep:
     name: Publish @octane-xplat/*
-    needs: [gate, qualify]
+    needs: [gate, stable-devtools]
     runs-on: ubuntu-latest
     if: >-
       always() &&
       needs.gate.outputs.channel == 'ci' &&
       needs.gate.outputs.lockstep_pending == 'true' &&
-      (needs.gate.outputs.qualified == 'true' || needs.qualify.result == 'success')
+      needs.stable-devtools.result == 'success'
     concurrency:
       group: release-lockstep
       cancel-in-progress: false
@@ -532,16 +545,6 @@ jobs:
           go-version-file: packages/cli/go/go.mod
           cache: false
 
-      # The published CLI installs its native bin from five optional payload
-      # packages — cross-build the core (CGO-off) image for each npm target.
-      - name: Build native CLI payloads
-        if: steps.unpublished.outputs.exists != 'true'
-        run: |
-          set -euo pipefail
-          for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
-            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" bun run turbo run build:go --filter=@octane-xplat/cli
-          done
-
       - name: Tag the release
         if: >-
           steps.unpublished.outputs.exists != 'true' &&
@@ -549,6 +552,34 @@ jobs:
         run: |
           git tag "$TAG" "$TESTED_SHA"
           git push origin "$TAG"
+
+      - name: Retrieve the macOS DevTools archive
+        if: steps.unpublished.outputs.exists != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: devtools-stable
+          path: ${{ runner.temp }}/devtools
+
+      - name: Stage the prebuilt macOS DevTools asset
+        id: devtools
+        if: steps.unpublished.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          digest="$(bash scripts/stage-devtools-release.sh "$TAG" "$RUNNER_TEMP/devtools")"
+          echo "sha256=$digest" >> "$GITHUB_OUTPUT"
+
+      # The published CLI installs its native bin from five optional payload
+      # packages — cross-build the core (CGO-off) image for each npm target.
+      - name: Build native CLI payloads
+        if: steps.unpublished.outputs.exists != 'true'
+        env:
+          XPLAT_GO_DEVTOOLS_SHA256: ${{ steps.devtools.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
+            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" bun run turbo run build:go --filter=@octane-xplat/cli
+          done
 
       # Bun creates tarballs with resolved workspace/catalog versions. npm uploads
       # them through trusted publishing and generates provenance. No static token.
@@ -560,8 +591,8 @@ jobs:
       # The release commit consumed the pending notes into the root logs,
       # which the docs changelog page renders — the Release body links the
       # version's anchor instead of embedding the full notes (GitHub caps
-      # bodies at 125 KB). A rerun skips this once the release exists.
-      - name: Create GitHub Release
+      # bodies at 125 KB).
+      - name: Publish GitHub Release
         if: steps.unpublished.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -571,8 +602,7 @@ jobs:
 
           Read the full release notes in the [changelog](https://octane-xplat.goddardai.org/changelog#$(printf '%s' "$TAG" | tr '.' '-')) or in [CHANGELOG.md](https://github.com/octane-xplat/octane-xplat/blob/$TAG/CHANGELOG.md) on the tag.
           EOF
-          gh release view "$TAG" > /dev/null 2>&1 || \
-            gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
+          gh release edit "$TAG" --draft=false --notes-file .release-notes.md
 
       - name: Queue the next release PR
         if: steps.unpublished.outputs.exists != 'true'
@@ -643,12 +673,21 @@ jobs:
           set -o pipefail
           node scripts/release-nightly.ts "${{ steps.ci.outputs.sha }}" | tee -a "$GITHUB_OUTPUT"
 
+  nightly-devtools:
+    needs: nightly-gate
+    if: needs.nightly-gate.outputs.publish == 'true'
+    uses: ./.github/workflows/devtools-archive.yml
+    with:
+      sha: ${{ needs.nightly-gate.outputs.sha }}
+      version: ${{ needs.nightly-gate.outputs.version }}
+      artifact: devtools-nightly
+
   # Nightly channel: one prerelease per day when publishable files changed.
   # Nothing commits to main and the `latest` dist-tag is untouched. This job
   # alone owns the moving `nightly` git tag and GitHub prerelease.
   nightly:
     name: Publish nightly
-    needs: nightly-gate
+    needs: [nightly-gate, nightly-devtools]
     runs-on: ubuntu-latest
     if: needs.nightly-gate.outputs.publish == 'true'
     concurrency:
@@ -732,7 +771,27 @@ jobs:
           go-version-file: packages/cli/go/go.mod
           cache: false
 
+      - name: Retrieve the macOS DevTools archive
+        uses: actions/download-artifact@v4
+        with:
+          name: devtools-nightly
+          path: ${{ runner.temp }}/devtools
+
+      - name: Stage the prebuilt macOS DevTools asset
+        id: devtools
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          tag="devtools-v$VERSION"
+          git push origin "$TESTED_SHA:refs/tags/$tag"
+          digest="$(bash scripts/stage-devtools-release.sh "$tag" "$RUNNER_TEMP/devtools")"
+          gh release edit "$tag" --draft=false --prerelease --latest=false \
+            --notes "macOS DevTools for Xplat $VERSION."
+          echo "sha256=$digest" >> "$GITHUB_OUTPUT"
+
       - name: Build native CLI payloads
+        env:
+          XPLAT_GO_DEVTOOLS_SHA256: ${{ steps.devtools.outputs.sha256 }}
         run: |
           set -euo pipefail
           for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do

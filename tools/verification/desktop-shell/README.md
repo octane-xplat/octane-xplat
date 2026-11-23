@@ -27,7 +27,7 @@ Two resource reservations — the build phase must not hold desktop input:
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"desktop-shell build"}' \
-  -- bunx turbo run test:desktop-shell:macos --filter=@xplat/verification -- --phase build
+  -- bunx turbo run test:desktop-shell:macos --filter=@octane-xplat/verification -- --phase build
 
 DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
 goddard-agent resource run --json '{"resources":{"desktop_input":1},"purpose":"desktop-shell journey"}' \
@@ -101,7 +101,7 @@ evidence; README declares it disposable — remove manually when done).
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"desktop-shell linux build"}' \
-  -- bunx turbo run test:desktop-shell:linux --filter=@xplat/verification -- --phase build
+  -- bunx turbo run test:desktop-shell:linux --filter=@octane-xplat/verification -- --phase build
 
 DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
 goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"]},"purpose":"desktop-shell linux journey"}' \
@@ -152,7 +152,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"
 Windows has no downstream app workflow yet, so this lane cannot install packed
 tarballs into an external consumer. It follows the packaged-runtime route of
 the package runtime tests instead. The build phase stages `app/` under
-`apps/windows/src/.desktop-shell-journey/` (ignored) and bundles v1 (0.1.0) and
+`tools/windows-host/src/.desktop-shell-journey/` (ignored) and bundles v1 (0.1.0) and
 v2 (0.2.0) with the harness Vite config (`XPLAT_WINDOWS_ENTRY` selects the
 entry). The journey phase copies the packaged NativeScript Windows runtime on
 `windy` into `%USERPROFILE%\agent-scratch\octane-xplat\hushed-dew\windows-<id>\`,
@@ -168,7 +168,7 @@ interactive session.
   mouse, and UI Automation for names, control types, focus, and Invoke.
 
 ```sh
-bunx turbo run test:desktop-shell:windows --filter=@xplat/verification -- --phase build
+bunx turbo run test:desktop-shell:windows --filter=@octane-xplat/verification -- --phase build
 
 goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"desktop-shell windows journey"}' \
   -- node tools/verification/desktop-shell/windows.mts --phase journey

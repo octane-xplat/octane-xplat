@@ -25,10 +25,10 @@ bun run --cwd tools/visual playwright install chromium
 Run the ordinary comparisons or the acceptance checks:
 
 ```sh
-bun run --filter @xplat/visual test:web
-bun run --filter @xplat/visual verify:web
-bun run --filter @xplat/visual test:mock
-bun run --filter @xplat/visual verify:mock
+bun run --filter @octane-xplat/visual test:web
+bun run --filter @octane-xplat/visual verify:web
+bun run --filter @octane-xplat/visual test:mock
+bun run --filter @octane-xplat/visual verify:mock
 ```
 
 The real-web acceptance command runs three fresh Browser Mode launches —
@@ -50,8 +50,8 @@ directories. Ordinary runs reject missing baselines. Explicitly regenerate a
 baseline only when intentionally changing what it approves:
 
 ```sh
-bun run --filter @xplat/visual update:web
-bun run --filter @xplat/visual update:mock
+bun run --filter @octane-xplat/visual update:web
+bun run --filter @octane-xplat/visual update:mock
 ```
 
 These commands update only this private harness's selected tests. Review the
@@ -125,7 +125,7 @@ materialized under the ordinary bundle ID. The isolated visual entry does not
 enter ordinary mobile tests or Android discovery.
 
 ```sh
-bun run --filter @xplat/visual capture:ios --device=SIMULATOR_UDID --capture-only
+bun run --filter @octane-xplat/visual capture:ios --device=SIMULATOR_UDID --capture-only
 ```
 
 The command exports three independently mounted unchanged iOS stages, one
@@ -153,7 +153,7 @@ or a resized control fails capture; the driver never rounds or aligns it.
 The shared geometry checks run with the comparator tests:
 
 ```sh
-bun run --filter @xplat/visual test:comparator
+bun run --filter @octane-xplat/visual test:comparator
 ```
 
 ### Shared-raster research is not M3 acceptance
@@ -195,8 +195,8 @@ Generate reviewable candidates only from a valid unchanged capture. Replace
 `RUN_ID` with the directory printed by the capture command:
 
 ```sh
-VIS_IOS_CAPTURE="$PWD/tools/visual/artifacts/RUN_ID/ios-0.json" bun run --filter @xplat/visual update:ios
-VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @xplat/visual promote:common
+VIS_IOS_CAPTURE="$PWD/tools/visual/artifacts/RUN_ID/ios-0.json" bun run --filter @octane-xplat/visual update:ios
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @octane-xplat/visual promote:common
 ```
 
 `update:ios` generates the regression candidate under `vis/ios/`. Common
@@ -210,7 +210,7 @@ provably unchanged, a retained run can re-bind the reference metadata instead
 of forcing a fresh capture:
 
 ```sh
-VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @xplat/visual promote:common:retained
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @octane-xplat/visual promote:common:retained
 ```
 
 The retained path requires the capture to match its own run manifest, carry
@@ -221,8 +221,8 @@ pixels. A changed appearance still needs a fresh capture and review.
 Once candidates are approved, run the full ordinary check:
 
 ```sh
-bun run --filter @xplat/visual capture:ios --device=SIMULATOR_UDID
-VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @xplat/visual test:parity
+bun run --filter @octane-xplat/visual capture:ios --device=SIMULATOR_UDID
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" bun run --filter @octane-xplat/visual test:parity
 ```
 
 The ordinary run checks each iOS capture through vitest-plugin-vis in its own
@@ -236,8 +236,8 @@ allowed differences in every decoded channel, including antialiasing.
 Web capture and comparator qualification can run while iOS is unavailable:
 
 ```sh
-bun run --filter @xplat/visual capture:ios --web-only
-bun run --filter @xplat/visual test:comparator
+bun run --filter @octane-xplat/visual capture:ios --web-only
+bun run --filter @octane-xplat/visual test:comparator
 ```
 
 The private iOS build relies on the `native` preset's Unicode-property

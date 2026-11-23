@@ -2,8 +2,17 @@
 // Shared TypeScript environment presets + tsconfig.envs.json expansion.
 // Each target gets its own program and ambient SDK. Native manifest entries
 // expand to iOS and Android; native Linux uses the GTK host program.
-import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import {
+  existsSync,
+  globSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { parse, printParseErrorCode } from 'jsonc-parser'
@@ -12,6 +21,13 @@ import { srcUrl } from './env.ts'
 const MODULE_DIR = fileURLToPath(srcUrl(import.meta.url, ''))
 
 export const ENV_MANIFEST = 'tsconfig.envs.json'
+
+/**
+ * Directory the environment generator owns at the project root. Its configs
+ * and isolation canaries are tracked, so editors discover platform programs
+ * right after dependency installation without a typecheck run first.
+ */
+export const ENV_PROGRAM_DIR = 'xplat-typecheck'
 
 export type EnvProgram = { env: string; configPath: string; files: string[] }
 export type EnvSolution = { files: string[]; references: { path: string }[] }
@@ -81,7 +97,11 @@ export const TYPECHECK_ENVIRONMENTS = {
     // The renderer's host ambient covers the injected bridge globals
     // (dlopen, __xplatAppKit, Node-ish process/console). The AppKit class
     // surface itself is module-scoped now — @octane-xplat/platform/macos.
-    ambient: ['typecheck-globals/macos.d.ts', '../../macos-appkit/src/host-globals.d.ts'],
+    ambient: [
+      'typecheck-globals/macos.d.ts',
+      'pkg:@octane-xplat/macos-appkit/src/host-globals.d.ts',
+      '../../macos-appkit/src/host-globals.d.ts',
+    ],
   },
   // Native Linux uses GTK4/GJS, without browser libraries or web fallbacks.
   gtk: {
@@ -91,7 +111,10 @@ export const TYPECHECK_ENVIRONMENTS = {
       customConditions: ['gtk', 'native'],
       lib: ['ESNext'],
     },
-    ambient: ['../../linux-gtk-renderer/src/host-globals.d.ts'],
+    ambient: [
+      'pkg:@octane-xplat/linux-gtk/dist/host-globals.d.ts',
+      '../../linux-gtk-renderer/src/host-globals.d.ts',
+    ],
   },
   windows: {
     compilerOptions: {
@@ -271,7 +294,18 @@ function applicable(file, env) {
 
 function platformTypes(types, env, dir) {
   const require = createRequire(join(dir, 'package.json'))
+
+  // Prefer the specifier-visible path — `require.resolve` returns the linker
+  // store's real path, which embeds a versioned slot under isolated layouts.
+  // Paths through the project's own node_modules survive reinstalls and
+  // version bumps, which keeps tracked generated configs stable.
   const sdkPath = (name) => {
+    const local = join(dir, 'node_modules', name)
+
+    if (existsSync(local)) {
+      return local
+    }
+
     try {
       return require.resolve(name)
     } catch {
@@ -285,8 +319,14 @@ function platformTypes(types, env, dir) {
     }
   }
 
+  // `@nativescript/types` requests the whole umbrella: globals plus the
+  // target's SDK. A bare `@nativescript/types-<sdk>` entry selects the same
+  // pair for its matching target — resolving transitively when the platform
+  // package is only reachable through the umbrella's own dependencies —
+  // while a foreign SDK name stays bare so the conflict check below rejects
+  // it (e.g. iOS types inside the Android program).
   return types.flatMap((name) =>
-    name === '@nativescript/types'
+    name === '@nativescript/types' || name === `@nativescript/types-${env}`
       ? ['ios', 'android'].includes(env)
         ? [
             sdkPath('@nativescript/types/globals.d.ts'),
@@ -321,7 +361,7 @@ function validateOptions(options, label) {
 export function expandEnvPrograms(
   dir,
   { path: manifestPath, manifest },
-  { ambientRoot = MODULE_DIR } = {},
+  { ambientRoot = MODULE_DIR, check = false } = {},
 ): EnvProgram[] {
   const errors = []
   const resolved = {}
@@ -381,10 +421,7 @@ export function expandEnvPrograms(
       const options = TYPECHECK_ENVIRONMENTS[target]
       const libs = entry.compilerOptions?.lib ?? options.compilerOptions.lib
 
-      if (
-        target !== 'web' &&
-        [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))
-      ) {
+      if (target !== 'web' && [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))) {
         errors.push(
           `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web environment`,
         )
@@ -402,9 +439,20 @@ export function expandEnvPrograms(
         }
       }
 
-      const ambient = (options.ambient ?? [])
-        .map((rel) => resolve(ambientRoot, rel))
+      // `pkg:` ambient entries resolve inside the selected project's own
+      // dependencies — a stable specifier path that holds under isolated
+      // linkers. Relative entries resolve against the CLI's declarations
+      // root; a package's repo fallback can duplicate its pkg: hit, so the
+      // list dedupes by real path.
+      const packageAmbient = (options.ambient ?? [])
+        .filter((entry) => entry.startsWith('pkg:'))
+        .map((entry) => join(dir, 'node_modules', entry.slice(4)))
         .filter(existsSync)
+      const packageAmbientRealPaths = new Set(packageAmbient.map((entry) => realpathSync(entry)))
+      const ambient = (options.ambient ?? [])
+        .filter((entry) => !entry.startsWith('pkg:'))
+        .map((entry) => resolve(ambientRoot, entry))
+        .filter((entry) => existsSync(entry) && !packageAmbientRealPaths.has(realpathSync(entry)))
 
       // A default implementation shadowed by a leaf is not an active root.
       // Explicit imports can still reach it and are checked transitively.
@@ -436,7 +484,9 @@ export function expandEnvPrograms(
           ...options.compilerOptions,
           // Keep JSX vocabulary explicit and independent of runtime resolution.
           jsxImportSource: top.jsxImportSource ?? '@octane-xplat/jsx',
-          types: [...new Set(types)],
+          // Type references resolve symlinks before checking transitive imports.
+          // A root in files keeps its lexical path and misses isolated dependencies.
+          types: [...new Set([...types, ...packageAmbient])],
           lib: [...new Set([...(top.lib ?? []), ...libs])],
         },
       })
@@ -475,43 +525,166 @@ export function expandEnvPrograms(
     throw new Error(errors.join('\n'))
   }
 
-  const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
+  const outDir = join(dir, ENV_PROGRAM_DIR)
 
-  mkdirSync(outDir, { recursive: true })
-  return [...groups]
-    .sort(
-      ([a], [b]) =>
-        ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(a) -
-        ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(b),
+  // The generated configs resolve `extends`, `files`, and path `types` entries
+  // against the program directory; emit them relative so the whole checkout
+  // can move (absolute paths only survive on the same filesystem root).
+  const generatedPath = (file) => {
+    const rel = relative(outDir, file)
+
+    if (!rel || isAbsolute(rel)) {
+      return file
+    }
+
+    return rel.startsWith('.') ? rel : './' + rel
+  }
+
+  const outputs = new Map()
+  const programs = []
+
+  for (const [env, group] of [...groups].sort(
+    ([a], [b]) =>
+      ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(a) -
+      ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(b),
+  )) {
+    const configPath = join(outDir, `${env}.json`)
+
+    // Compiler-only negative assertions also catch renamed/vendored ambient
+    // declarations that the SDK-path inspection cannot recognize.
+    const forbidden = [
+      ...(env === 'web' ? [] : ['document', 'window', 'HTMLElement']),
+      ...(env === 'ios' ? [] : ['UIView']),
+      ...(env === 'android' ? [] : ['android.os.Build']),
+    ]
+
+    const canary = join(outDir, `isolation-${env}.ts`)
+
+    outputs.set(
+      canary,
+      'export {}\n' +
+        forbidden
+          .map((name) => `// @ts-expect-error ${name} must be absent in ${env}\nvoid ${name}\n`)
+          .join(''),
     )
-    .map(([env, group]) => {
-      const configPath = join(outDir, `${env}.json`)
 
-      // Compiler-only negative assertions also catch renamed/vendored ambient
-      // declarations that the SDK-path inspection cannot recognize.
-      const forbidden = [
-        ...(env === 'web' ? [] : ['document', 'window', 'HTMLElement']),
-        ...(env === 'ios' ? [] : ['UIView']),
-        ...(env === 'android' ? [] : ['android.os.Build']),
-      ]
+    group.files = [...group.files, canary]
 
-      const canary = join(outDir, `isolation-${env}.ts`)
+    const config = {
+      extends: generatedPath(manifestPath),
+      ...group,
+      files: group.files.map(generatedPath),
+      compilerOptions: {
+        ...group.compilerOptions,
+        types: group.compilerOptions.types.map((entry) =>
+          isAbsolute(entry)
+            ? generatedPath(entry)
+            : entry.startsWith('.')
+              ? generatedPath(resolve(dir, entry))
+              : entry,
+        ),
+      },
+      include: [],
+      exclude: [],
+    }
 
-      writeFileSync(
-        canary,
-        'export {}\n' +
-          forbidden
-            .map((name) => `// @ts-expect-error ${name} must be absent in ${env}\nvoid ${name}\n`)
-            .join(''),
-      )
+    outputs.set(configPath, JSON.stringify(config, null, '\t') + '\n')
+    programs.push({ env, configPath, files: group.files })
+  }
 
-      group.files = [...group.files, canary]
+  if (check) {
+    verifyEnvOutputs(dir, outDir, outputs, programs)
+  } else {
+    writeEnvOutputs(outDir, outputs)
+  }
 
-      const config = { extends: manifestPath, ...group, include: [], exclude: [] }
+  return programs
+}
 
-      writeFileSync(configPath, JSON.stringify(config, null, '\t') + '\n')
-      return { env, configPath, files: group.files }
-    })
+/** Write the generator-owned program directory, pruning stale target files. */
+function writeEnvOutputs(outDir, outputs) {
+  mkdirSync(outDir, { recursive: true })
+
+  for (const [path, text] of outputs) {
+    writeFileSync(path, text)
+  }
+
+  // Environment removals leave the retired target's files behind; the
+  // directory is generator-owned, so anything unexpected is stale.
+  for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+    if (entry.isFile() && !outputs.has(join(outDir, entry.name))) {
+      rmSync(join(outDir, entry.name))
+    }
+  }
+}
+
+/** Compare tracked programs against a fresh expansion without writing. */
+function verifyEnvOutputs(dir, outDir, outputs, programs) {
+  const stale = []
+
+  for (const [path, text] of outputs) {
+    if (!existsSync(path)) {
+      stale.push(`${relative(dir, path)} is missing`)
+    } else if (readFileSync(path, 'utf8') !== text) {
+      stale.push(`${relative(dir, path)} does not match the manifest expansion`)
+    }
+  }
+
+  if (existsSync(outDir)) {
+    for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+      if (entry.isFile() && !outputs.has(join(outDir, entry.name))) {
+        stale.push(`${ENV_PROGRAM_DIR}/${entry.name} belongs to a retired target`)
+      }
+    }
+  }
+
+  const solution = join(dir, 'tsconfig.json')
+
+  if (existsSync(solution)) {
+    const expected = programs.map(({ configPath }) => generatedRef(dir, configPath))
+    const config = parseJsonc(readFileSync(solution, 'utf8'), solution)
+
+    // Only a solution-style root opts into program references — a mixed
+    // legacy root (include/files of its own, no references array) is an
+    // additional check and does not qualify isolation.
+    if (Array.isArray(config?.references)) {
+      const declared = config.references
+        .map((reference) => reference?.path)
+        .filter((path) => typeof path === 'string')
+        .map((path) => path.replaceAll('\\', '/'))
+        .filter((path) => /(?:^|\/)xplat-typecheck\//.test(path))
+        .map((path) => path.replace(/^\.\//, ''))
+
+      for (const ref of expected) {
+        if (!declared.includes(ref)) {
+          stale.push(`tsconfig.json does not reference ./${ref}`)
+        }
+      }
+
+      for (const ref of declared) {
+        if (!expected.includes(ref)) {
+          stale.push(`tsconfig.json references retired program ./${ref}`)
+        }
+      }
+    }
+  }
+
+  if (stale.length) {
+    throw new Error(
+      `${ENV_PROGRAM_DIR}/ programs are stale — regenerate with xplat typecheck or bun run sync:envs\n` +
+        stale.map((line) => `  ${line}`).join('\n'),
+    )
+  }
+}
+
+/** The tracked reference a solution tsconfig records for a generated program. */
+function generatedRef(dir, configPath) {
+  return configPath.slice(dir.length + 1).replaceAll('\\', '/')
+}
+
+/** Verify tracked programs match the manifest without regenerating them. */
+export function checkEnvPrograms(dir, manifest, options = {}) {
+  return expandEnvPrograms(dir, manifest, { ...options, check: true })
 }
 
 /** A solution makes generated programs discoverable from ordinary source files. */
@@ -519,7 +692,7 @@ export function envSolution(programs: EnvProgram[], dir: string): EnvSolution {
   return {
     files: [],
     references: programs.map(({ configPath }) => ({
-      path: './' + configPath.slice(dir.length + 1).replaceAll('\\', '/'),
+      path: './' + generatedRef(dir, configPath),
     })),
   }
 }

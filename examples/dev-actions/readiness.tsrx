@@ -5,13 +5,16 @@ import { ReadinessScope, useReadinessTask, useReadiness$ } from '@octane-xplat/p
 import { useDevAction } from '@octane-xplat/platform/dev-actions'
 
 function Preview() {
+  // 1. Keep the fixture text and the preparation state in this component.
   const [message, setMessage] = useState('Initial fixture')
   const [pending, setPending] = useState(false)
 
+  // 2. Register the work so readiness follows the pending state.
   useReadinessTask({ label: 'Preparing local fixture', pending })
 
   const readiness$ = useReadiness$()
 
+  // 3. Expose a cancellable action only in development.
   if (import.meta.env.DEV) {
     useDevAction(
       {
@@ -38,11 +41,13 @@ function Preview() {
     )
   }
 
+  // 4. Show preparation while the registered work is pending.
   return <Text>{readiness$.get().status === 'pending' ? 'Preparing…' : message}</Text>
 }
 
 /** Ordinary UI observes readiness; development actions also await it automatically. */
 export function ReadinessExample() {
+  // 5. Give the component an owning scope for its readiness tasks.
   return (
     <ReadinessScope label="Preview">
       <Preview />

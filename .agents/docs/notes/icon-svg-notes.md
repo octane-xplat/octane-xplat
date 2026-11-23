@@ -44,7 +44,7 @@ Node buffer, network service, custom native library, or new UI dependency.
 
 `packages/ui/src/components/media/Image.macos.tsrx` already forwards `src` and styles to the
 AppKit `<image>` host. `makeImageView` and the image `src` update branch in
-`apps/macos/src/renderer/index.mjs` decode base64 data and call
+`apps/harness/macos/src/renderer/index.mjs` decode base64 data and call
 `NSImage.alloc().initWithData(data)`. The public
 [NSImage data initializer](https://developer.apple.com/documentation/appkit/nsimage/init%28data%3A%29)
 is the boundary to use. The observed representation class was

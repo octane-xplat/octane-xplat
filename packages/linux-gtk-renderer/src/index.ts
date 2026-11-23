@@ -1606,7 +1606,7 @@ function onWindowResize() {
     return
   }
 
-  resizeQueued = false
+  resizeQueued = true
   Promise.resolve().then(() => {
     resizeQueued = false
 

@@ -4,7 +4,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 $run=[IO.Path]::GetFullPath($RunRoot)
-$prepared=Join-Path $HostCheckout 'apps/windows/platforms/windows'
+$prepared=Join-Path $HostCheckout 'tools/windows-host/platforms/windows'
 $source=Join-Path $prepared 'windows'
 $project=Join-Path $run 'project'
 if(Test-Path $project){throw 'Use a fresh disposable run directory'}

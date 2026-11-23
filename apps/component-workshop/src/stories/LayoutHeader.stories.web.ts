@@ -1,5 +1,5 @@
 // Uses the maintained LayoutHeaderShowcase example; do not copy its implementation here.
-import { LayoutHeaderShowcase as Example } from '@xplat/astryx-sandbox/examples/layoutheader/LayoutHeaderShowcase.tsrx'
+import { LayoutHeaderShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/layoutheader/LayoutHeaderShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

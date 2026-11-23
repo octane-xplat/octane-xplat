@@ -4,17 +4,20 @@
 	"environments": {
 		"native": {
 			"files": [
-				"src/index.ts"
+				"src/index.ts",
+				"../../examples/tables/interactive.tsrx"
 			]
 		},
 		"web": {
 			"files": [
-				"src/index.web.ts"
+				"src/index.web.ts",
+				"../../examples/tables/interactive.tsrx"
 			]
 		},
 		"macos": {
 			"files": [
-				"src/index.macos.ts"
+				"src/index.macos.ts",
+				"../../examples/tables/interactive.tsrx"
 			]
 		}
 	},

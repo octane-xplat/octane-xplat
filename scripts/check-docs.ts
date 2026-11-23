@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -110,6 +111,24 @@ function anchors(source: string, site: boolean): Set<string> {
   return ids
 }
 
+/** Markdown files visible to the repository — tracked plus unignored
+ *  untracked — resolved to absolute paths. Empty outside a git worktree so
+ *  bare fixture roots exercise only the primary set. */
+function trackedMarkdown(root: string): string[] {
+  try {
+    return execFileSync(
+      'git',
+      ['ls-files', '-co', '--exclude-standard', '-z', '--', '*.md'],
+      { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] },
+    )
+      .split('\0')
+      .filter(Boolean)
+      .map((path) => resolve(root, path))
+  } catch {
+    return []
+  }
+}
+
 export function checkDocumentation(root: string) {
   const errors: string[] = []
   const docs = markdownFiles(resolve(root, 'docs'))
@@ -181,18 +200,34 @@ export function checkDocumentation(root: string) {
     .map((path) => resolve(root, path))
     .filter(existsSync)
 
+  const primary = new Set([...docs, ...readmes, ...supporting])
+
+  // Contributor markdown (.agents, tools, apps, packages beyond READMEs, and
+  // any other tracked .md) gets link validation only — the title, purpose,
+  // and fence-language rules belong to the public surface. Listing tracked
+  // files keeps vendored submodule trees and ignored build output out.
+  // Changelogs and pending release notes stay excluded: they are frozen
+  // history whose links describe the docs as they were, not as they are.
+  const contributor = trackedMarkdown(root).filter(
+    (path) =>
+      !primary.has(path) &&
+      !/^(CHANGELOG[^/]*|FIXLOG)\.md$/.test(basename(path)) &&
+      !path.includes(`${sep}.changelog${sep}`),
+  )
+
   const inventory: DocumentationPage[] = []
 
-  for (const path of [...docs, ...readmes.sort(), ...supporting]) {
+  for (const path of [...docs, ...readmes.sort(), ...supporting, ...contributor]) {
     const name = relative(root, path)
     const source = readFileSync(path, 'utf8')
     const { prose, fences, unclosed } = markdownParts(source)
     const fail = (line: number, message: string) => errors.push(`${name}:${line}: ${message}`)
     const site = docs.includes(path)
+    const strict = primary.has(path)
     const titles = [...prose.matchAll(/^# (.+)$/gm)]
     const titleCount = titles.length + (name === 'README.md' && /<h1>/.test(prose) ? 1 : 0)
 
-    if (titleCount !== 1) {
+    if (strict && titleCount !== 1) {
       fail(1, 'expected one H1 title')
     }
 
@@ -204,9 +239,11 @@ export function checkDocumentation(root: string) {
       fail(unclosed, 'unclosed code fence')
     }
 
-    for (const fence of fences) {
-      if (!fence.language) {
-        fail(fence.line, 'code fence needs a language; use text for output')
+    if (strict) {
+      for (const fence of fences) {
+        if (!fence.language) {
+          fail(fence.line, 'code fence needs a language; use text for output')
+        }
       }
     }
 
@@ -267,7 +304,13 @@ export function checkDocumentation(root: string) {
         const rel = relative(root, target)
 
         if (rel === '..' || rel.startsWith(`..${sep}`)) {
-          fail(line, `link escapes repository: ${href}`)
+          // Contributor docs may intentionally reference sibling checkouts
+          // (e.g. prior-art, Foxtrot studies); out-of-repo targets stay
+          // unverifiable like external URLs.
+          if (strict) {
+            fail(line, `link escapes repository: ${href}`)
+          }
+
           continue
         }
 
@@ -293,7 +336,7 @@ export function checkDocumentation(root: string) {
 
     inventory.push({
       path: name,
-      kind: site ? 'guide' : readmes.includes(path) ? 'package-readme' : 'contributor-or-entry',
+      kind: site ? 'guide' : readmes.includes(path) ? 'package-readme' : strict ? 'contributor-or-entry' : 'contributor',
       lines: source.split('\n').length,
       sections: [...prose.matchAll(/^## (.+)$/gm)].map((m) => m[1]),
       examples: fences.length,

@@ -360,7 +360,7 @@ unlink a reusable kernel-lock file. Cleanup uses retained parent-directory handl
 validates metadata and every planned target before deletion, and reports partial
 effects when later removal fails or cancellation arrives between trees. Keep this
 foreground terminal flow out of a persistent host's event loop. See
-[native cleanup](go/clean.go) and [output ownership](go/project_lock.go).
+[native cleanup](go/internal/commands/clean/clean.go) and [output ownership](go/internal/project/project_lock.go).
 
 Patch inspection/application delegates to the canonical `patches.ts` helper in the
 selected CLI worker. Keep YAML/JSONC selection and comments there; do not maintain

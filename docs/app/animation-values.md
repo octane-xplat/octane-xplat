@@ -248,11 +248,11 @@ choosing a performance-sensitive layout animation.
 
 ## Expand a video thumbnail
 
-The maintained [VideoCropSurface](../../packages/motion/examples/VideoCropSurface.tsrx)
+The maintained [VideoCropSurface](../../examples/motion/video-crop-surface.tsrx)
 example combines one progress value, derived transform/clip values, the shared
 pan owner, reduced motion, and cleanup. Copy it and
-[its geometry helper](../../packages/motion/examples/video-geometry.ts) into your
-app, replacing the relative Motion import with `@octane-xplat/motion`.
+[its geometry helper](../../examples/motion/video-geometry.ts) into the same
+directory in your app.
 Measure all rectangles in one untransformed window plane. `thumbnailImage` is
 the complete image mapping beneath the thumbnail crop; `thumbnailClip` is only
 the visible part. `media` is the contain-fit image rectangle inside `overlay`.
@@ -278,7 +278,7 @@ preserve the displayed image/crop at an intermediate progress value.
 
 ```tsx
 import { Video } from '@octane-xplat/video'
-import { VideoCropSurface } from './VideoCropSurface.tsrx'
+import { VideoCropSurface } from './video-crop-surface.tsrx'
 
 <VideoCropSurface geometry={geometry} onControls={(controls) => controls?.open()} onClosed={() => console.log('Closed')}>
   <Video src={videoUrl} controls={false} style={{ position: 'absolute', left: geometry.media.x, top: geometry.media.y, width: geometry.media.width, height: geometry.media.height }} />

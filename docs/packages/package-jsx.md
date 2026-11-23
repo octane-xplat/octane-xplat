@@ -20,11 +20,32 @@ bun add -D @octane-xplat/jsx
 
 ## Select a JSX source
 
-- Native files select the shared contract — `jsxImportSource` set to
-  `@octane-xplat/jsx` in the target tsconfig, or
-  `/** @jsxImportSource @octane-xplat/jsx */` as the first line of a file.
-- Web files select DOM types explicitly with
-  `/** @jsxImportSource @octane-xplat/jsx/dom */`.
+Native `.tsx` files inherit `@octane-xplat/jsx` from the app or package config.
+
+```json
+{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@octane-xplat/jsx" } }
+```
+
+The TSRX mapper honors the program's JSX source and preserves file-level
+overrides. Xplat lint requires a first-line comment on native `.tsrx` files
+that use raw host elements.
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NativeStatus() {
+  return <label text="Ready" />
+}
+```
+
+In a project with the shared default, a browser leaf uses a first-line comment
+to select HTML and SVG types.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function BrowserStatus() {
+  return <p>Ready</p>
+}
+```
 
 ## Export conditions
 
@@ -43,7 +64,7 @@ access on the handle fails, and the handle is not assignable to a concrete
 platform view — name the concrete host type where the ref is declared. A
 `.ios.tsrx` leaf can use the NativeScript `View` directly:
 
-```tsx
+```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef } from 'octane'
 import type { View } from '@nativescript/core'
@@ -72,7 +93,6 @@ prefer ui's Heading level prop. This addition applies only under macos condition
 establish native heading behavior.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 const heading = <label accessibilityRole="heading" accessibilityHeadingLevel={2} text="Account" />
 ```
 
@@ -82,7 +102,6 @@ placeholder text. Application screens should prefer ui's TextInput
 under macos conditions.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 const search = <textfield hint="Search" placeholderTextColor="#8a8a8e" />
 ```
 
@@ -125,7 +144,6 @@ children or handle keys. UI Toolbar supplies it from its existing `orientation`
 prop. Actual native accessibility behavior remains unqualified.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 export function NamedActions() {
   return <masonview accessibilityRole="toolbar" accessibilityLabel="Actions"
     accessibilityOrientation="horizontal" />

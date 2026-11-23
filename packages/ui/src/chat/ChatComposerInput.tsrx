@@ -316,6 +316,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
     debounceMs,
   })
 
+  const fallbackLineHeight = 22
   const lineDip = (v: any): number => {
     const ios = v?.ios?.font?.lineHeight
 
@@ -329,11 +330,11 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
       return Utils.layout.toDeviceIndependentPixels(px)
     }
 
-    return 22
+    return fallbackLineHeight
   }
 
   const fit = (v: any) => {
-    if (!v) {
+    if (!v?.style) {
       return
     }
 
@@ -394,6 +395,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
         }
       }}
       className="vx-chatinput-editable"
+      style={{ maxHeight: maxRows * fallbackLineHeight }}
       hint={placeholder}
       accessibilityLabel={label}
       isEnabled={!isDisabled}

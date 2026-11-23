@@ -112,13 +112,13 @@ export function createNativeStyle(deps: Dependencies) {
 
     if (deps.registry.isManualLayoutParent(node.layoutParent ?? node.parent)) {
       deactivateSizeConstraints(node)
-      deps.layout.queueLayoutReconcile(node.container, node.parent)
+      deps.layout.queueLayoutReconcile(node.container, node.parent, 'subtree')
       return
     }
 
     applySizeConstraint(node, name)
     if (node.parent) {
-      deps.layout.queueLayoutReconcile(node.container, node.parent)
+      deps.layout.queueLayoutReconcile(node.container, node.parent, 'subtree')
     }
   }
 

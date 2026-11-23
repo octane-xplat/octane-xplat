@@ -28,13 +28,13 @@ its text.
 - AC1: [State ownership](../../../docs/app/primitives.md#grow-a-multiline-field) and maintained [input probes](../../../packages/app/src/Home.tsrx).
 - AC2: [Growth and limits](../../../docs/app/primitives.md#grow-a-multiline-field); input-driven sizing regressions in `packages/ui/src/components/forms/TextArea.web.test.tsrx`.
 
-- AC3: [Growth ownership guide](../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor), [renderer contract](../../../packages/macos-appkit/src/text-view-layout.ts), [lease](../../../packages/macos-appkit/src/text-view-layout.ts), [seven observer models](../../../packages/macos-appkit/test/text-view-layout.test.ts), [three sizing models](../../../packages/macos-appkit/test/text-interaction.test.ts), [destroy integration model](../../../packages/macos-appkit/test/batch-recovery.test.ts), [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/text-entry.md#appkit-multiline-sizing-ownership), [TextArea leaf](../../../packages/ui/src/components/forms/TextArea.macos.tsrx) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence.
+- AC3: [Growth ownership guide](../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor), [renderer contract](../../../packages/macos-appkit/src/text-view-layout.ts), [lease](../../../packages/macos-appkit/src/text-view-layout.ts), [seven observer models](../../../packages/macos-appkit/test/text-view-layout.test.ts), [three sizing models](../../../packages/macos-appkit/test/text-interaction.test.ts), [destroy integration model](../../../packages/macos-appkit/test/batch-recovery.test.ts), [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx), [contributor guide](../guides/primitives/text-entry.md#appkit-multiline-sizing-ownership), [TextArea leaf](../../../packages/ui/src/components/forms/TextArea.macos.tsrx) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence.
 
-- AC4: [macOS task](../../../apps/macos/turbo.json), [existing script](../../../apps/macos/test/verify-text-controls.mts), the command below and the [target note](../exploration.md#operational-evidence). Task/configuration metadata received source/JSON review only; Turbo graph, prerequisites and native execution require separate execution evidence.
+- AC4: [macOS task](../../../tools/macos-verification/turbo.json), [existing script](../../../tools/macos-verification/test/verify-text-controls.mts), the command below and the [target note](../exploration.md#operational-evidence). Task/configuration metadata received source/JSON review only; Turbo graph, prerequisites and native execution require separate execution evidence.
 
 ## macOS verification
 
-The maintained [AppKit text fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx)
+The maintained [AppKit text fixture](../../../tools/macos-verification/test/text-controls-fixture.macos.tsx)
 is authored to exercise controlled/field-owned growth, cap changes, fixed rows,
 explicit height and a scrollable document. It require execution evidence and uses
 synthesized changes, which cannot qualify physical typing or scrolling. The
@@ -43,7 +43,7 @@ uncached because the native fixture has side effects. After this task receives
 explicit human verification authorization, the exact deferred command is:
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit text-controls fixture"}' -- bun run turbo run test:text-controls --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit text-controls fixture"}' -- bun run turbo run test:text-controls --filter=@octane-xplat/macos
 ```
 
 This command require separate execution evidence. Resource admission is not visual-analysis approval.

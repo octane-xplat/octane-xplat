@@ -1,0 +1,37 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/Video.parity.check.ts",
+		"../src/Video.parity.tsrx",
+		"../src/Video.tsrx",
+		"../src/accessibility.ts",
+		"../src/index.ts",
+		"../src/layout-child.ts",
+		"../src/props.ts",
+		"../src/seek-time.ts",
+		"../src/style-merge.ts",
+		"../src/video-chrome.tsrx",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

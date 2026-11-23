@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/probe",
+	"name": "@octane-xplat/probe",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",

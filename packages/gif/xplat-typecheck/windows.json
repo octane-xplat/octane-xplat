@@ -1,0 +1,29 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/AnimatedImage.windows.tsrx",
+		"../src/index.windows.ts",
+		"../src/prefetch.windows.ts",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

@@ -1,0 +1,37 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../macos-appkit/src/host-globals.d.ts",
+		"../src/backend.macos.ts",
+		"../src/index.macos.ts",
+		"../src/photos-runtime.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-library": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/image-manipulator": [
+				"../../image-manipulator/types/generated/index.d.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

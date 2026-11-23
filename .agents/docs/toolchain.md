@@ -3,6 +3,35 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## Shared-host native target locks
+
+The Node and Python wrappers and the mobile navigation checker coordinate
+through the same per-target directory, `<tmpdir>/octane-xplat-target-locks/<target>.lock`.
+Use the same temporary directory across sessions, or set
+`XPLAT_NATIVE_LOCK_DIR` to the same absolute path for every participant.
+Use `ios` and `android` as the target names across worktrees. Keep the
+host resource reservation for builds, devices and desktop input described in
+[package verification](package-verification.md).
+
+Before using a shared device after the cutover, let active native runs finish
+and update every participating checkout. Older Python wrappers use a flat
+`flock` file, so they can start work while a directory lock is held.
+
+From the repository root, choose the wrapper based on how you want it to
+handle a busy target. This inspection example makes no device changes.
+
+```sh
+node scripts/with-target-lock.ts ios --timeout 120 -- xcrun simctl list devices booted
+python3 scripts/with-native-target-lock.py ios xcrun simctl list devices booted
+```
+
+Node waits up to the supplied timeout and waits indefinitely without one.
+Python exits immediately if the target is busy. Both forward interrupts and
+termination to the child and hold the lock until it exits. Wait for the owner
+to finish when the target is busy. Leave lock directories and recovery files
+in place so the next acquirer can recover dead owners and restore displaced
+live locks before starting a command.
+
 ## CLI runtime and executable packaging
 
 The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.
@@ -29,7 +58,17 @@ package reads stay native.
 
 The Go migration uses explicitly started foreground `dev` ownership. Humans or
 instructed agents may start it; app-control clients normally attach to an existing
-server and never implicitly launch a server/app/browser. Private discovery is
+server and never implicitly launch a server/app/browser. A development tool can
+explicitly own a backend-only hub with the stdin lease described in the
+[DevTools guide](../../docs/packages/package-devtools.md#host-a-backend-from-another-development-tool).
+The default macOS `xplat devtools` command downloads the universal release app
+into a per-user cache and launches it with the selected app root. Its build
+lives in `apps/devtools`. Only `--build-panels` uses the project macOS worker
+to compile contributed native panels. An explicit `xplat devtools --web`
+invocation builds the selected app's panel plugins
+with its own Vite toolchain. The running hub serves the result from its private
+per-instance directory and removes it on shutdown.
+Private discovery is
 keyed by canonical app directory, outside tracked project files, with per-start
 instance credentials and authenticated loopback requests. Client disconnect does
 not stop apps. Target-scoped app WebSockets register actual action metadata;
@@ -70,6 +109,10 @@ host assets in the selected project. Keep that platform cost out of the CLI
 tarball and web-only build installations. Go owns staging and final
 publication after the worker finishes.
 
+The macOS JavaScriptCore host forwards `console.info` through its native log
+channel. Keep the host shim and bundle validator aligned. NativeScript Core
+uses this method for informational trace messages.
+
 The published tarball preserves the Vite exports and the bounded `./worker`
 operation through the curated plugin closure; heavy engines are optional peers.
 Native-only installs fetch none of those peers. Native worker/declaration lookup uses the selected project's compatible
@@ -89,10 +132,11 @@ Vite/MCP subpath exports retain per-module ESM for Node consumers.
 
 In-repo `xplat` dispatches to the host's Go build at
 `research/go-cli/xplat-go-<platform>-<arch>-cli`; build it with
-`turbo run build:go --filter=@octane-xplat/cli` (Go 1.27.3,
-`GOTOOLCHAIN=local`; artifacts stay in the ignored `research/go-cli`).
+`turbo run build:go --filter=@octane-xplat/cli` (`GOTOOLCHAIN=local`;
+artifacts stay in the ignored `research/go-cli`). Local builds accept stable
+Go 1.27 patch releases starting at 1.27.3. CI and release builds pin Go 1.27.3.
 Only `xplat` invocations (dev, `routes:watch`) need that binary — install and
-codegen do not: `@xplat/app#gen` runs `planRoutes` off the CLI sources via
+codegen do not: `@octane-xplat/app#gen` runs `planRoutes` off the CLI sources via
 `scripts/gen-routes.ts`, so `bun install` stays Node + Bun only. CI
 provisions Go solely in the lanes that build or contract-check the native
 executable (`ci.yml` `test:go-cli`, `cli-executables.yml`).
@@ -111,7 +155,7 @@ Go 1.27.3 follows the [Go 1.23 Windows symlink behavior](https://go.dev/doc/gode
 directory junctions. Workspace package links use these on Windows. Treating the
 lexical link as a physical package root makes checkout docs discovery walk the
 consumer's `node_modules` instead of the framework repository. The
-[Windows canonical-path adapter](../../packages/cli/go/canonical_windows.go)
+[Windows canonical-path adapter](../../packages/cli/go/internal/osfs/canonical_windows.go)
 opens the target and uses `GetFinalPathNameByHandle`, handling extended DOS and
 UNC names. Keep this local to physical identity instead of changing the process's
 global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mts)
@@ -201,6 +245,22 @@ project depends on directly: `@octane-xplat/cli` depends on
 (depending on the CLI directly) name `@octane-xplat/cli`; repo-internal
 workspace tsconfigs keep `@tsrx/content-mapper` (the root declares it).
 Apps must not be told to install `@tsrx/content-mapper` themselves.
+
+### JSX source selection
+
+The patched TSRX mapper honors the program's `jsxImportSource` and preserves
+an explicit file pragma. Plain `.tsx` reads the setting through TypeScript.
+Platform programs default to `@octane-xplat/jsx` unless their manifest
+overrides it. Keep the first-line
+`/** @jsxImportSource @octane-xplat/jsx */` in TSRX files that use raw native
+host elements because Xplat lint requires it. Use a first-line
+`/** @jsxImportSource @octane-xplat/jsx/dom */` on browser leaves that inherit
+the shared JSX source. Vite's host preset selects the runtime renderer.
+
+Recheck project defaults and file overrides when upgrading the compiler,
+mapper, or patch. See the [platform program reference](platform-typechecking.md)
+for editor coverage and the [public JSX guide](../../docs/packages/package-jsx.md)
+for examples.
 
 The workspace uses Octane 0.17.0 with `@tsrx/oxc` 0.23.0 and
 `@octanejs/vite-plugin` 0.6.0. The parser pin is explicit at the root so a
@@ -344,13 +404,13 @@ experience of agents writing Octane-xplat code effectively.
   Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
-  hashes their files through the no-op task node. `apps/mobile` includes
-  `../../packages/**/*` as roots; `apps/windows` checks app roots and their
+  hashes their files through the no-op task node. `apps/harness` includes
+  `../../packages/**/*` as roots; `tools/windows-host` checks app roots and their
   imported Windows/native package graph. Both apps' `turbo.json` files hash
   all package sources directly so path-mapped imports outside the workspace
   dependency edges still invalidate the check (explicit input globs are
   filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
-  negated there). App packages order `@xplat/app#gen` (routes.gen +
+  negated there). App packages order `@octane-xplat/app#gen` (routes.gen +
   styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
   `test:macos-runtime` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
@@ -377,6 +437,15 @@ experience of agents writing Octane-xplat code effectively.
   fails every transform on an ungenerated checkout, so suites pin the committed
   env manifest and packages running vitest with no config file gain a minimal
   pinned `vitest.config.mts`. `bun run check:vite-tsconfigs` enforces the pin.
+- **Linked app source uses a package-local fallback.** Vite 8.3.6 follows
+  project references during [its built-in transform](https://github.com/vitejs/vite/blob/v8.3.6/packages/vite/src/node/plugins/oxc.ts).
+  With the normal reference discovery, a missing generated program in a
+  linked package can fail the whole build. The shared Vite boundary delegates
+  affected linked files to Vite's Oxc transform with that package's committed
+  env manifest. The rest of the graph retains ordinary discovery and an
+  explicit `tsconfig` still wins. The [linked consumer test](../../packages/cli/test/vite-tsconfig-pin.test.mts)
+  checks this without generating project files. Revisit the fallback when
+  Vite can select a per-module config or handle absent generated references.
 - **App typecheck roots follow the app graph.** The mobile harness includes its
   own source and package ambient declarations; imported framework source is
   checked transitively. Do not root a mobile app program in every package's
@@ -434,6 +503,16 @@ experience of agents writing Octane-xplat code effectively.
   take the classic path (same as before the retarget). The generated check
   config's `tsrx.platform` key is a Volar-plugin option and is inert under
   native tsc.
+- **The Windows harness runs its project typecheck during bundling.** The
+  shared Octane Vite integration currently resolves `@nativescript/vite`
+  8.0.20, whose platform detector does not recognize Windows and whose build
+  checker replaces the project's `.windows` module suffix with `.native`.
+  Source and build diagnostics show that this misses Windows-only modules.
+  `tools/windows-host/vite.config.mts` replaces that checker with the same
+  `tsc --runExternalCode` project check used by the Windows typecheck task;
+  failures still stop the bundle. Revisit this local workaround when the
+  integration resolves a Windows-aware upstream checker. This is build
+  evidence, not Windows runtime qualification.
 - **`@nativescript/vite` 8.0.20/8.0.21 parse top-level import records via Oxc
   (`parseAst`) instead of Babel.** Babel 7.29.9 `skipBlockComment` rescans to
   the next line break for every block comment — ~1.5 s per parse on the ~1.9 MB
@@ -444,7 +523,7 @@ experience of agents writing Octane-xplat code effectively.
   `collectTopLevelImportRecords` implementations and in the dev link-check's
   static-import scan (`collectStaticImportDefaultIntents`), falling back to the
   same Babel parse when Oxc rejects. With it, the iOS simulator completed the
-  cold-server HMR cycle on `apps/mobile` (initial launch, in-place JS edit,
+  cold-server HMR cycle on `apps/harness` (initial launch, in-place JS edit,
   native rebuild) with the Go engine; loader `-1001` retries still occur but
   recover. Upstream: NativeScript#11634. The Windows `pkg.pr.new` abae298
   preview keeps its own unchanged patch file because the regenerated 8.0.21
@@ -597,7 +676,7 @@ experience of agents writing Octane-xplat code effectively.
   isolated layout.** The device loader requests
   `/ns/m/node_modules/source-map-js/lib/source-map-generator.js`, whose URL
   has lost the importing core package's location. The HTTP route returns
-  404 in both `apps/mobile` and a small linked fixture, and an actual Android
+  404 in both `apps/harness` and a small linked fixture, and an actual Android
   app fails before its entry runs. The file exists and resolves from core's
   canonical package path. `native` narrowly aliases this SDK-emitted
   HTTP prefix to core's installed dependency; ordinary bare app imports are
@@ -636,7 +715,7 @@ experience of agents writing Octane-xplat code effectively.
   for the importer. Packages found only in the package managers' hidden
   hoists (`node_modules/.pnpm/node_modules/`, bun's
   `node_modules/.bun/node_modules/`) do not count as installed. Without that
-  exclusion, `apps/windows`' full MasonKit disabled the mobile
+  exclusion, `tools/windows-host`' full MasonKit disabled the mobile
   MasonKit-to-core alias, and iOS dev boot threw
   `MasonListDelegate is not defined`. The regressions live in
   `packages/cli/test/vite-deps-alias.test.mts`. Remove this hunk when upstream
@@ -826,7 +905,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   package root — `ns prepare` needs them there.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
-- `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR
+- `apps/harness` needs `@valor/nativescript-websockets` — the on-device HMR
   transport that `virtual:entry-with-polyfills` imports in dev.
 - iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
   (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the
@@ -967,11 +1046,11 @@ Octane transforms still rendered the app, and all seven route edit/add/rename/re
 configured-context and manifest DOM assertions passed without browser errors.
 
 ```sh
-bun run --filter @xplat/web smoke:routing-watch
+bun run --filter @octane-xplat/web smoke:routing-watch
 ```
 
 Evidence is the maintained temporary TSX fixture in
-`apps/web/scripts/routing-watch.mts`, its local run and the public JSX export map
+`tools/web-verification/scripts/routing-watch.mts`, its local run and the public JSX export map
 in `packages/jsx/package.json`. This establishes the narrow warning; it does not
 establish a general failure of web development or attribute a defect to a specific
 upstream implementation. No dependency-discovery disabling, runtime facade shim

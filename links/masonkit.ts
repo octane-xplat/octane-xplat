@@ -55,7 +55,7 @@ try {
     // Bun links this out-of-workspace dist without installing its dependencies
     // there. Resolve the consumer's declared copies so native discovery and
     // Vite follow the same dependency graph through the external package.
-    const consumer = createRequire(join(root, 'apps/mobile/package.json'))
+    const consumer = createRequire(join(root, 'apps/harness/package.json'))
     const manifest = JSON.parse(readFileSync(join(dist, 'package.json'), 'utf8'))
 
     for (const dependency of Object.keys(manifest.dependencies ?? {})) {

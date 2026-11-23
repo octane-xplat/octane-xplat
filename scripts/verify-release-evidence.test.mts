@@ -450,6 +450,22 @@ test('stable verification reports none — not an error — when no run carried 
   })
 })
 
+test('a cancelled Stable CI run sends the merged tree to inline qualification', () => {
+  withGithubFixture(({ execute, output, responses, data }) => {
+    const base = `repos/${repository}/actions`
+
+    responses[`${base}/runs/200`].conclusion = 'cancelled'
+    delete responses[`${base}/runs/200/jobs?filter=latest&per_page=100`]
+    writeFileSync(data, JSON.stringify(responses))
+
+    const run = execute(['--tree', tree])
+
+    assert.equal(run.status, 0, run.stderr)
+    assert.match(run.stdout, /Stable CI run 200 was cancelled/)
+    assert.equal(readFileSync(output, 'utf8'), 'channel=none\nsha=\n')
+  })
+})
+
 test('stable verification still rejects forged evidence for the searched tree', () => {
   withGithubFixture(({ execute, responses, data }) => {
     const run = { ...responses[`repos/${repository}/actions/runs/200`], head_branch: 'main' }
@@ -476,19 +492,55 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
   assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
 
-  const stableSteps = stable.jobs['stable-checks'].steps
-  const browserInstall = stableSteps.findIndex((step) =>
-    step.run?.includes('playwright install --with-deps chromium'),
+  assert.deepEqual(
+    Object.keys(stable.jobs).sort(),
+    [...RELEASE_TRACKS.stable.jobs, 'evidence'].sort(),
   )
 
-  const packedSuites = stableSteps.findIndex((step) => step.run?.includes('turbo run test:packed'))
+  const stableCommands = stable.jobs['stable-checks'].steps.map((step) => step.run ?? '')
+  const packedSuites = stableCommands.find((command) => command.includes('turbo run test:packed'))
 
-  assert.ok(browserInstall >= 0 && packedSuites > browserInstall)
-  assert.equal(stableSteps[browserInstall]['working-directory'], 'apps/web')
-  assert.ok(!stableSteps[packedSuites].run.includes('!@octane-xplat/web-host'))
-  assert.ok(!ci.jobs.checks.steps.some((step) => step.run?.includes('playwright install')))
+  assert.ok(packedSuites)
+  assert.match(packedSuites, /--filter='!@octane-xplat\/web-host'/)
+  assert.match(packedSuites, /--filter='!@octane-xplat\/workshop'/)
+  assert.ok(stableCommands.includes('bun run check:consumer --no-build --quick'))
+
+  for (const platform of ['ios', 'android']) {
+    const commands = stable.jobs[`native-${platform}`].steps.map((step) => step.run ?? '')
+    assert.deepEqual(
+      commands.filter((command) => command.includes('scripts/verify-consumer.ts')),
+      [
+        `node scripts/with-target-lock.ts ${platform} -- node scripts/verify-consumer.ts --no-build --native-build-only --native ${platform}`,
+      ],
+    )
+  }
+
+  for (const workflow of [ci, stable, release]) {
+    for (const job of Object.values(workflow.jobs)) {
+      for (const step of job.steps ?? []) {
+        assert.doesNotMatch(
+          step.run ?? '',
+          /playwright install|simctl|\b(?:test:e2e|test:maestro|test:ios|test:android)\b|--smoke(?:-ios|\s+web)/,
+        )
+      }
+    }
+  }
 
   const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
+  const unitTests = commands.find((command) => command.includes('turbo run test test:native'))
+
+  assert.ok(unitTests)
+  assert.match(unitTests, /--filter='!@octane-xplat\/visual'/)
+
+  assert.ok(
+    commands.some(
+      (command) =>
+        command.includes('turbo run typecheck') &&
+        command.includes('--filter=@octane-xplat/component-workshop'),
+    ),
+    'CI must typecheck workshop stories against their sandbox dependency',
+  )
+
   const prepared = commands.indexOf('bun run build:packages')
   const checked = commands.indexOf('bun run check:pack')
   const smoke = commands.indexOf('bun run check:consumer --no-build --quick')
@@ -513,7 +565,12 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 
   assert.equal(release.jobs.qualify.uses, './.github/workflows/stable.yml')
   assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
-  assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'qualify'])
+  const stableDevtools = release.jobs['stable-devtools']
+  assert.deepEqual(dependencies(stableDevtools), ['gate', 'qualify'])
+  assert.match(stableDevtools.if, /needs\.qualify\.result == 'success'/)
+  assert.equal(stableDevtools.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
+  assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'stable-devtools'])
+  assert.match(release.jobs.lockstep.if, /needs\.stable-devtools\.result == 'success'/)
   assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'ci'")
   assert.match(release.jobs['tsrx-typegen'].if, /needs\.tsrx-typegen-resume\.result == 'success'/)
   assert.deepEqual(dependencies(release.jobs['tsrx-typegen']), ['gate', 'tsrx-typegen-resume'])

@@ -26,8 +26,8 @@ selects an image with the media package. Crop selection is a separate workflow.
 
 ## Documentation
 
-- AC1: [WebP encoding](../../../docs/packages/package-image-manipulator.md#encode-webp), [maintained encoding helper](../../../packages/image-manipulator/examples/webp.ts), [First use](../../../docs/packages/package-image-manipulator.md) and [direct transformations](../../../docs/packages/package-image-manipulator.md#crop-a-selection).
-- AC2: [Crop a selection](../../../docs/packages/package-image-manipulator.md#crop-a-selection) and [maintained export helper](../../../packages/image-manipulator/examples/crop.ts).
+- AC1: [WebP encoding](../../../docs/packages/package-image-manipulator.md#encode-webp), [maintained encoding helper](../../../examples/media/encode-webp.ts), [First use](../../../docs/packages/package-image-manipulator.md) and [direct transformations](../../../docs/packages/package-image-manipulator.md#crop-a-selection).
+- AC2: [Crop a selection](../../../docs/packages/package-image-manipulator.md#crop-a-selection) and [maintained export helper](../../../examples/media/crop-image.ts).
 - AC3: [Resource ownership](../../../docs/packages/package-image-manipulator.md#own-contexts-pixels-and-files).
 - AC4: [Component context ownership](../../../docs/packages/package-image-manipulator.md#use-a-context-in-a-component).
 - AC5: [Platform and failure behavior](../../../docs/packages/package-image-manipulator.md#platforms-and-failure-behavior) and [verification record](../notes/image-manipulator.md).

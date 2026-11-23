@@ -163,7 +163,7 @@ was not tested.
 **Component runtime:** the 20-assertion `examples/probes/lottie.macos.tsrx` mounts the public
 component, checks its ref and window-attached view, exercises loaded, seek,
 play/pause/end, speed, loop, error, and unmount cleanup. It runs as part of
-`bun run turbo run smoke:macos --filter=@xplat/verification`. Neither fixture captures or inspects a screenshot.
+`bun run turbo run smoke:macos --filter=@octane-xplat/verification`. Neither fixture captures or inspects a screenshot.
 
 The original feasibility run showed that a detached host view would not play.
 The passing fixture attaches to a hidden `NSWindow`, without ordering it

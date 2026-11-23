@@ -10,14 +10,19 @@ import {
 import { ToggleButton, ToggleButtonGroup } from './ToggleButton.macos.tsrx'
 import { openUrl } from '@octane-xplat/platform'
 
-vi.mock('@octane-xplat/platform', async (original) => ({
-  ...(await original<typeof import('@octane-xplat/platform')>()),
-  openUrl: vi.fn(),
+vi.mock('@octane-xplat/platform', () => ({ openUrl: vi.fn() }))
+vi.mock('./Pressable.macos.tsrx', () => import('../../../tests/button-pressable-mock.macos.tsrx'))
+vi.mock('../feedback/ActivityIndicator.macos.tsrx', async () => ({
+  ActivityIndicator: (await import('../layout/Spacer.tsrx')).Spacer,
 }))
 
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const driver = createObjectDriver('nativescript')
+
+  driver.events = { classify: () => null }
+
+  const root = createUniversalRoot(container, driver)
   const render = (next: any) => {
     root.render(component, next)
     flushUniversalSync(() => {})
@@ -78,13 +83,19 @@ it('toggles optimistically before the save action, reports busy and rejects same
     expect(host.props.accessibilityState).toMatchObject({
       pressed: true,
       busy: true,
-      disabled: true,
+      disabled: undefined,
     })
 
     expect(host.props.testID).toBe('pin')
     expect(
       env.all().some((node) => String(node.props?.className).includes('vx-button-spinner')),
-    ).toBe(true)
+    ).toBe(false)
+    await vi.waitFor(() => {
+      flushUniversalSync(() => {})
+      expect(
+        env.all().some((node) => String(node.props?.className).includes('vx-button-spinner')),
+      ).toBe(true)
+    })
 
     task.resolve()
     await vi.waitFor(() => {
@@ -385,9 +396,9 @@ it('a throwing accepted toggle notification preserves local intent and skips its
   try {
     const press = env.buttons()[0].props.onTap
 
-    press()
+    expect(press).toThrow(failure)
     flushUniversalSync(() => {})
-    expect(errors).toHaveBeenCalledWith(failure)
+    expect(errors).not.toHaveBeenCalled()
     expect(save).not.toHaveBeenCalled()
     expect(env.buttons()[0].props.accessibilityState.pressed).toBe(true)
     env.render({ label: 'Pin', pressedChangeAction: save, onActionError: errors })

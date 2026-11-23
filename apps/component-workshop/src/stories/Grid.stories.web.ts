@@ -1,5 +1,5 @@
 // Uses the maintained GridShowcase example; do not copy its implementation here.
-import { GridShowcase as Example } from '@xplat/astryx-sandbox/examples/grid/GridShowcase.tsrx'
+import { GridShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/grid/GridShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

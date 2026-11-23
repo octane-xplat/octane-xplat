@@ -158,6 +158,7 @@ try {
             external: [
               /^octane(?:\/|$)/,
               /^@nativescript(?:-community)?\//,
+              /^@octane-xplat\/nativescript-octane/,
               /^@octane-xplat\/macos-appkit/,
               'vitest',
             ],
@@ -176,7 +177,7 @@ try {
       }
     }
 
-    const subpaths = ['', '/host', '/host/web', '/host/services', '/dev-actions']
+    const subpaths = ['', '/dev-actions']
 
     if (target === 'native') {
       subpaths.push('/testing')
@@ -280,7 +281,7 @@ try {
     const selectedService =
       target === 'macos'
         ? 'storage.macos.ts'
-        : `clipboard${target === 'native' ? '' : `.${target}`}.ts`
+        : `clipboard${target === 'native' ? '' : '.web'}.ts`
 
     assert.ok(
       result.files.includes(`${installed}/src/${selectedService}`),

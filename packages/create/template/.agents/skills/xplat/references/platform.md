@@ -45,8 +45,11 @@ export function UnlockTrip() {
 
 ## Write a platform file when behavior differs
 
-Split the file when a feature needs browser or OS APIs. Import the component
-without a suffix; the bundler selects the matching implementation.
+Split the file when a feature needs browser or OS APIs. Use the unsuffixed
+name with the `.tsrx` extension so the checker and build can select the
+implementation.
+The default can use native APIs if it only runs on native. Keep host-specific
+globals out of code that runs on several platforms.
 
 ```text
 src/parts/Scanner.web.tsrx      browser implementation
@@ -56,18 +59,40 @@ src/parts/Scanner.tsrx          native default
 ```
 
 ```tsrx
-import { Scanner } from './parts/Scanner'
+import { Scanner } from './parts/Scanner.tsrx'
 
 export function ScanScreen() { return <Scanner /> }
 ```
 
-Native JSX files start with the shared JSX facade pragma on line 1. Import native
-APIs from `@nativescript/core`, and read app lifecycle state inside the call
-rather than during module initialization. This example belongs in
-`Status.mobile.tsrx`:
+Expose the same names and public types from every implementation. Define
+props once in a shared file and import that type in the default and all leaves.
+Use a separately named helper when sibling implementations share code. An
+import of `./Scanner.tsrx` from `Scanner.ios.tsrx` can resolve back to itself
+in the iOS program.
+
+## Check each platform
+
+Keep leaves covered by their entries in `tsconfig.envs.json`. Run the app's
+typecheck after changing that manifest, its source roots, or the dependencies
+it resolves. Commit the regenerated `xplat-typecheck/` files and keep the
+root `tsconfig.json` references pointing to them.
+
+```sh
+bun run typecheck
+```
+
+Ambient SDK declarations apply to the entire program. A shared file in the
+editor normally shows one platform program's diagnostics. Use the app's
+typecheck to check every configured program. See the
+[editor setup guide](https://octane-xplat.goddardai.org/module-resolution#editor-project-context)
+when a leaf is missing from the editor's project.
+
+Native `.tsx` files inherit the shared types from the app config. Keep the
+first-line shared pragma on `.tsrx` files that use native host elements. Import
+native APIs from `@nativescript/core` and read app lifecycle state when the
+handler runs. Place this shared-component example in `Status.mobile.tsrx`.
 
 ```tsrx
-/** @jsxImportSource @octane-xplat/jsx */
 import { Application } from '@nativescript/core'
 import { Pressable, Text } from '@octane-xplat/ui'
 

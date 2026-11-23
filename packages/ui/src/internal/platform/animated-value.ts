@@ -14,7 +14,7 @@ export type OwnedAnimatedValue = AnimatedValue & { dispose(): void }
 export function createAnimatedValue(initial: number, host: AnimationHost): OwnedAnimatedValue {
   let current = initial
   let view: any = null
-  let frame = 0
+  let frame: number | undefined
   let generation = 0
   let disposed = false
   let settle: ((result: AnimationResult) => void) | undefined
@@ -27,8 +27,10 @@ export function createAnimatedValue(initial: number, host: AnimationHost): Owned
 
   const stop = () => {
     generation++
-    host.cancel(frame)
-    frame = 0
+    if (frame !== undefined) {
+      host.cancel(frame)
+      frame = undefined
+    }
     settle?.({ status: 'cancelled' })
     settle = undefined
   }
@@ -57,7 +59,7 @@ export function createAnimatedValue(initial: number, host: AnimationHost): Owned
           return
         }
 
-        frame = 0
+        frame = undefined
         try {
           const value = host.reducedMotion?.() ? null : step(Math.max(0, host.now() - start))
 

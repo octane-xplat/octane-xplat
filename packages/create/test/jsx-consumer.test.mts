@@ -222,9 +222,9 @@ test('library creator keeps declaration and environment programs on the facade',
     source,
   )
 
-  assert.match(
+  assert.doesNotMatch(
     readFileSync(join(app, 'src/Badge.tsx'), 'utf8'),
-    /^\/\*\* @jsxImportSource @octane-xplat\/jsx \*\//,
+    /@jsxImportSource/,
   )
 
   assert.match(

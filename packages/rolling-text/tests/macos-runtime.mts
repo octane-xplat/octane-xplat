@@ -15,7 +15,7 @@ import {
 } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
-const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
+const appRoot = fileURLToPath(new URL('../../../tools/macos-verification', import.meta.url))
 const human = process.argv.includes('--human-reduced-motion')
 const buildOnly = process.argv.includes('--build-only')
 const runName = human ? 'runHumanReducedMotion' : 'runRollingText'

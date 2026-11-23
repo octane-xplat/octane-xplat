@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -88,6 +89,33 @@ test('code and comments do not create links or headings; reference destinations 
 
   assert.equal(errors.length, 1)
   assert.match(errors[0], /missing local target: missing.md/)
+})
+
+test('tracked contributor docs get link checks without public structure rules', (t) => {
+  const root = fixture(t, {
+    'docs/README.md': '# Project\n\n> Build an app.\n',
+    '.agents/README.md': '# Agents\n\n[Guide](docs/guide.md)\n',
+    '.agents/docs/guide.md':
+      'No title needed.\n\n```\nplain fence\n```\n\n[OK](../README.md)\n[Missing](gone.md)\n[Sibling](../../../outside/checkout.md)\n',
+  })
+
+  execFileSync('git', ['init'], { cwd: root })
+
+  const errors = checkDocumentation(root).errors.join('\n')
+
+  assert.match(errors, /\.agents\/docs\/guide\.md:\d+: missing local target: gone\.md/)
+  assert.doesNotMatch(errors, /guide\.md:\d+: expected one H1/)
+  assert.doesNotMatch(errors, /guide\.md:\d+: code fence needs a language/)
+  assert.doesNotMatch(errors, /escapes repository/)
+})
+
+test('untracked contributor docs outside a worktree stay uncovered', (t) => {
+  const root = fixture(t, {
+    'docs/README.md': '# Project\n\n> Build an app.\n',
+    '.agents/docs/guide.md': '# Guide\n\n[Missing](gone.md)\n',
+  })
+
+  assert.deepEqual(checkDocumentation(root).errors, [])
 })
 
 test('duplicate slugs and malformed fences fail', (t) => {

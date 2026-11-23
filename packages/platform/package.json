@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/platform",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Headless platform capabilities for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
@@ -43,6 +43,14 @@
 		"./testing": {
 			"types": "./types/generated/testing.mobile.d.ts",
 			"native": "./src/testing.mobile.ts"
+		},
+		"./motion-clock": {
+			"types": "./types/generated/motion-clock.d.ts",
+			"default": "./src/motion-clock.ts"
+		},
+		"./motion/dev": {
+			"types": "./types/generated/motion-dev.d.ts",
+			"default": "./src/motion-dev.ts"
 		},
 		"./dev-actions": {
 			"types": "./types/generated/dev-actions.d.ts",

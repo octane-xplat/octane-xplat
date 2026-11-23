@@ -12,8 +12,8 @@ concurrency:
 
 jobs:
   # Release readiness: deterministic regressions, package integrity, and one
-  # isolated packed web starter. Exhaustive consumers and devices qualify
-  # stable on the release pull request in stable.yml.
+  # isolated packed web starter. Stable CI adds packed consumers and native
+  # compilation on the release pull request.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -66,23 +66,24 @@ jobs:
       - name: Repo checks
         run: >-
           bun run check:compatibility && bun run check:patches && bun run turbo run check:ui-barrels --filter=@octane-xplat/ui && bun run check:css &&
-          bun run check:changelog && bun run check:doc-examples
+          bun run check:vendored && bun run check:vite-tsconfigs && bun run check:envs && bun run check:changelog && bun run check:doc-examples
 
-      - name: Typecheck web
-        run: bun run turbo run typecheck --filter=@xplat/web
+      # Workshop stories import the sandbox through its package exports. Keep
+      # their framework API compatibility checked without launching a browser.
+      - name: Typecheck web and workshop
+        run: bun run turbo run typecheck --filter=@octane-xplat/web --filter=@octane-xplat/component-workshop
 
       - name: Typecheck mobile
-        run: bun run turbo run typecheck --filter=@xplat/mobile
+        run: bun run turbo run typecheck --filter=@octane-xplat/mobile
 
-      # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
-      # it runs locally via the same `bun run test` script.
+      # Invoke the visual workspace's browser suite explicitly on a test host.
       - name: Test
         run: >-
-          bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
+          bun run turbo run test test:native --concurrency=2 --filter='!@octane-xplat/visual' &&
           node --test examples/auth/server-verification.test.mts && bun run test:scripts
 
       - name: Build web app
-        run: bun run turbo run build --filter=@xplat/web
+        run: bun run turbo run build --filter=@octane-xplat/web
 
       # Runtime packages ship source; prepare declarations and required assets.
       - name: Prepare packages
@@ -109,8 +110,8 @@ jobs:
         run: bun run check:optional-services --types-only
 
       # Real tarballs, isolated install, plain TypeScript declarations, and
-      # starter web compilation. Full app/library journeys gate stable.
-      - name: Packed web consumer smoke
+      # starter web compilation.
+      - name: Verify packed web starter install and compilation
         run: bun run check:consumer --no-build --quick
 
   repo-hygiene:

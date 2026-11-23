@@ -18,7 +18,7 @@ it('falls back to the native clip when its animator proxy cannot scroll', () => 
   expect(clip.scrollToPoint).toHaveBeenCalledWith({ x: 0, y: 500 })
 })
 
-it('separates unflipped range drift from manual clip movement and releases notification ownership', () => {
+it.each(['AppKit', 'Core'])('reads %s clip movement and releases notification ownership', (renderer) => {
   const callbacks = new Set<() => void>()
 
   vi.stubGlobal('NSNotificationCenter', {
@@ -48,7 +48,8 @@ it('separates unflipped range drift from manual clip movement and releases notif
     documentView: { frame: { size: { width: 400, height: 1000 } }, flipped: false },
   }
 
-  const scroll = chatHost.scroll(host),
+  const ref = renderer === 'Core' ? { nativeViewProtected: host } : host
+  const scroll = chatHost.scroll(ref),
     first = vi.fn(),
     second = vi.fn()
 

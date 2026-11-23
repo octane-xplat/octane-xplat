@@ -1,0 +1,46 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/media/image-attachment.ts",
+		"../src/backend-types.ts",
+		"../src/backend.photos.ts",
+		"../src/backend.web.ts",
+		"../src/core.ts",
+		"../src/index.web.ts",
+		"../src/observer.photos.ts",
+		"../src/photos-runtime-types.ts",
+		"../src/photos-runtime.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"../src/use-permissions.tsx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-library": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/image-manipulator": [
+				"../../image-manipulator/types/generated/index.d.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

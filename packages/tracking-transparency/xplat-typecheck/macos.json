@@ -1,0 +1,33 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../macos-appkit/src/host-globals.d.ts",
+		"../src/backend.macos.ts",
+		"../src/index.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/tracking-transparency": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

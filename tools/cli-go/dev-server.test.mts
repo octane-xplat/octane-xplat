@@ -169,7 +169,11 @@ function record(f) {
 }
 
 function start(f, args = []) {
-  const child = spawn(binary, ['dev', '--targets', 'web', ...args], {
+  return startCLI(f, ['dev', '--targets', 'web', ...args])
+}
+
+function startCLI(f, args) {
+  const child = spawn(binary, args, {
     cwd: f.app,
     env: f.env,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -567,17 +571,22 @@ test(
  import {registerDevAction,startDevActionBridge} from './dev-actions-registry';
  let origin='';export function setOrigin(value){origin=value}
  let calls=0;
+ let waits=0;let finishWait;
  const action=registerDevAction({id:'fixture.read',title:'Read fixture',description:'Read fixture state',effects:{summary:'Reads state'},input:{fields:{value:{type:'string',pattern:'(?<=a)b',default:'ab'},emoji:{type:'string',maxLength:2,default:'😀'}}},result:{fields:{value:{type:'integer'},echoed:{type:'string'}}},run:(input)=>({value:++calls,echoed:input.value+input.emoji})});
  const others=[
  registerDevAction({id:'fixture.mapped',title:'Mapped failure',description:'Throws from a real served module',effects:{summary:'Local fixture only'},run:async()=>{const source=await(await fetch(origin+'mapped.ts')).text();vm.runInNewContext(source,{}, {filename:origin+'mapped.ts'})}}),
  registerDevAction({id:'fixture.bad',title:'Bad result',description:'Returns an invalid result',effects:{summary:'Local fixture'},result:{fields:{value:{type:'integer'}}},run:()=>{calls++;return {value:'wrong'}}}),
  registerDevAction({id:'fixture.external',title:'Declared external',description:'Local counter with external declaration',effects:{summary:'Local fixture only',externalEffects:true},result:{fields:{value:{type:'integer'}}},run:()=>({value:++calls})}),
+ registerDevAction({id:'fixture.unready',title:'Unavailable',description:'Declines while fixture is unready',availability:{ready:()=>({ready:false,reason:'Fixture is unready'})},effects:{summary:'Would change the counter'},run:()=>{calls++;return {}}}),
+ registerDevAction({id:'fixture.wait',title:'Wait for fixture',description:'Completes after an explicit fixture signal',effects:{summary:'Local wait'},result:{fields:{value:{type:'integer'}}},run:()=>new Promise(resolve=>{const value=++waits;finishWait=()=>resolve({value})})}),
  registerDevAction({id:'fixture.slow',title:'Cancellable',description:'Waits for cooperative cancellation',effects:{summary:'Local wait'},execution:{cancellable:true,timeoutMs:1000},run:(_input,context)=>new Promise((_resolve,reject)=>context.signal.addEventListener('abort',()=>reject(Object.assign(new Error('cancelled'),{name:'AbortError'})),{once:true}))}),
  registerDevAction({id:'fixture.drop',title:'Disconnect',description:'Drops only its app socket after a local effect',effects:{summary:'Local fixture effect'},result:{fields:{value:{type:'integer'}}},run:async()=>{const value=++calls;setTimeout(()=>globalThis['octane-xplat.dev-actions'].bridge.socket.close(),30);await new Promise(resolve=>setTimeout(resolve,1000));return {value}}})
  ];
  let bridge=startDevActionBridge({appLabel:'Real framework registry'});
  export function clear(){action.dispose();for(const other of others)other.dispose()}
  export function count(){return calls}
+ export function waitCount(){return waits}
+ export function releaseWait(){finishWait()}
  export function stop(){bridge.stop()}
  export function reconnect(){bridge=startDevActionBridge({appLabel:'Real framework registry'})}
  `,
@@ -589,7 +598,7 @@ test(
       `import {devBridge} from '@octane-xplat/cli/vite';
  export default {server:{host:'127.0.0.1',port:0},plugins:[devBridge(),{name:'real-app-debug',configureServer(server){let app;
  server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.then(value=>value.setOrigin('http://127.0.0.1:'+server.httpServer.address().port+'/')).catch(error=>console.error(error.message))});
- server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/count':'count','/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{const value=(await app)[operation]();res.end(value===undefined?'ok':JSON.stringify(value))}catch(error){res.statusCode=500;res.end(error.message)}})
+ server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/count':'count','/fixture/waits':'waitCount','/fixture/release':'releaseWait','/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{const value=(await app)[operation]();res.end(value===undefined?'ok':JSON.stringify(value))}catch(error){res.statusCode=500;res.end(error.message)}})
  }}]}
  `,
     )
@@ -693,7 +702,7 @@ test(
     )
 
     if (process.env.XPLAT_GO_BROWSER_LOGS === '1') {
-      const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+      const requireWeb = createRequire(join(root, 'tools/web-verification/package.json'))
       const browser = await requireWeb('playwright').chromium.launch({ headless: true })
 
       try {
@@ -790,12 +799,15 @@ test(
 
     const finished = async (accepted) => {
       assert.equal(accepted.status, 0, JSON.stringify(accepted.error))
+      return jobFinished(accepted.data.job.jobId)
+    }
 
+    const jobFinished = async (id) => {
       let job
 
       await until(
         () => {
-          job = cli(f, ['actions', 'status', accepted.data.job.jobId]).data?.job
+          job = cli(f, ['actions', 'status', id]).data?.job
           return job && !['queued', 'running', 'cancelling'].includes(job.state)
         },
         'action did not finish',
@@ -841,6 +853,89 @@ test(
 
     assert.equal(await count(), 1)
 
+    const run = (id, ...options) => cli(f, ['actions', 'run', '--action', id, ...options])
+    const repeatedRun = run('fixture.read', '--target', 'web', '--request-key', 'read-once')
+
+    assert.equal(repeatedRun.status, 0, JSON.stringify(repeatedRun.error))
+    assert.deepEqual(repeatedRun.data, cli(f, ['actions', 'status', success.jobId]).data)
+    assert.equal(repeatedRun.data.registryRevision, registered.revision)
+    assert.equal(await count(), 1, 'actions run replayed a known request key')
+    assert.equal(
+      run('fixture.read', '--request-key', 'read-once', '--input', '{"value":"ab","emoji":"x"}')
+        .error.code,
+      'stale_identity',
+    )
+    assert.equal(
+      run('fixture.read', '--target', 'ios', '--instance', registered.appInstanceId).error.code,
+      'unavailable',
+    )
+    assert.equal(run('fixture.missing').error.code, 'invalid_selection')
+    assert.equal(run('fixture.read', '--input', '[]').error.code, 'invalid_selection')
+    assert.match(run('fixture.unready').error.message, /Fixture is unready/)
+    assert.equal(run('fixture.external').error.code, 'permission_denied')
+    assert.equal(await count(), 1, 'a rejected run dispatched a handler')
+
+    const failedRun = run('fixture.mapped', '--request-key', 'mapped-failure')
+
+    assert.equal(failedRun.status, 5)
+    assert.equal(failedRun.error.code, 'execution_failure')
+    assert.equal(failedRun.error.context.jobId, mapped.jobId)
+    assert.deepEqual(failedRun.error.context.job, mapped)
+
+    const waitCount = async () => (await fetch(address + 'fixture/waits')).json()
+    const completing = startCLI(f, ['actions', 'run', '--action', 'fixture.wait', '--json'])
+
+    await until(async () => (await waitCount()) === 1, 'action did not start')
+    assert.equal(completing.ended, false, 'actions run returned before the handler finished')
+    assert.equal((await fetch(address + 'fixture/release')).status, 200)
+    assert.deepEqual(await completing.completion, { code: 0, signal: null })
+    assert.equal(completing.stderr, '')
+    const completed = JSON.parse(completing.stdout)
+
+    assert.equal(completed.data.appInstanceId, registered.appInstanceId)
+    assert.equal(completed.data.registryRevision, registered.revision)
+    assert.deepEqual(completed.data.job.result.outcome.result, { value: 1 })
+
+    const timeout = run(
+      'fixture.wait',
+      '--instance',
+      registered.appInstanceId,
+      '--request-key',
+      'timed-run',
+      '--timeout-ms',
+      '100',
+    )
+
+    assert.equal(timeout.status, 7)
+    assert.equal(timeout.error.code, 'timeout')
+    const timedOutId = timeout.error.context.jobId
+
+    assert.match(timeout.error.recovery.action, new RegExp(`actions status ${timedOutId}`))
+    await until(async () => (await waitCount()) === 2, 'timed-out action did not start')
+    assert.equal((await fetch(address + 'fixture/release')).status, 200)
+    const recovered = run('fixture.wait', '--request-key', 'timed-run')
+
+    assert.equal(recovered.status, 0, JSON.stringify(recovered.error))
+    assert.equal(recovered.data.job.jobId, timedOutId)
+    assert.deepEqual(recovered.data.job.result.outcome.result, { value: 2 })
+    assert.equal(await waitCount(), 2, 'recovering the timed-out action replayed it')
+
+    if (process.platform !== 'win32') {
+      const waiting = startCLI(f, ['actions', 'run', '--action', 'fixture.wait', '--json'])
+
+      await until(async () => (await waitCount()) === 3, 'interrupt fixture did not start')
+      assert.deepEqual(await stop(waiting), { code: 8, signal: null })
+      assert.equal(waiting.stderr, '')
+      const interrupted = JSON.parse(waiting.stdout)
+
+      assert.equal(interrupted.error.code, 'cancelled')
+      const interruptedId = interrupted.error.context.jobId
+
+      assert.equal(cli(f, ['actions', 'status', interruptedId]).data.job.state, 'running')
+      assert.equal((await fetch(address + 'fixture/release')).status, 200)
+      assert.deepEqual((await jobFinished(interruptedId)).result.outcome.result, { value: 3 })
+    }
+
     const repeated = invoke('fixture.read', 'read-once')
 
     assert.equal(repeated.data.job.jobId, accepted.data.job.jobId)
@@ -882,6 +977,10 @@ test(
 
     assert.equal(cancelled.state, 'cancelled')
     assert.equal(cancelled.result.outcome.status, 'cancelled')
+    const cancelledRun = run('fixture.slow', '--request-key', 'cancel-once')
+
+    assert.equal(cancelledRun.status, 8)
+    assert.deepEqual(cancelledRun.error.context.job, cancelled)
 
     const dropped = invoke('fixture.drop', 'drop-once')
     const unknown = await finished(dropped)
@@ -1000,7 +1099,7 @@ test(
       () => owned.stdout + ' ' + owned.stderr,
     )
 
-    const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+    const requireWeb = createRequire(join(root, 'tools/web-verification/package.json'))
     const browser = await requireWeb('playwright').chromium.launch({ headless: true })
     let retainedId
 

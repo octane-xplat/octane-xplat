@@ -1,0 +1,50 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../src/Gesture.macos.tsrx",
+		"../src/Guide.macos.tsrx",
+		"../src/ImageCrop.tsrx",
+		"../src/Source.macos.tsrx",
+		"../src/index.macos.ts",
+		"../tests/selection.macos.tsrx",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@octane-xplat/image-crop": [
+				"../src/index.ts"
+			],
+			"octane": [
+				"../node_modules/octane"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

@@ -104,7 +104,7 @@ Application.ios.delegate = OrientationDelegate
 Create an empty `src/orientation-delegate.android.ts` with `export {}`. Import
 the unsuffixed module in the phone entry before `Application.run()`; preserve
 the entry's existing renderer setup. Rebuild and reinstall after changing the
-plist. The [maintained delegate example](../../packages/screen-orientation/examples/orientation-delegate.ios.ts)
+plist. The [maintained delegate example](../../examples/device/orientation-delegate.ios.ts)
 is included in the package's source typecheck.
 
 ```ts

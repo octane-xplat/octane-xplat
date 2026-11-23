@@ -6,7 +6,9 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx",
+				"../../examples/keyboard/form.tsrx",
+				"../../examples/keyboard/composer.tsrx",
+				"../../examples/keyboard/avoiding.tsrx",
 				"tests/fixtures/**/*.tsrx",
 				"types/generated/index.d.ts"
 			]
@@ -23,6 +25,13 @@
 		}
 	},
 	"compilerOptions": {
-		"jsxImportSource": "@octane-xplat/jsx"
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/keyboard": ["../src/index.ts"],
+			"@octane-xplat/ui": ["../node_modules/@octane-xplat/ui/types/generated/index.d.ts"],
+			"octane": ["../node_modules/octane/dist/index.d.ts"],
+			"octane/jsx-runtime": ["../node_modules/octane/dist/jsx-runtime.d.ts"],
+			"octane/tsrx-boundary": ["../node_modules/octane/dist/tsrx-boundary.d.ts"]
+		}
 	}
 }

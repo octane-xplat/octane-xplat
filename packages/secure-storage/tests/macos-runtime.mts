@@ -130,7 +130,7 @@ try {
   command(
     'bun',
     ['run', 'vite', 'build', '--config', config],
-    fileURLToPath(new URL('../../../apps/macos/', import.meta.url)),
+    fileURLToPath(new URL('../../../tools/macos-verification/', import.meta.url)),
   )
 
   compiled = readFileSync(join(temporary, 'bundle/secure-storage.cjs'), 'utf8')

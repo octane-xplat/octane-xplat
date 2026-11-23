@@ -9,17 +9,93 @@ import { android, java } from '@octane-xplat/platform/android'
 import { attachRegionListener, emitRegionEvent, flushRegionEvents } from './geofencing.mobile'
 import type { GeofenceRegion, Geofencing, PermissionResult, RegionEventListener } from './types'
 
-function androidEnsure(): Promise<PermissionResult> {
+const PERMISSION_FINE = 'android.permission.ACCESS_FINE_LOCATION'
+const PERMISSION_BACKGROUND = 'android.permission.ACCESS_BACKGROUND_LOCATION'
+
+let geofenceRequestCode = 7741
+
+function checkGranted(perm: string): boolean {
   const activity = Application.android.foregroundActivity ?? Application.android.startActivity
 
   try {
-    return activity?.checkSelfPermission?.('android.permission.ACCESS_FINE_LOCATION') ===
+    return (
+      activity?.checkSelfPermission?.(perm) ===
       android.content.pm.PackageManager.PERMISSION_GRANTED
-      ? Promise.resolve('granted')
-      : Promise.resolve('denied')
+    )
   } catch {
+    return false
+  }
+}
+
+// Runtime prompt through the host activity — same requestPermissionsEvent
+// convention as the other capability leaves (barcode-scanner, camera,
+// recorder). The result handler re-reads the permission rather than
+// trusting grantResults: on API 30+ the background-location prompt routes
+// through Settings, so the live status is the only reliable answer.
+function requestPermission(perm: string): Promise<PermissionResult> {
+  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
+  if (!activity?.requestPermissions) {
     return Promise.resolve('denied')
   }
+
+  return new Promise<PermissionResult>((resolve) => {
+    const requestCode = geofenceRequestCode++
+    const event = Application.android.activityRequestPermissionsEvent
+    const onResult = (args: any) => {
+      if (args.requestCode !== requestCode) {
+        return
+      }
+
+      Application.android.off(event, onResult)
+      resolve(checkGranted(perm) ? 'granted' : 'denied')
+    }
+
+    Application.android.on(event, onResult)
+    try {
+      activity.requestPermissions([perm], requestCode)
+    } catch {
+      Application.android.off(event, onResult)
+      resolve('denied')
+    }
+  })
+}
+
+function androidEnsure(): Promise<PermissionResult> {
+  if (checkGranted(PERMISSION_FINE)) {
+    return Promise.resolve('granted')
+  }
+
+  return requestPermission(PERMISSION_FINE)
+}
+
+// ACCESS_BACKGROUND_LOCATION exists from API 29 — below it, background
+// delivery needs only fine location. When the SDK level cannot be read
+// (a stub or non-Android host) assume modern, since the only cost is a
+// request for a permission the OS does not know, which resolves denied.
+function sdkInt(): number {
+  try {
+    const sdk = android.os.Build.VERSION.SDK_INT
+
+    return typeof sdk === 'number' ? sdk : 29
+  } catch {
+    return 29
+  }
+}
+
+async function androidEnsureBackground(): Promise<PermissionResult> {
+  if (sdkInt() >= 29 && checkGranted(PERMISSION_BACKGROUND)) {
+    return 'granted'
+  }
+
+  // The OS ignores a background prompt until fine is granted.
+  if (!checkGranted(PERMISSION_FINE)) {
+    if ((await androidEnsure()) !== 'granted') {
+      return 'denied'
+    }
+  }
+
+  return sdkInt() >= 29 ? requestPermission(PERMISSION_BACKGROUND) : 'granted'
 }
 
 function androidGeofencingClient(): any {
@@ -79,6 +155,74 @@ function drainQueue(): void {
 setInterval(drainQueue, 5000)
 setTimeout(drainQueue, 0)
 
+// GeofencingClient returns gms Tasks — without awaiting their completion a
+// failed registration (missing permission, Play Services off) resolves the
+// JS promise as though it succeeded.
+function awaitTask(task: any): Promise<void> {
+  const OnComplete = (globalThis as any).com?.google?.android?.gms?.tasks?.OnCompleteListener
+
+  if (!task || !OnComplete || typeof task.addOnCompleteListener !== 'function') {
+    return Promise.resolve()
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    task.addOnCompleteListener(
+      new OnComplete({
+        onComplete(t: any) {
+          if (t?.isSuccessful?.() === false) {
+            reject(t.getException?.() ?? new Error('GeofencingClient operation failed'))
+          } else {
+            resolve()
+          }
+        },
+      }),
+    )
+  })
+}
+
+// Geofence registrations outlive the process — the receiver fires on the
+// OS's schedule and relaunches the app — so the monitored-region list must
+// persist too. The 'xplat_geofence_regions' SharedPreferences file mirrors
+// every successful start/stop call; Android exposes no API to enumerate
+// registered geofences.
+const REGION_PREFS = 'xplat_geofence_regions'
+
+function readRegionRegistry(): GeofenceRegion[] {
+  try {
+    const raw = androidUtils
+      ?.getApplicationContext?.()
+      ?.getSharedPreferences?.(REGION_PREFS, 0)
+      ?.getString('regions', '[]')
+
+    const list: unknown = raw ? JSON.parse(raw) : []
+
+    return Array.isArray(list)
+      ? list.filter(
+          (r): r is GeofenceRegion =>
+            typeof r === 'object' &&
+            r !== null &&
+            typeof (r as GeofenceRegion).identifier === 'string' &&
+            typeof (r as GeofenceRegion).latitude === 'number' &&
+            typeof (r as GeofenceRegion).longitude === 'number' &&
+            typeof (r as GeofenceRegion).radius === 'number',
+        )
+      : []
+  } catch {
+    return []
+  }
+}
+
+function writeRegionRegistry(regions: GeofenceRegion[]): void {
+  try {
+    androidUtils
+      ?.getApplicationContext?.()
+      ?.getSharedPreferences?.(REGION_PREFS, 0)
+      ?.edit()
+      ?.putString('regions', JSON.stringify(regions))
+      ?.apply()
+  } catch {}
+}
+
 /** Geofence-monitoring service — see Geofencing. */
 export const geofencing: Geofencing = {
   supported: androidGeofencingClient() !== null,
@@ -88,16 +232,7 @@ export const geofencing: Geofencing = {
   },
 
   ensureBackground(): Promise<PermissionResult> {
-    const activity = Application.android.foregroundActivity ?? Application.android.startActivity
-
-    try {
-      return activity?.checkSelfPermission?.('android.permission.ACCESS_BACKGROUND_LOCATION') ===
-        android.content.pm.PackageManager.PERMISSION_GRANTED
-        ? Promise.resolve('granted')
-        : Promise.resolve('denied')
-    } catch {
-      return Promise.resolve('denied')
-    }
+    return androidEnsureBackground()
   },
 
   async startMonitoring(regions: GeofenceRegion[]): Promise<void> {
@@ -105,6 +240,10 @@ export const geofencing: Geofencing = {
 
     if (!client) {
       throw new Error('unsupported: GeofencingClient is not on the classpath')
+    }
+
+    if (regions.length === 0) {
+      return
     }
 
     const gms = (globalThis as any).com.google.android.gms.location
@@ -132,7 +271,15 @@ export const geofencing: Geofencing = {
       )
     }
 
-    client.addGeofences(builder.build(), androidPendingIntent())
+    await awaitTask(client.addGeofences(builder.build(), androidPendingIntent()))
+
+    // Persist only after the client accepted the request — re-registering an
+    // identifier replaces it, so merge over the existing entries.
+    const known = readRegionRegistry().filter(
+      (r) => !regions.some((n) => n.identifier === r.identifier),
+    )
+
+    writeRegionRegistry([...known, ...regions])
   },
 
   async stopMonitoring(identifiers?: string[]): Promise<void> {
@@ -143,14 +290,18 @@ export const geofencing: Geofencing = {
     }
 
     if (identifiers?.length) {
-      client.removeGeofences(java.util.Arrays.asList(identifiers))
+      await awaitTask(client.removeGeofences(java.util.Arrays.asList(identifiers)))
+      const drop = new Set(identifiers)
+
+      writeRegionRegistry(readRegionRegistry().filter((r) => !drop.has(r.identifier)))
     } else {
-      client.removeGeofences(androidPendingIntent())
+      await awaitTask(client.removeGeofences(androidPendingIntent()))
+      writeRegionRegistry([])
     }
   },
 
   async getMonitoredRegions(): Promise<GeofenceRegion[]> {
-    return []
+    return readRegionRegistry()
   },
 
   onRegionEvent(listener: RegionEventListener): () => void {

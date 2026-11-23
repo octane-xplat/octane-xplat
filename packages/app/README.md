@@ -1,13 +1,12 @@
-# `@xplat/app`
+# `@octane-xplat/app`
 
-The shared harness app — the screen tree that `apps/web` and `apps/mobile`
-both mount. Private; never published. It exists to exercise every
+The shared harness app — the screen tree mounted by `apps/harness` on web and native targets. Private; never published. It exists to exercise every
 framework seam on real targets, not to be a product.
 
 Exports the mounted root and the app contract:
 
 ```tsx
-import { App } from '@xplat/app'
+import { App } from '@octane-xplat/app'
 
 export function Harness() {
   return <App />
@@ -25,8 +24,8 @@ export function Harness() {
   benchmarks) — the pattern the framework asks consumers to follow.
 
 The demo screens it routes to live in
-[`@xplat/demos`](../demos/README.md); the entry shells and vite configs
-live in `apps/web` + `apps/mobile`. Run it with `bun run probe run <case>
+[`@octane-xplat/demos`](../demos/README.md); the entry shells and vite configs
+live in `apps/harness`. Run it with `bun run probe run <case>
 --target <target> --watch` for investigations — see
 [`.agents/docs/probing.md`](../../.agents/docs/probing.md) and
 [`docs/testing/testing.md`](../../docs/testing/testing.md).

@@ -321,7 +321,7 @@ test('native cases reuse host Core properties and Mason engine', async () => {
   const { join } = await import('node:path')
   const { repo, importFrom } = await import('./project.ts')
   const { default: nativeCaseConfig } = await import('./native-case.config.ts')
-  const project = join(repo, 'apps/mobile')
+  const project = join(repo, 'apps/harness')
   const { build } = await importFrom(project, 'vite')
   const work = await mkdtemp(join(tmpdir(), 'xplat-probe-core-test-'))
 

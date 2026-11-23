@@ -1,5 +1,5 @@
 import { FailureCollector } from './failures.ts'
-import type { BoxPaintState } from './box-paint-state'
+import type { BoxPaintNode, BoxPaintState } from './box-paint-state'
 import {
   BORDER_SIDES,
   BORDER_CORNERS,
@@ -16,7 +16,6 @@ import {
 
 import type { BorderSide, BorderCorner } from './box-geometry'
 import { effectiveStyle } from './style-values.ts'
-import type { ElementNode } from './model'
 import { splitStyleTokens } from './css-text.ts'
 import {
   CALayer,
@@ -132,7 +131,7 @@ export function createBorderPaint() {
   }
 
   function setBorderSlot(
-    node: ElementNode,
+    node: BoxPaintNode,
     state: BoxPaintState,
     group: 'widths' | 'colors' | 'radii',
     slot: BorderSide | BorderCorner | 'all',
@@ -151,7 +150,7 @@ export function createBorderPaint() {
   }
 
   function clearBorderSlot(
-    node: ElementNode,
+    node: BoxPaintNode,
     state: BoxPaintState,
     group: 'widths' | 'colors' | 'radii',
     slot: BorderSide | BorderCorner | 'all',
@@ -171,7 +170,7 @@ export function createBorderPaint() {
 
   // `border`/`border-{side}` shorthand text feeds the same width/color slots.
   function setBorderEdge(
-    node: ElementNode,
+    node: BoxPaintNode,
     state: BoxPaintState,
     slot: BorderSide | 'all',
     value: any,
@@ -197,7 +196,7 @@ export function createBorderPaint() {
     }
   }
 
-  function clearBorderEdge(node: ElementNode, state: BoxPaintState, slot: BorderSide | 'all') {
+  function clearBorderEdge(node: BoxPaintNode, state: BoxPaintState, slot: BorderSide | 'all') {
     const spec = state.borderSpec
 
     for (const side of slot === 'all' ? BORDER_SIDES : [slot]) {
@@ -206,7 +205,7 @@ export function createBorderPaint() {
     }
   }
 
-  function removeBorderLayers(node: ElementNode, state: BoxPaintState) {
+  function removeBorderLayers(node: BoxPaintNode, state: BoxPaintState) {
     const host = state.borderLayer
     const bands = Object.values(state.borderBandShapes ?? {}).flat()
 
@@ -227,7 +226,7 @@ export function createBorderPaint() {
     failures.throwIfFailed()
   }
 
-  function disposeBorder(node: ElementNode, state: BoxPaintState) {
+  function disposeBorder(node: BoxPaintNode, state: BoxPaintState) {
     const failures = new FailureCollector()
 
     state.borderSpec = undefined
@@ -241,7 +240,7 @@ export function createBorderPaint() {
   // boxes stay on the fast path; anything else draws through masked
   // CAShapeLayer trapezoids clipped to the rounded outline — banded styles
   // (double/groove/ridge/inset/outset) split each side into shaded bands.
-  function syncBorderBox(node: ElementNode, state: BoxPaintState) {
+  function syncBorderBox(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view
 
     if (!view) {

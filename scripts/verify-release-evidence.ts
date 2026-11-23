@@ -14,7 +14,7 @@
 //             'none' when its required jobs did not pass. The channel is
 //             written to GITHUB_OUTPUT; the run only fails when the evidence
 //             itself is missing or mismatched — except stable verification,
-//             where absent evidence means "unqualified" and exits cleanly so
+//             where absent or cancelled evidence means "unqualified" so
 //             the caller can run Stable CI inline instead. Publishing may
 //             never publish source from a different tested revision.
 //
@@ -122,6 +122,15 @@ if (mode === 'verify') {
   const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
   const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
+  const unqualified = (reason) => {
+    console.log(`${reason} — unqualified`)
+    if (process.env.GITHUB_OUTPUT) {
+      appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
+    }
+
+    process.exit(0)
+  }
+
   const findArtifact = (id) => {
     const artifacts = []
 
@@ -174,12 +183,7 @@ if (mode === 'verify') {
       if (track === 'stable') {
         // Not yet qualified is a normal state, not an error — the caller
         // decides whether to run Stable CI inline for this tree.
-        console.log(`no Stable CI run carried evidence for tree ${tree} — unqualified`)
-        if (process.env.GITHUB_OUTPUT) {
-          appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
-        }
-
-        process.exit(0)
+        unqualified(`no Stable CI run carried evidence for tree ${tree}`)
       }
 
       assert.ok(
@@ -190,9 +194,16 @@ if (mode === 'verify') {
     }
   }
 
+  const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
+
+  if (track === 'stable' && run.status === 'completed' && run.conclusion === 'cancelled') {
+    // A cancelled PR run can still upload an artifact. Qualify the merged
+    // tree inline without accepting that artifact or any older success.
+    unqualified(`Stable CI run ${evidenceRunId} was cancelled for tree ${tree}`)
+  }
+
   assert.ok(!artifact.expired, 'CI release evidence has expired')
 
-  const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
   const { jobs } = JSON.parse(
     gh(`repos/${repo}/actions/runs/${evidenceRunId}/jobs?filter=latest&per_page=100`),
   )

@@ -1,0 +1,45 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../../examples/media/crop-image.ts",
+		"../../../examples/media/encode-webp.ts",
+		"../src/api.web.ts",
+		"../src/assets.d.ts",
+		"../src/backend-types.ts",
+		"../src/backend.web.ts",
+		"../src/core.ts",
+		"../src/geometry.ts",
+		"../src/index.web.ts",
+		"../src/shared-exports.ts",
+		"../src/types.ts",
+		"../src/use-image-manipulator.tsx",
+		"../src/webp.web.ts",
+		"../tests/hook.web.tsx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/image-manipulator": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

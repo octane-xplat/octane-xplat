@@ -47,11 +47,12 @@ number of ideas a reader must learn.
 ## Terminology
 
 Explain a project-specific term or unusual meaning in its owning topic. Public
-guides introduce unfamiliar language at first use; skill references carry
+guides introduce unfamiliar language at first use; contributor references carry
 distinctions that change agent behavior; contributor concepts such as
 [recipes](recipes/README.md) belong here. Link to the canonical explanation
 instead of maintaining a standalone glossary or duplicate definition table.
-Update affected guides and skill guidance together when meaning changes.
+Update affected public guides, contributor notes, and starter guidance together
+when meaning changes.
 Prefer familiar language in [release notes](releases.md#write-a-release-note).
 
 ## Show every API capability in code
@@ -69,30 +70,20 @@ Validate new or changed snippets with the appropriate parser/compiler/typecheck
 in their intended context. Execute checks when the claim requires runtime
 behavior, and report the actual targets. Syntax highlighting is not validation.
 
-## Octane skill maintenance
+## Guidance maintenance
 
-When public APIs or documented behavior change, review affected content in the
-[Octane skill](../skills/octane-xplat/SKILL.md), including references, examples,
-limitations, and links. Review is mandatory; edit when guidance becomes stale.
+Review affected contributor notes, public guides, and
+[starter guidance](../../packages/create/template/.agents/skills/xplat/SKILL.md)
+when public behavior changes. Put contributor constraints and task links in
+[AGENTS.md](../../AGENTS.md). Keep implementation details and maintenance
+decisions in the relevant [contributor guide](README.md#contributor-guides).
+Keep app-building workflows in the public docs and the short operating rules
+for generated projects in the starter skill.
 
-Keep information that changes an agent's API choice, implementation, prerequisite,
-or avoidance of a consequential mistake. A new export alone needs no skill
-prose. Declarations and public docs own exhaustive API facts; Silo/local artifacts
-own investigation state and evidence. Skills carry actionable conclusions.
-
-| Location | Owns |
-| --- | --- |
-| `SKILL.md` | Scope, shared constraints, task routing |
-| `references/<topic>.md` | Recommended approach and links for the current task |
-| `references/<topic>/<detail>.md` | Narrow platform, advanced, or implementation guidance |
-
-Every reference must be reachable from the entry point or a relevant parent.
-Link labels or adjacent text explain when to read it; reading one topic does not
-require loading its children. For example, ordinary navigation routes to
-`navigation/native-frames.md` only for native stack internals. Keep meaningful
-limits and prerequisites beside the guidance they qualify. Replace stale text
-before appending more; split by independently useful tasks, not a line limit.
-Keep contributor skill-maintenance policy here rather than in consumer guidance.
+Each reference should have a task-specific link from an entry point or its
+parent. Keep limits and prerequisites beside the guidance they qualify.
+Replace outdated guidance when behavior changes. Record investigations and
+verification evidence in their existing Silo and local evidence locations.
 
 ## Package documentation
 
@@ -107,8 +98,8 @@ The site generates `docs/api/api-<directory>.md` for every public package using
 commit generated API Markdown; improve TSDoc beside the exported declaration.
 
 ```sh
-bun run turbo run api --filter=@xplat/docs
-bun run turbo run build --filter=@xplat/docs
+bun run turbo run api --filter=@octane-xplat/docs
+bun run turbo run build --filter=@octane-xplat/docs
 ```
 
 ## Declaration comments
@@ -135,8 +126,9 @@ Exclude internal plumbing unless it is part of an exported integration contract.
 
 Before changing public behavior, setup, or a supported workflow, inspect
 [recipes](recipes/README.md) by outcome and API. Reconcile the affected recipe,
-public docs, maintained example, and skill in the same change. Pure refactors
-ordinarily need no recipe change. Never weaken criteria to hide a limitation.
+public docs, maintained examples, and applicable agent guidance in the same
+change. Pure refactors ordinarily need no recipe change. Never weaken criteria
+to hide a limitation.
 
 Record coverage separately from verification in Silo `recipe_audit` (or the
 appropriate desktop table) and run `bun run check:recipes`. At handoff, name affected

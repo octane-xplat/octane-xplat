@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/smooth-corners",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Shared smooth-corner geometry with native surface painting and optional child clipping for web, iOS, Android and AppKit macOS",
 	"keywords": [
 		"clip-path",
@@ -16,7 +16,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/smooth-corners"
 	},
 	"files": [
@@ -62,7 +62,7 @@
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/nativescript-octane": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
 		"octane": "catalog:",

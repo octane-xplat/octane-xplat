@@ -5,7 +5,8 @@
 		// tsconfig.envs.json's native env includes this package's own
 		// types/generated — typecheck must order after own typegen, not just ^typegen.
 		"typecheck": {
-			"dependsOn": ["typegen", "^typegen"]
+			"dependsOn": ["typegen", "^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/keyboard/form.tsrx", "../../examples/keyboard/composer.tsrx", "../../examples/keyboard/avoiding.tsrx"]
 		}
 	}
 }

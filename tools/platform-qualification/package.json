@@ -1,5 +1,5 @@
 {
-  "name": "@xplat/platform-qualification",
+  "name": "@octane-xplat/platform-qualification",
   "private": true,
   "type": "module",
   "scripts": {

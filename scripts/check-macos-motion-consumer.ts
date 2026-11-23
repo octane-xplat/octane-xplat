@@ -107,7 +107,6 @@ export async function checkMacOSMotionConsumer({
         '.macos.ts',
         '.ts',
         '.mts',
-        '.ts',
         '.jsx',
         '.js',
         '.json',

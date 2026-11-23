@@ -1,5 +1,5 @@
 // Uses the maintained SliderShowcase example; do not copy its implementation here.
-import { SliderShowcase as Example } from '@xplat/astryx-sandbox/examples/slider/SliderShowcase.tsrx'
+import { SliderShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/slider/SliderShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

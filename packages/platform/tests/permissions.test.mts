@@ -55,11 +55,13 @@ test('object owner dispatches getPermissions and requestPermissions', async () =
     granted: false,
     canAskAgain: true,
   })
+
   assert.deepEqual(await api.requestPermissions('contacts'), {
     status: 'granted',
     granted: true,
     canAskAgain: true,
   })
+
   assert.deepEqual(calls, ['get', 'request'])
 })
 
@@ -134,11 +136,44 @@ test('every permissionOwners registration is an owner object', async () => {
       const block = rest.slice(0, end)
 
       assert.ok(block.includes('getPermissions'), `${name}: owner object lacks getPermissions`)
-      assert.ok(block.includes('requestPermissions'), `${name}: owner object lacks requestPermissions`)
+      assert.ok(
+        block.includes('requestPermissions'),
+        `${name}: owner object lacks requestPermissions`,
+      )
+
       registrations.push(`${name}#${match[0].trim()}`)
     }
   }
 
   // Guard against the scan silently matching nothing.
   assert.ok(registrations.length > 10, 'expected >10 owner registrations across leaf sources')
+})
+
+// 'camera' is the one kind two leaves register: media owns it canonically
+// and barcode-scanner claims it only so scanning works with media absent.
+// barcode-scanner must use ??= — an unconditional assignment would make the
+// dispatcher's answer depend on module evaluation order.
+test('barcode-scanner registers camera only as a fallback owner', async () => {
+  const src = new URL('./barcode-scanner/src/', packagesSrc)
+  const files = (await readdir(src)).filter(
+    (f) => f.startsWith('barcode-scanner.') && !/\.(test|spec)\./.test(f),
+  )
+
+  let registrations = 0
+
+  for (const file of files) {
+    const text = await readFile(new URL(`./${file}`, src), 'utf8')
+
+    for (const match of text.matchAll(/permissionOwners\.camera\s*(\?\?=|=)\s*/g)) {
+      assert.equal(
+        match[1],
+        '??=',
+        `barcode-scanner/src/${file}: 'camera' must register with ??= so media wins when installed`,
+      )
+
+      registrations += 1
+    }
+  }
+
+  assert.ok(registrations > 0, 'expected at least one camera registration in barcode-scanner')
 })

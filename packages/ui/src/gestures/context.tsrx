@@ -2,91 +2,100 @@ import 'octane/signals'
 import {
   createContext,
   useContext,
-  useMemo,
   useRef,
-  useCallback,
   useLayoutEffect,
   useInsertionEffect,
+  type Context,
 } from 'octane'
 
 import { interactionScopeController } from './scope'
+import { createInteractionMembership, type InteractionMembership } from './membership'
 import type { InteractionScope } from './types'
 import type { Renderable } from '../props'
 
-const ScopeContext = createContext<readonly InteractionScope[]>([])
+/** Interaction scopes enclosing a subtree, outermost first. */
+export const InteractionScopeContext: Context<readonly InteractionScope[]> = createContext<
+  readonly InteractionScope[]
+>([])
+
 // Context itself is the provider. This follows size-context's native JSX facade boundary.
-const ContextProvider: any = ScopeContext
+const ContextProvider: any = InteractionScopeContext
 
 export function InteractionScopeProvider(props: {
   scope?: InteractionScope
   children?: Renderable
 }): unknown @{
-  const parent = useContext(ScopeContext)
-  const value = useMemo(
-    () => (props.scope ? [...parent, props.scope] : parent),
-    [parent, props.scope],
-  )
+  const parent = useContext(InteractionScopeContext)
 
-  <ContextProvider value={value}>{props.children}</ContextProvider>
+  <ContextProvider value={childInteractionScopes(parent, props.scope)}>
+    {props.children}
+  </ContextProvider>
+}
+
+const childScopeLists = new WeakMap<
+  readonly InteractionScope[],
+  WeakMap<InteractionScope, readonly InteractionScope[]>
+>()
+
+/** Scope list for a subtree: the parent's list, extended by `scope` when set.
+ *  The same pair always yields the same array, so the context stays stable
+ *  without a per-provider memo hook. */
+export function childInteractionScopes(
+  parent: readonly InteractionScope[],
+  scope: InteractionScope | undefined,
+): readonly InteractionScope[] {
+  if (!scope) {
+    return parent
+  }
+
+  let lists = childScopeLists.get(parent)
+
+  if (!lists) {
+    lists = new WeakMap()
+    childScopeLists.set(parent, lists)
+  }
+
+  let list = lists.get(scope)
+
+  if (!list) {
+    list = [...parent, scope]
+    lists.set(scope, list)
+  }
+
+  return list
+}
+
+/** Provider for a host's subtree, extending `parent` with `scope`. A plain
+ *  call rather than a component, so the host renders no extra owner.
+ *  Universal (native) renderer only: the DOM renderer does not mount a
+ *  called context, so web and desktop leaves use InteractionScopeProvider. */
+export function interactionScopeOutlet(
+  parent: readonly InteractionScope[],
+  scope: InteractionScope | undefined,
+  children: Renderable,
+): unknown {
+  return ContextProvider({ value: childInteractionScopes(parent, scope), children })
 }
 
 /** Track framework ownership through portals, independently of native physical ancestry. */
 export function useInteractionMembership(): (host: object | null) => void {
-  const scopes = useContext(ScopeContext)
-  const host = useRef<object | null>(null)
-  const releases = useRef<(() => void)[]>([])
-  const clear = useCallback(() => {
-    const owned = releases.current
+  const scopes = useContext(InteractionScopeContext)
+  const ref = useRef<InteractionMembership | null>(null)
 
-    releases.current = []
-    for (const release of owned.reverse()) {
-      release()
-    }
-  }, [])
+  if (!ref.current) {
+    ref.current = createInteractionMembership(scopes)
+  }
 
-  const committed = useRef(scopes)
-  const sync = useCallback(() => {
-    clear()
-    if (!host.current) {
-      return
-    }
-
-    try {
-      for (const scope of committed.current) {
-        releases.current.push(interactionScopeController(scope).registerMember(host.current))
-      }
-    } catch (error) {
-      clear()
-      throw error
-    }
-  }, [clear])
-
-  const bind = useCallback(
-    (next: object | null) => {
-      host.current = next
-      clear()
-      if (next) {
-        queueMicrotask(sync)
-      }
-    },
-    [clear, sync],
-  )
+  const membership = ref.current
 
   useLayoutEffect(() => {
-    committed.current = scopes
-    sync()
-    return clear
-  }, [scopes, clear, sync])
+    membership.commit(scopes)
+    return membership.clear
+  }, [scopes, membership])
 
-  useInsertionEffect(
-    () => () => {
-      host.current = null
-      clear()
-    },
-    [clear],
-  )
+  useInsertionEffect(() => membership.dispose, [membership])
 
-  return bind
+  return membership.bind
 }
 
 /** Preserve ownership through a portal without adding a layout wrapper. */
@@ -94,7 +103,7 @@ export function InteractionPortalBoundary(props: {
   target: object
   children?: Renderable
 }): unknown @{
-  const scopes = useContext(ScopeContext)
+  const scopes = useContext(InteractionScopeContext)
 
   for (const scope of scopes) {
     if (scope.suspended$.get() && !interactionScopeController(scope).covers(props.target)) {

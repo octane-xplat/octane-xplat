@@ -176,7 +176,7 @@ try {
         type: 'module',
         packageManager: 'bun@1.4.4',
         dependencies: {
-          '@octane-xplat/web-host': tarballs['@octane-xplat/web-host'],
+          ...tarballs,
           '@tsrx/oxc': '0.23.0',
           octane: '0.17.0',
           srvx: '1.0.6',
@@ -216,9 +216,11 @@ try {
   console.log('PASS packed tarballs install and resolve a single Octane runtime')
 
   // The maintained example is the consumer: copy it verbatim and build twice.
-  cpSync(join(repo, 'packages/web-host/example'), join(consumer, 'example'), {
+  cpSync(join(repo, 'examples/web-rendering'), join(consumer, 'example'), {
     recursive: true,
-    filter: (source) => !source.includes(`${join('example', 'dist')}`),
+    filter: (source) =>
+      source !== join(repo, 'examples/web-rendering/dist') &&
+      source !== join(repo, 'examples/web-rendering/node_modules'),
   })
 
   const first = run(process.execPath, ['build.mjs'], join(consumer, 'example'))
@@ -234,7 +236,7 @@ try {
   const ssrUrl = await startServer({}, 'SSR server')
   const staticUrl = await startServer({ STATIC: '1' }, 'static server')
 
-  const playwright = createRequire(join(repo, 'apps/web/package.json'))('playwright')
+  const playwright = createRequire(join(repo, 'tools/web-verification/package.json'))('playwright')
   const names = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium').split(',').filter(Boolean)
 
   for (const name of names) {

@@ -37,6 +37,37 @@ test('quick consumer mode refuses native qualification before creating or resett
   }
 })
 
+test('native build-only mode requires a native target and rejects runtime checks before creating work', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'consumer-native-build-test-'))
+  const work = join(directory, 'consumer')
+
+  try {
+    for (const flags of [
+      [],
+      ['--native', 'web'],
+      ['--native', 'ios', '--smoke', 'web'],
+      ['--native', 'ios', '--smoke-ios'],
+      ['--native', 'ios', '--test-ios'],
+      ['--native', 'android', '--test-android'],
+    ]) {
+      const result = spawnSync(
+        process.execPath,
+        ['scripts/verify-consumer.ts', '--native-build-only', ...flags],
+        {
+          encoding: 'utf8',
+          env: { ...process.env, VERIFY_CONSUMER_DIR: work },
+        },
+      )
+
+      assert.notEqual(result.status, 0)
+      assert.match(result.stderr, /--native-build-only requires --native/)
+      assert.equal(existsSync(work), false)
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
 test(
   '--no-build skips both package preparation and packing lifecycle hooks',
   { skip: process.platform === 'win32' },

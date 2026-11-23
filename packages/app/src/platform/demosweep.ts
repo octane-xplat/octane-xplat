@@ -3,7 +3,7 @@ import { getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
-import { DEMOS, virtualListHandle } from '@xplat/demos'
+import { DEMOS, virtualListHandle } from '@octane-xplat/demos'
 import { router } from '@octane-xplat/ui/routing'
 import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
@@ -30,7 +30,7 @@ if (SKIP) {
 }
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
-// apps/mobile/src/index.ts so the harness probe timeline stays untouched.
+// apps/harness/src/index.ts so the harness probe timeline stays untouched.
 // The catalog is a parallel stack: the Demos tab hosts its own Frame, so
 // pushes/pop happen inside the tab and never move Frame.topmost() — all
 // reads scope to getStack('demos').currentPage.

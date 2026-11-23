@@ -6,7 +6,7 @@
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"types": ["node"]
 	},
-	"include": ["src/**/*", "../../packages/*/src/**/*.d.ts"],
+	"include": ["src/**/*", "preview/**/*", "../../packages/*/src/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "artifacts"],
 	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
 }

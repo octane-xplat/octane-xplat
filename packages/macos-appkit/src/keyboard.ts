@@ -397,6 +397,11 @@ export function createAppKitKeyboardDispatcher(
         ensureMonitor()
       }
     },
+    retireView(view: KeyView): void {
+      bindings.delete(view)
+      subscriptions.delete(view)
+      ensureMonitor()
+    },
     dispose(): void {
       bindings.clear()
       subscriptions.clear()

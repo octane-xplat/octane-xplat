@@ -95,7 +95,7 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 
   assert.equal(pkg.devDependencies['@tsrx/content-mapper'], undefined)
   assert.equal(pkg.devDependencies.typescript, 'catalog:xplat')
-  assert.equal(pkg.workspaces.catalogs.xplat.typescript, '7.1.0-beta')
+  assert.equal(pkg.workspaces.catalogs.xplat.typescript, '7.1.0-dev.20261121.1')
 
   const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
 

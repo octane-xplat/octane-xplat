@@ -64,3 +64,22 @@ it('imports inline HTML emitted by Aztec Android', async () => {
   expect(JSON.stringify(doc)).toContain('next line')
   expect(jsonToHTML(doc!)).toContain('JSON seed')
 })
+
+it('round-trips headings, links, and paragraph alignment', async () => {
+  expect(await ensureJSONBridge()).toBe(true)
+
+  const doc = htmlToJSON(
+    '<h1>B</h1><p>hi <a href="https://x.test">there</a></p><p style="text-align: right">r</p>',
+  )
+
+  expect(doc?.root.children).toMatchObject([
+    { type: 'heading' },
+    { type: 'paragraph' },
+    { type: 'paragraph', format: 'right' },
+  ])
+
+  const html = jsonToHTML(doc!)
+
+  expect(html).toContain('href="https://x.test"')
+  expect(html).toMatch(/text-align:\s*right/)
+})

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
 import { useRef } from 'octane'
 import { Absolute, View, useMeasure$ } from '@octane-xplat/ui'
@@ -7,12 +8,11 @@ import { constrainCrop, containFrame, convertToPercentCrop, dragCrop } from './g
 import { Gesture } from './Gesture.tsrx'
 import { Guide } from './Guide.tsrx'
 import { Source } from './Source.tsrx'
-import type { JSX } from 'octane/jsx-runtime'
 
 const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
 
 /** Inline controlled selection. View.onPan shares input ownership with nested controls. */
-export function ImageCrop(props: ImageCropProps): JSX.Element @{
+export function ImageCrop(props: ImageCropProps): unknown @{
   const measure = useMeasure$()
   // Root hosts may offer more space than the explicitly sized image viewport.
   const viewport = {

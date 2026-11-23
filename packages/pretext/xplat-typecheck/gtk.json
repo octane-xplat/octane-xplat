@@ -1,0 +1,45 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../linux-gtk-renderer/src/host-globals.d.ts",
+		"../../../examples/text/measure.ts",
+		"../../linux-gtk-renderer/src/gi.d.ts",
+		"../src/index.linux.ts",
+		"../src/index.ts",
+		"../src/install.linux.ts",
+		"../src/install.ts",
+		"../src/intl.ts",
+		"../src/measurement.ts",
+		"../src/rich-inline.linux.ts",
+		"../src/rich-inline.ts",
+		"./isolation-gtk.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/pretext": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/pretext/rich-inline": [
+				"../src/rich-inline.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [
+			"../node_modules/@octane-xplat/linux-gtk/dist/host-globals.d.ts"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".gtk",
+			""
+		],
+		"customConditions": [
+			"gtk",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

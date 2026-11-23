@@ -5,10 +5,9 @@ import {
   universalTry,
 } from 'octane/universal/native'
 
-import { createMacOSRoot } from '@octane-xplat/macos-appkit'
+import { __rendererId as RENDERER, createMacOSRoot } from '@octane-xplat/macos-appkit'
 import type { StageHost, MountRequest, MountedStory } from '../session'
 
-const RENDERER = 'macos'
 const UNIVERSAL_COMPONENT = Symbol.for('octane.universal.component')
 
 /** Compiler output is already defined; plain functions need the stamp before

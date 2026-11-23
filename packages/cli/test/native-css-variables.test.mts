@@ -197,7 +197,7 @@ function loadCore(root) {
 }
 
 const local = createRequire(import.meta.url)
-const windows = createRequire(new URL('../../../apps/windows/package.json', import.meta.url))
+const windows = createRequire(new URL('../../../tools/windows-host/package.json', import.meta.url))
 const variants = [
   ['registry', dirname(local.resolve('@nativescript/core/package.json'))],
   ['Windows preview', dirname(windows.resolve('@nativescript/core/package.json'))],

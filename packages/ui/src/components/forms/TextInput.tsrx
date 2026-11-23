@@ -7,6 +7,8 @@ import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-
 import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
+import { coreViewForHost } from '../../internal/platform/core-view-for-host'
+import { textNativeControl } from './text-native-control'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -56,13 +58,22 @@ function TextInputControl(inputProps: TextInputProps) @{
     () => ({
       focus: () => el.current.focus(),
       blur: () => blurText(el.current),
-      native: el.current,
+      get native() {
+        return textNativeControl(el.current)
+      },
     }),
     [],
   )
 
   <masonview
-    className={['vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup']}
+    className={[
+      'vx-input-shell',
+      'vx-input-shell--sized',
+      `vx-input-shell--size-${props.size}`,
+      props.inInputGroup && 'vx-input-shell--ingroup',
+      props.status && `vx-input-shell--status-${props.status.type}`,
+      props.isDisabled && 'vx-input-shell--disabled',
+    ]}
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
     {props.startIcon != null ? (
@@ -76,7 +87,8 @@ function TextInputControl(inputProps: TextInputProps) @{
     ) : null}
     <textfield
       key="editor"
-      ref={(v: any) => {
+      ref={(host: any) => {
+        const v = coreViewForHost(host)
         el.current = v
         if (!v) {
           return
@@ -118,7 +130,7 @@ function TextInputControl(inputProps: TextInputProps) @{
       isEnabled={!props.isDisabled}
       editable={!isBlocked}
       onTextChange={(e: any) => {
-        if (!isWritingText(e.object)) {
+        if (!isWritingText(coreViewForHost(e.object))) {
           setValue(e.value)
         }
       }}

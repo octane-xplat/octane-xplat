@@ -2,6 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/screen-orientation": ["../src/index.ts"], "@nativescript/core": ["../node_modules/@nativescript/core"] },
 		"resolveJsonModule": true,
 		"types": ["@nativescript/types"]
 	},
@@ -11,7 +12,7 @@
 			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
 		},
 		"native": {
-			"include": ["src/**/*.ts", "tests/runtime.ios.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "tests/runtime.ios.ts", "../../examples/device/orientation-delegate.ios.ts"],
 			"exclude": ["src/**/*.web.ts", "src/**/*.macos.ts"]
 		},
 		"macos": {

@@ -21,7 +21,7 @@ or an overflow action menu across supported targets.
 - AC1: A maintained example shows Button, IconButton, ToggleButton, and ButtonGroup composition; ButtonGroup size is a default that a child's explicit size overrides, while group disabled state is enforced.
 - AC2: The guide explains single/multiple toggle-group state and MoreMenu presentation, with its action-only rows explicitly discriminated as `action`.
 - AC3: The guide explains card selection/navigation semantics and web/native link differences.
-- AC4: The guide documents Button onPress/pressAction selection, migration, pending work, and cancellation of subsequent action/navigation.
+- AC4: The guide documents Button onPress/pressAction selection, migration, pending work, and cancellation of subsequent action/navigation. Browser cases cover retained focus and delayed spinner feedback, tooltip description, and guarded form submission.
 - AC5: A reader can use the default UI icon registry without a provider or isolate custom glyphs with an `IconRegistryProvider`; built-ins remain available and late registrations do not redraw mounted icons.
 - AC6: Bare Pressable and interactive cards use block flow for caller content. Buttons, chips, and navigation controls explicitly retain their own layout; the migration example uses a child Stack for spacing and alignment rather than depending on the interaction host to arrange children.
 
@@ -34,7 +34,7 @@ does not qualify the complete action-control composition below.
 - AC1: [Action controls guide example](../../../docs/app/interactive-actions.md#add-a-button) and the maintained [action controls demo](../../../packages/demos/src/ActionControlsDemo.tsrx).
 - AC2: [Groups, toggles, and overflow menus](../../../docs/app/interactive-actions.md#add-a-button).
 - AC3: [Interactive cards and links](../../../docs/app/interactive-actions.md#interactive-cards).
-- AC4: [Button compatibility](../../../docs/app/interactive-actions.md#button-states-and-actions).
+- AC4: [Button states and actions](../../../docs/app/interactive-actions.md#button-states-and-actions) and [web component cases](../../../packages/ui/src/components/actions/Button.web.test.tsrx). The [iOS layout case](../../../packages/ui/tests/fixtures/page-layout/button-loading.tsrx) measures the spinner independently of input and announcements.
 - AC5: [Icon registry scope](../../../docs/app/components.md#component-index) and its scoped registry example.
 - AC6: [Neutral interaction containers](../../../docs/app/primitives.md#predictable-container-defaults) and the [live override regression](../../../packages/ui/tests/fixtures/page-layout/neutral-containers.tsrx).
 

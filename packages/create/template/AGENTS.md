@@ -34,9 +34,10 @@ export function BrowserMessage() {
 }
 ```
 
-Native leaves can explicitly select the same default with
-`/** @jsxImportSource @octane-xplat/jsx */`. Do not replace it with a renderer
-pragma. The facade supplies types; Vite still selects the platform renderer.
+Native `.tsx` files inherit the app's shared JSX types. In native `.tsrx` files
+that use host elements such as `label`, put
+`/** @jsxImportSource @octane-xplat/jsx */` on the first line. Vite selects the
+platform renderer.
 
 ## App testing
 

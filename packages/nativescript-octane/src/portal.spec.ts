@@ -144,6 +144,35 @@ describe('portals', () => {
     expect(target.children).toHaveLength(0)
   })
 
+  it('releases an adopted host after its last portal is removed', () => {
+    const target = {}
+    const layout = new core.GridLayout()
+    const native = layout as unknown as MockLayoutBase
+    const release = vi.fn(() => expect(native.children).toHaveLength(0))
+    const resolve = vi.fn((host: object) =>
+      host === target ? { view: layout, release } : undefined,
+    )
+    const root = createNativeScriptRoot(new core.GridLayout(), resolve)
+    const Scene = defineUniversalComponent(RID, (props: { count: number }) =>
+      Array.from({ length: props.count }, (_, index) =>
+        createPortal(universalValue(labelPlan, [String(index)]), target),
+      ),
+    )
+    try {
+      root.render(Scene, { count: 2 })
+      expect(labels(native).map((label) => label.text)).toEqual(['0', '1'])
+      root.render(Scene, { count: 1 })
+      expect(labels(native).map((label) => label.text)).toEqual(['0'])
+      expect(release).not.toHaveBeenCalled()
+      root.render(Scene, { count: 0 })
+      expect(resolve).toHaveBeenCalledExactlyOnceWith(target)
+      expect(release).toHaveBeenCalledOnce()
+    } finally {
+      root.unmount()
+    }
+    expect(release).toHaveBeenCalledOnce()
+  })
+
   it('reorders keyed portal children within their target in place', () => {
     const Scene = defineUniversalComponent(
       RID,
@@ -603,17 +632,24 @@ describe('portals', () => {
     } as UniversalHostCommand)
     expect(labels(target).map((label) => label.text)).toEqual(['leaf'])
 
+    const prepare = (...commands: UniversalHostCommand[]) =>
+      nativeScriptDriver.prepareBatch(
+        container,
+        { renderer: RID, version: 2, commands },
+        {} as never,
+      )
+
     // A fabricated or foreign-root handle never resolves to the root container.
     expect(() =>
-      apply(create(2, 'label'), {
+      prepare(create(2, 'label'), {
         op: 'insert',
         id: 2,
-        parent: mint('forged'),
+        parent: mint(registration.handle.id),
         before: null,
-      } as UniversalHostCommand),
+      }),
     ).toThrow(/inactive portal target/)
     expect(() =>
-      apply(create(3, 'label'), {
+      prepare(create(3, 'label'), {
         op: 'insert',
         id: 3,
         parent: 'bogus',
@@ -625,13 +661,44 @@ describe('portals', () => {
     registration.release()
     expect(container.portalTargets.size).toBe(0)
     expect(() =>
-      apply(create(4, 'label'), {
+      prepare(create(4, 'label'), {
         op: 'insert',
         id: 4,
         parent: registration.handle,
         before: null,
-      } as UniversalHostCommand),
+      }),
     ).toThrow(/inactive portal target/)
+    expect([...container.nodes.keys()]).toEqual([1])
+  })
+
+  it('rejects retargeting a portal into its own descendant and keeps its original placement', () => {
+    const plan = universalPlan(RID, {
+      kind: 'host',
+      type: 'test-stack',
+      children: [{ kind: 'host', type: 'test-grid' }],
+    })
+    const scene = defineUniversalComponent(RID, ({ target }: { target: MockLayoutBase }) =>
+      createPortal(universalValue(plan), target),
+    )
+    const target = new MockLayoutBase()
+    const root = renderRoot(new MockLayoutBase())
+    root.render(scene, { target })
+    const [ancestor] = target.children as MockLayoutBase[]
+    const [descendant] = ancestor.children as MockLayoutBase[]
+
+    try {
+      expect(() => root.render(scene, { target: descendant })).toThrow(/logical ownership cycle/)
+      expect(target.children).toEqual([ancestor])
+      expect(ancestor.children).toEqual([descendant])
+      expect(descendant.children).toEqual([])
+
+      const nextTarget = new MockLayoutBase()
+      root.render(scene, { target: nextTarget })
+      expect(nextTarget.children).toEqual([ancestor])
+      expect(target.children).toEqual([])
+    } finally {
+      root.unmount()
+    }
   })
 
   it('unmount releases every portal registration and orphans nothing', () => {

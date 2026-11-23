@@ -7,7 +7,7 @@ export const App = routes.layouts['']
 export { routes }
 // Platform services resolve through the suffix chain at build time —
 // exports-map wildcards don't extension-resolve, so deep imports like
-// '@xplat/app/platform/storage' fail; the barrel is the contract.
+// '@octane-xplat/app/platform/storage' fail; the barrel is the contract.
 export { storage } from '@octane-xplat/platform'
 export { router } from '@octane-xplat/ui/routing'
 export type { Destination } from '@octane-xplat/ui/routing'

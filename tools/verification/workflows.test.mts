@@ -54,7 +54,7 @@ test('browser matrix selects each engine and dispatches owning Turbo tasks from 
   assert.deepEqual(commands[0].args, [
     'run',
     '--cwd',
-    'apps/web',
+    'tools/web-verification',
     'playwright',
     'install',
     'chromium',
@@ -71,7 +71,7 @@ test('browser matrix selects each engine and dispatches owning Turbo tasks from 
       ['input:readiness', 'test:id', 'sqlite:readiness', 'sheet:readiness', 'smoke', 'test:e2e'],
     )
 
-    assert.ok(tasks.slice(0, 5).every(({ args }) => args.includes('--filter=@xplat/web')))
+    assert.ok(tasks.slice(0, 5).every(({ args }) => args.includes('--filter=@octane-xplat/web')))
     assert.ok(tasks[5].args.includes('--filter=@octane-xplat/lightbox'))
   }
 
@@ -93,9 +93,9 @@ test('macOS parity orders coverage, both measurements, then comparison', (t) => 
   assert.deepEqual(
     commands.map(({ args }) => args),
     [
-      ['run', '--filter', '@xplat/verification', 'parity:coverage'],
-      ['run', 'turbo', 'run', 'parity', '--filter=@xplat/web'],
-      ['run', 'turbo', 'run', 'parity', '--filter=@xplat/macos'],
+      ['run', '--filter', '@octane-xplat/verification', 'parity:coverage'],
+      ['run', 'turbo', 'run', 'parity', '--filter=@octane-xplat/web'],
+      ['run', 'turbo', 'run', 'parity', '--filter=@octane-xplat/macos'],
       ['run', 'node', 'tools/verification/parity-check.ts', '--targets=web,macos'],
     ],
   )

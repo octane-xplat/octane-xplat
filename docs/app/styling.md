@@ -12,7 +12,7 @@ on a phone, with space between the buttons and a larger title.” The same
 shared styles can serve web, iOS, and Android. Use
 [platform files](../platform/module-resolution.md) when a layout needs to differ.
 The experimental macOS AppKit renderer supports a smaller set of named
-styles; see its [current limits](../../apps/macos/README.md).
+styles; see its [current limits](../../tools/macos-verification/README.md).
 
 ## The everyday rule
 
@@ -436,24 +436,34 @@ export default defineConfig({
 })
 ```
 
-Add `bamboo()` from `@octane-xplat/bamboo/vite` to the web Vite plugins
-and to `native(mode, { extra: { plugins: [...] } })`. Import
-`virtual:bamboo.css` immediately after the UI token stylesheet in both app
-entries. The UI stylesheet orders its `xplat-structure` and `xplat-chrome`
-layers, which carry the `vx-*` component rules; importing
-`virtual:bamboo.css` after it places the generated `xplat.*` layers later in
-the cascade, so `xplat.utilities` can override those component rules.
-Unlayered app CSS still takes precedence over every layer.
+Add Bamboo to each app config's `plugins` option. The toolchain's
+`defineConfig` supplies the framework defaults, including the platform CSS
+compiler.
 
 ```ts
-// vite.config.native.ts
-import { defineConfig } from 'vite'
-import { native } from '@octane-xplat/cli/vite'
+// vite.config.ts
+import { defineConfig } from 'octane-xplat/vite'
 import { bamboo } from '@octane-xplat/bamboo/vite'
 
-export default defineConfig(({ mode }) =>
-  native(mode, { extra: { plugins: bamboo({ native: true }) } }),
-)
+export default defineConfig({ plugins: bamboo() })
+```
+
+```ts
+// vite.config.native.mts
+import { defineConfig } from 'octane-xplat/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
+
+export default defineConfig({ plugins: bamboo({ native: true }) })
+```
+
+Import `virtual:bamboo.css` immediately after the UI token stylesheet in both
+app entries. This places the generated `xplat.utilities` layer after the
+component layers that carry the `vx-*` rules. Unlayered app CSS takes
+precedence over every layer.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import 'virtual:bamboo.css'
 ```
 
 Bamboo's Vite transform currently supports `.ts`, `.tsx`, `.js`, and `.jsx`;
@@ -750,7 +760,7 @@ export function registerAppFont(regularDescriptor: NSFontDescriptor) {
 }
 ```
 
-The macOS harness's [font setup](../../apps/macos/src/fonts.ts) loads its own
+The macOS harness's [font setup](../../apps/harness/macos/src/fonts.ts) loads its own
 Geist assets and license, registers weighted descriptors, and explicitly sets
 `fontFamily: 'Geist'` on its roots. Renderer-hosted popups and sheets inherit
 the owning root's default family. Custom assets must also be included in a

@@ -1,0 +1,60 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"test:filesystem": {
+			"dependsOn": [],
+			"env": ["WINDOWS_CORE_ARTIFACT"],
+			"cache": false
+		},
+		"test:keyboard": {
+			"dependsOn": [],
+			"env": ["WINDOWS_CORE_ARTIFACT"],
+			"cache": false
+		},
+		"build:bundle": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"env": ["NATIVESCRIPT_BUNDLER_ENV", "XPLAT_WINDOWS_QUALIFICATION", "XPLAT_WINDOWS_ENTRY"],
+			"cache": false
+		},
+		"build:windows": {
+			"env": ["XPLAT_WINDOWS_QUALIFICATION"],
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			// NativeScript's startup checks read the Windows shared-program paths.
+			// PROCESSOR_ARCHITECTURE selects the Microsoft.Windows.SDK.BuildTools
+			// arch folder — without it the x86 MrmSupport.dll is loaded into an
+			// x64 MSBuild process and packaging fails (error 193).
+			"passThroughEnv": [
+				"CommonProgramFiles",
+				"CommonProgramFiles(x86)",
+				"ProgramFiles",
+				"ProgramFiles(x86)",
+				"LOCALAPPDATA",
+				"NODE_OPTIONS",
+				"PROCESSOR_ARCHITECTURE"
+			],
+			"cache": false
+		},
+		// Imported package sources can resolve through paths outside the app's
+		// dependency edges. Hash them even though only app sources are roots.
+		"typecheck": {
+			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
+			"passThroughEnv": ["NODE_OPTIONS"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../apps/harness/windows/**",
+				"../../packages/**/*.ts",
+				"../../packages/**/*.tsx",
+				"../../packages/**/*.tsrx",
+				"../../packages/**/*.mts",
+				"../../packages/**/*.cts",
+				"../../packages/*/package.json",
+				"../../packages/*/tsconfig*.json",
+				"../../packages/*/tsrx-typegen.json",
+				"!../../packages/**/node_modules/**",
+				"!../../packages/**/.turbo/**"
+			],
+			"outputs": []
+		}
+	}
+}

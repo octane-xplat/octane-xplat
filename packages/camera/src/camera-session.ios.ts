@@ -47,8 +47,8 @@ export function startCameraPreview(
 
   if (connection) {
     connection.automaticallyAdjustsVideoMirroring = false
-    if (connection.isVideoMirroringSupported) {
-      connection.isVideoMirrored = facing === 'front'
+    if (connection.supportsVideoMirroring) {
+      connection.videoMirrored = facing === 'front'
     }
   }
 

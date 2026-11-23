@@ -163,7 +163,7 @@ function query(args) {
 mkdirSync(app)
 mkdirSync(join(app, 'src'))
 
-const mobile = JSON.parse(readFileSync(join(root, 'apps/mobile/package.json')))
+const mobile = JSON.parse(readFileSync(join(root, 'apps/harness/package.json')))
 const dependencies = Object.fromEntries(
   [
     '@nativescript/core',
@@ -171,7 +171,7 @@ const dependencies = Object.fromEntries(
     '@octane-xplat/nativescript-mason-core',
   ].map((name) => [
     name,
-    JSON.parse(readFileSync(join(root, 'apps/mobile/node_modules', name, 'package.json'))).version,
+    JSON.parse(readFileSync(join(root, 'apps/harness/node_modules', name, 'package.json'))).version,
   ]),
 )
 
@@ -186,7 +186,7 @@ const devDependencies = Object.fromEntries(
     '@octanejs/vite-plugin',
   ].map((name) => [
     name,
-    JSON.parse(readFileSync(join(root, 'apps/mobile/node_modules', name, 'package.json'))).version,
+    JSON.parse(readFileSync(join(root, 'apps/harness/node_modules', name, 'package.json'))).version,
   ]),
 )
 
@@ -203,7 +203,7 @@ put(join(app, 'package.json'), {
   xplat: { targets: { android: {} } },
 })
 
-symlinkSync(join(root, 'apps/mobile/node_modules'), join(app, 'node_modules'), 'dir')
+symlinkSync(join(root, 'apps/harness/node_modules'), join(app, 'node_modules'), 'dir')
 cpSync(
   join(root, 'packages/create/template/App_Resources/Android'),
   join(app, 'App_Resources/Android'),

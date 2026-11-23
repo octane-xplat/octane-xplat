@@ -1,0 +1,36 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../linux-gtk-renderer/src/host-globals.d.ts",
+		"../../linux-gtk-renderer/src/gi.d.ts",
+		"../src/ViewShot.gtk.tsx",
+		"../src/backend.gtk.ts",
+		"../src/index.gtk.ts",
+		"../src/index.linux.ts",
+		"./isolation-gtk.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/view-shot": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".gtk",
+			""
+		],
+		"customConditions": [
+			"gtk",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

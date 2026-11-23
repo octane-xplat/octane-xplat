@@ -80,7 +80,7 @@ is the portable boundary). `.tsx` allowed for directive-free files.
 ## Original config sketch (historical)
 
 ```ts
-// apps/mobile/vite.config.mts
+// apps/harness/vite.config.mts
 import { octaneConfig } from '@octane-xplat/vite-octane'
 export default octaneConfig({
   // + our config helper asserting:
@@ -88,7 +88,7 @@ export default octaneConfig({
   //   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
   //   resolve.extensions: ['.ios.tsrx','.mobile.tsrx','.tsrx', …full chain…]
 })
-// apps/web/vite.config.ts — @octanejs/vite-plugin + '.web' chain
+// apps/harness/vite.web.config.mts — @octanejs/vite-plugin + '.web' chain
 ```
 
 Entries: web `createRoot(el)`; native `Application.run({create})` +
@@ -211,7 +211,7 @@ conditions trigger it together:
 
 The same element with a string `className`, or rendered without the `@if`, works. Minimal repro:
 
-```tsx
+```tsrx
 function If(props: { h?: boolean; children?: any }) @{
   const node = <label className={['a']}>N</label>
   @if (props.h) {

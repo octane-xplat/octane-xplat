@@ -528,9 +528,11 @@ internal host callback, avoiding recursive calls into the serialized commit
 queue. These helpers are not public application navigation APIs.
 
 ```ts
-const prepared = await command.prepare(destination, flow)
-if (prepared.status !== 'ready') return prepared
-if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+async function beginCommit(command: any, destination: any, flow: any) {
+  const prepared = await command.prepare(destination, flow)
+  if (prepared.status !== 'ready') return prepared
+  if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+}
 ```
 
 Browser-triggered denial keeps the current view and corrects owned history to
@@ -625,9 +627,11 @@ does not cancel work in another flow. An explicit redirect stack is retained as
 private metadata so root escapes remain distinguishable from inherited scope.
 
 ```ts
-const prepared = await command.prepare(destination, targetFlow)
-if (prepared.status !== 'ready') return prepared
-return { status: 'handoff', prepared, action: 'replace' }
+async function handoff(command: any, destination: any, targetFlow: any) {
+  const prepared = await command.prepare(destination, targetFlow)
+  if (prepared.status !== 'ready') return prepared
+  return { status: 'handoff', prepared, action: 'replace' }
+}
 ```
 
 Canonical native dismissal prepares the presenter in the original attempt. A
@@ -676,7 +680,7 @@ Pages. This is release-triggered Back, without an interactive preview; rendered
 panes and modal-dismissal gestures are outside this adapter.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 # Owned iOS 26+ simulator and idb; the fixture captures no images.
 ```
 
@@ -742,8 +746,8 @@ dispatcher or qualify predictive gestures. Source evidence:
 [Android View](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/core/view/index.android.ts).
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 One initial qualification run missed its first edge swipe after earlier fullscreen
@@ -804,10 +808,10 @@ The scope itself registers/disconnects blockers; instance or owner lifetime
 cleanup releases their held work. Document unload and OS exit remain separate.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/web-verification/scripts/routing-contract.mts
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Executed runtime checks passed 88 production Chromium assertions, 238 iOS and
@@ -863,7 +867,7 @@ OS keyboard/pointer input and assistive-technology behavior remain unqualified.
 The renderer's 285 tests and the existing 28 native modal protocol cases pass.
 
 ```sh
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 node --test packages/macos-appkit/test/*.test.ts
 cd packages/ui && bunx vitest run --config vitest.native.config.mts src/routing/native-modal-router-host.mobile.test.tsrx
 ```
@@ -942,7 +946,7 @@ dev shells, whose working directories do not own that route catalog.
 ```sh
 bun run xplat routes --watch
 bun run xplat dev web
-bun run turbo run routes:watch --filter=@xplat/app
+bun run turbo run routes:watch --filter=@octane-xplat/app
 ```
 
 The watcher uses containing-directory handles to observe atomic saves and
@@ -1002,7 +1006,7 @@ The mobile fixtures also run this protocol in a named pane.
 Control refs are released when their entry leaves history.
 
 ```sh
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 The shared protocol uses public text/scroll primitives and explicit native focus

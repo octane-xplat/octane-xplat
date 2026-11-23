@@ -15,11 +15,18 @@
 import { cssWrapperQuery } from './css-platform.ts'
 import { processNativeCss } from './vite.ts'
 
-export function inlineStylesheets() {
+export function inlineStylesheets(destination: 'css-engine' | 'nativescript' = 'css-engine') {
   const warned = new Set<string>()
 
   return {
     name: 'xplat-inline-stylesheets',
+    config() {
+      if (destination === 'nativescript') {
+        // The Vite CSS minifier rewrites min/max-width into range syntax.
+        // Core 9.1.3's media-query parser only accepts the older form.
+        return { build: { cssMinify: false } }
+      }
+    },
     // Per-file processing — identical to mobile: xplat-web-only strip,
     // cascade layers retained, px→dip, letter-spacing em strip, divergence warns.
     transform: {
@@ -77,7 +84,7 @@ export function inlineStylesheets() {
           delete bundle[file.fileName]
         }
 
-        if (!sheets.length) {
+        if (!sheets.length && destination !== 'nativescript') {
           return
         }
 
@@ -88,10 +95,11 @@ export function inlineStylesheets() {
           return
         }
 
-        const pairs = sheets.map(([id, css]) => `[${JSON.stringify(id)},${JSON.stringify(css)}]`)
-
-        entry.code =
-          `(globalThis.__xplatStylesheets ??= []).push(${pairs.join(',')});\n` + entry.code
+        const seed =
+          destination === 'nativescript'
+            ? `(globalThis.__xplatReplaceCoreStylesheets ?? (sheets => { globalThis.__xplatCoreStylesheets = sheets }))(${JSON.stringify(sheets)});\n`
+            : `(globalThis.__xplatStylesheets ??= []).push(${sheets.map((sheet) => JSON.stringify(sheet)).join(',')});\n`
+        entry.code = seed + entry.code
 
         if (entry.map?.mappings) {
           // Shift every source mapping down one generated line.

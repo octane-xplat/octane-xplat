@@ -1,7 +1,7 @@
 // Desktop-shell journey — Windows lane. Windows has no downstream app
 // workflow yet, so this lane follows the packaged-runtime route of the
 // package runtime tests: build phase (local) stages the shared journey app
-// under apps/windows and bundles v1 (0.1.0) and v2 (0.2.0) with the harness
+// under tools/windows-host and bundles v1 (0.1.0) and v2 (0.2.0) with the harness
 // Vite config; journey phase (windy) stages each bundle into a copy of the
 // packaged NativeScript Windows runtime, registers it as an MSIX layout, and
 // drives it from the interactive session with SendInput and UI Automation.
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = join(here, '../../..')
-const harness = join(repo, 'apps/windows')
+const harness = join(repo, 'tools/windows-host')
 const WORK = process.env.DESKTOP_SHELL_WORK ?? join(repo, 'research/desktop-shell/windows-run-1')
 const PHASE = process.argv.includes('--phase')
   ? process.argv[process.argv.indexOf('--phase') + 1]

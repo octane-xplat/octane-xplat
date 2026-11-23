@@ -24,7 +24,7 @@ try {
 await writeFile(
   join(app, 'package.json'),
   JSON.stringify({
-    name: '@xplat/print-macos-consumer',
+    name: '@octane-xplat/print-macos-consumer',
     private: true,
     version: '1.0.0',
     type: 'module',
@@ -74,7 +74,7 @@ setTimeout(async () => {
 `,
 )
 
-const require = createRequire(join(repo, 'apps/mobile/package.json'))
+const require = createRequire(join(repo, 'apps/harness/package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
 
 await build({

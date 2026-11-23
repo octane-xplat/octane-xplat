@@ -1,4 +1,4 @@
-import type { BoxPaintState } from './box-paint-state'
+import type { BoxPaintNode, BoxPaintState } from './box-paint-state'
 import {
   BORDER_CORNERS,
   borderLength,
@@ -18,7 +18,6 @@ import {
 } from './background-layers.ts'
 
 import type { BackgroundSpec, BgGradient } from './background-layers.ts'
-import type { ElementNode } from './model'
 import { borderStyleSides, hiddenBorderStyle } from './border-styles.ts'
 import {
   CAGradientLayer,
@@ -65,7 +64,7 @@ export function createBackgroundPaint() {
     'backgroundBlendMode',
   ])
 
-  function backgroundEdges(node: ElementNode, state: BoxPaintState) {
+  function backgroundEdges(node: BoxPaintNode, state: BoxPaintState) {
     const spec = state.borderSpec
     const style = effectiveStyle(node)
     const sideStyles = borderStyleSides(style)
@@ -90,7 +89,7 @@ export function createBackgroundPaint() {
     }
   }
 
-  function clearBackgrounds(node: ElementNode, state: BoxPaintState) {
+  function clearBackgrounds(node: BoxPaintNode, state: BoxPaintState) {
     const failures = new FailureCollector()
     const paintedLayers: BgPainted[] = state.bgPainted ?? []
     const host = state.bgHost
@@ -249,7 +248,7 @@ export function createBackgroundPaint() {
     child.colors = resolved.map((s) => nativeColor(s.color).CGColor)
   }
 
-  function paintBackgrounds(node: ElementNode, state: BoxPaintState) {
+  function paintBackgrounds(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view
     const painted = state.bgPainted
 
@@ -324,7 +323,7 @@ export function createBackgroundPaint() {
     })
   }
 
-  function syncBackgrounds(node: ElementNode, state: BoxPaintState) {
+  function syncBackgrounds(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view
 
     if (!view) {

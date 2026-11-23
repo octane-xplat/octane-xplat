@@ -48,7 +48,7 @@ Full-screen coverage also depends on a prepared native Page; see
   pinch overscale/settle, pull dismissal/spring-back, UI toggle, and the
   reduced-motion fade. Raw result: local, ignored
   `research/lightbox-probes/logs/phase3-ios-2026-10-28.json`.
-- The maintained [Maestro flow](../../../../.maestro/lightbox.yaml) passed on a
+- The maintained [Maestro flow](../../../.maestro/lightbox.yaml) passed on a
   fresh iOS build. It delivered OS taps/swipes for paging, pull dismissal,
   reopening, and backdrop dismissal. Result: local, ignored
   `research/maestro/ios/1793162985790/report.xml` (one test, zero failures).

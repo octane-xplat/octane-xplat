@@ -7,8 +7,8 @@ pinned Argent journey. The latter launches isolated headless Chromium on CDP
 port 19329, saves text/JSON locally, and closes its browser/server.
 
 ```sh
-bun run --cwd apps/web node scripts/test-id.mjs
-bun run --cwd apps/web node scripts/test-id.mjs --argent
+bun run --cwd tools/web-verification node scripts/test-id.mjs
+bun run --cwd tools/web-verification node scripts/test-id.mjs --argent
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/test-id.mobile.test.tsrx
 ```
 

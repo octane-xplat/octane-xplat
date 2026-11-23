@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/workshop-demo",
+	"name": "@octane-xplat/workshop-demo",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -16,7 +16,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"octane": "catalog:"
 	},
 	"devDependencies": {
@@ -28,6 +28,7 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/linux-gtk": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
+		"@octane-xplat/macos-build": "workspace:*",
 		"@octane-xplat/workshop": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"playwright": "1.63.0",

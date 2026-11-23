@@ -2,7 +2,7 @@
 
 Mason owns native CSS layout; web keeps DOM CSS. Native container intrinsics use
 `masonview`; scroll and Liquid Glass hosts retain their platform chrome. Use the
-[styling reference](../../skills/octane-xplat/references/styling.md) for authored
+[styling reference](../guides/styling.md) for authored
 styles and the [core extraction design](../../design/mason-core-extraction.md)
 for package boundaries. This note owns integration constraints and upstream
 workaround removal conditions, not the current qualification queue.
@@ -27,12 +27,20 @@ hoisted packages. Accidentally loading full Mason's JavaScript can report
 
 ## Foreign leaf style synchronization
 
-Mason beta.110 issue #31: ordinary NativeScript views have no `_styleHelper`,
-so their resolved layout styles need a bridge. Read `Style.fromView` after
-attachment, effective-style changes, and native-view replacement. Batch writes,
-request parent layout, convert physical pixels to DIP, and release observers on
-detach/disposal. Include reset, percentage sizing, and reattachment behavior.
-Drop the bridge only when upstream supplies that complete contract.
+Ordinary NativeScript views have no `_styleHelper`. Mason now owns most of
+their layout-style forwarding through [Mason #130](https://github.com/triniwiz/nativescript-mason/pull/130)
+and [#131](https://github.com/triniwiz/nativescript-mason/pull/131). Core beta.12
+ships that forwarding. Keep the renderer bridge until the selected engine
+passes the complete contract, including reset, percentage sizing, and native
+view replacement.
+
+On Android API 35 with Core beta.12, both a renderer-managed Label with its
+bridge disabled and a Label mounted directly into Mason stopped drawing on
+collapse but kept a 62-DIP slot. The renderer bridge moved the sibling to
+0 DIP. Check both direct and class-authored collapse, and verify that
+restoring visibility returns the slot. A Mason candidate that forwards
+visibility and effective display passed this comparison on Android. Qualify
+the shipping package on each affected target before removing the fallback.
 
 Native `visibility: collapse` must become Mason `display: none`; observe
 visibility changes and deduplicate layout requests. For core 9.1.3 with Mason
@@ -55,7 +63,7 @@ regression's read-only diagnostic contains one documented owner assertion at
 that boundary; it does not imply the Label has Mason container methods.
 
 The maintained public regression and raw-label comparison live in
-`apps/mobile/src/tests/text-visibility.spec.tsrx`; see
+`apps/harness/src/tests/text-visibility.spec.tsrx`; see
 [the focused command and evidence limits](../testing.md#public-text-visibility-regression).
 UIView/layer flags and sibling geometry isolate suppression-state behavior;
 they do not establish inspected pixels or OS hit-testing.
@@ -126,7 +134,7 @@ It then invalidates the foreign leaf's cached engine measurement. Inner roots
 skip this warmup while they have a Mason ancestor; measurement callbacks must
 not re-enter the shared Rust compute. No native frame or style height is pinned.
 Remove the patch only when the unmodified maintained
-`apps/mobile/src/tests/foreign-screen-height.spec.tsrx` resize sequence passes
+`apps/harness/src/tests/foreign-screen-height.spec.tsrx` resize sequence passes
 against the replacement engine, including the final 200×500 to 107×300 shrink.
 This height correction does not establish nested iOS width parity.
 

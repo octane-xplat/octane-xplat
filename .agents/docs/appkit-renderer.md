@@ -1,8 +1,9 @@
 # AppKit renderer internals
 
-Use this map when changing `packages/macos-appkit`. The public entry is
-[`src/index.ts`](../../packages/macos-appkit/src/index.ts); its declaration
-contract remains in `src/index.d.ts`.
+Use this map when changing `packages/macos-appkit`. The public renderer
+entry is [`src/nativescript-renderer.macos.ts`](../../packages/macos-appkit/src/nativescript-renderer.macos.ts)
+and its declaration contract is in `src/index.d.ts`. The public AppKit host
+entry is [`src/nativescript-host.macos.ts`](../../packages/macos-appkit/src/nativescript-host.macos.ts).
 
 ## Find the owner
 
@@ -26,6 +27,112 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Native surfaces | `popover.ts`, `context-menu.ts`, `picker-bridge.ts`, `sheet-bridge.ts`; existing `presentation.ts` and `layer.ts` own their surface engines |
 | Inspection and measurement | `automation.ts`, `measurements.ts`, `parity.ts` |
 
+## NativeScript Core provider
+
+`packages/macos-appkit/platforms/nativescript/` owns the Core 9.1.3 platform
+modules and the adapter to the existing Mason library. These modules implement
+the pinned Core runtime contract. Core supplies its public declarations.
+`@octane-xplat/macos-appkit/core-provider` uses the package's pinned,
+patched NativeScript Vite and Core dependencies. Provider imports can reach
+Core internals because they implement those modules. The runtime fixture
+verifies the resolved Core paths and checks that the legacy renderer stays
+out of the bundle. The macOS build boundary permits
+iOS-suffixed files only for paths in the Core provider's explicit reuse map.
+The Core CLI resolves shared UI, routes and gestures through the same
+renderer. Its UI entry keeps the desktop keyboard wrapper.
+The Node-API bridge resolves global class handles on each lookup. Core's
+layout helper retains the `NSScreen` class handle and reads the current
+screen for each conversion, so display-scale changes still take effect.
+In the installed Intel fixture the bridge sometimes reported that the
+screen wrapper had no native counterpart. The layout helper keeps the last
+valid scale for that conversion and reacquires the class on the next read.
+
+The renderer uses the AppKit menu action store, keyboard dispatcher and
+secondary-window lifecycle. Native pickers and context menus unwrap Core
+references before attaching the same AppKit controls used by the existing
+renderer. Anchored layers, popovers, dialogs and sheets can mount Core roots
+and measure their content in AppKit points. Retire a Core view's keyboard leases before
+detaching its native view. Each host installs the window root factory when it
+starts. Window sizing and close behavior stay in `host-windowing.ts`.
+Core mounts its main root inside the AppKit host's pinned content view.
+Replacing the root keeps the existing window, delegate, and size pins.
+The macOS compiler adapter gives tabs and ListView row renderers portals
+in their declaring Octane tree. Same-count ListView updates rebind visible
+rows in place. An AppKit factory template can own its own root through
+`createMacOSRoot`; the list releases that root when it retires the factory view.
+The Core host uses the same AppKit pager and AVPlayer ownership code as the
+legacy renderer. Compatibility plugin views retain the factory they acquired
+until disposal, even when a later registration supplies a new factory.
+Raw tab items own a retained content root while assigned to a tab view.
+An AppKit portal mounts a Core layout inside the caller's native target and
+inherits the containing root's font. Duplicate mounts on the same native
+target are rejected until the first owner releases it.
+
+Native button and field actions check their current sender before dispatch.
+The native accessibility adjustment selectors respect disabled and read-only
+state, and retained control targets are inert once their owner retires.
+When compiling Core-backed components, select `host-core.macos.tsx` for
+the UI interaction host. It waits for the Core view to load and uses AppKit's
+mouse contact stream. Wait for the underlying AppKit view's window
+getter before binding gestures. AppKit retains its normal wheel scrolling.
+Core's Mason scroll view exposes the shared MasonKit scroll metrics,
+top-relative point offsets, and scroll events through its AppKit clip view.
+The Core ActionBar supplies its natural title size to Mason. AppKit keeps a
+plain native host view, so measuring the title does not require a native
+getter that calls back into JavaScript.
+Core bundles load CSS through its tagged stylesheet registry. The CLI's
+NativeScript stylesheet destination replaces the previous bundle's rules,
+including when the new bundle contains no styles. Application-registered
+sheets live under separate tags and keep their relative cascade order on
+replacement. Core font changes use the shared AppKit font resolver.
+Text controls support logical start/end alignment and update it when the
+inherited direction changes. The Core view maps its resolved background
+into the AppKit painter for colors, borders, gradients, images and shadows.
+On Mac, the Core style registry keeps percentage corner radii until the
+painter can resolve them against the layer. The same registry exposes border
+styles and outlines to the AppKit painter.
+Core transform and opacity properties update the same AppKit layers.
+Core refreshes paint geometry after layout so percentage transforms can
+resolve against the new bounds. The painter owns its frame observers
+and layer disposal. Keep CSS parser coverage separate from paint coverage.
+Core CSS still needs explicit
+`border-width` and `border-color`. Bundled CSS uses the CLI's `px` to
+`dip` rewrite. Runtime stylesheet registration passes lengths through to Core.
+The AppKit measurement hook defers clearing its bounds when a ref receives
+null. A replacement callback can rebind the same view during the commit.
+Publishing null and then the same rectangle in one commit keeps the bounds
+reader rendering and can starve the AppKit event loop. Rebinding cancels
+the scheduled clear.
+The Core route pane can shrink to its outlet's bounds even when a scroll
+view inside it has a tall document. The desktop harness checks that the
+500-row VirtualList has a bounded, scrollable viewport and mounts a subset
+of the rows before and after a data change.
+The Core stylesheet destination preserves the authored min/max media
+syntax because Core 9.1.3 cannot parse the minifier's range syntax.
+Core 9.1.3 normally evaluates selector and keyframe media queries against
+the physical display. The Core patch lets the styled view provide its own
+match. The AppKit provider evaluates against that view's window and refreshes
+its stylesheet matches on resize. The Core root map gives layout observers
+the AppKit content view after Core commits its geometry. The native fixture
+runs through the shared AppKit application launcher and checks one cleanup.
+Other Core platforms keep their existing media matcher. The native provider fixture verifies different rules in two
+windows and independent updates when either window resizes.
+The development shell owns Core, the driver, and the Octane runtime. Mark
+the modules in `nativescript-dev-imports.mjs` external in app rebuilds and
+install the shell's module table before evaluating the first app bundle.
+
+```sh
+bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
+```
+
+The packed suite installs the public package exports in an independent app
+and exercises the signed production bundle and development hot reload. On
+macOS, it also builds the workspace provider fixture to check that the bundle
+loads one Core instance and exercise per-window CSS, layout, accessibility
+properties, menu actions, tray lifecycle, shortcut dispatch, and teardown.
+The fixture drives AppKit directly and posts synthetic events to its own
+process. Physical input and assistive technology need separate checks.
+
 ## Keep lifecycle and initialization explicit
 
 Each feature owner retains and releases its own resources. Canonical adapters
@@ -35,6 +142,15 @@ owners. `nodes.ts` coordinates common construction and teardown;
 through the acquired adapter. Synchronization that reads several props runs
 after the whole bag has been merged. New element support belongs in adapter
 definition/assembly and its feature owner, not a generic lifecycle switch.
+
+Property removal is renderer- and control-specific. AppKit supplies `undefined`
+clears for previously applied non-nullish values, including authored props, and
+each adapter decides what that means. The text-value writer releases controlled
+ownership on `undefined` without clearing the displayed text. The NativeScript
+driver instead restores registered setters with `unsetValue` and ordinary
+properties from captured defaults. Do not replace these policies with a common
+reset operation without preserving their different contracts. A generic loop
+over removed names alone does not remove the platform-specific work.
 
 The registry owns element support and containment queries as well as identity
 maps. It has no service dependencies and is constructed first. Node creation,
@@ -329,6 +445,36 @@ across retired view lifetimes without redirecting held native callbacks.
 This deliberately retains native objects while releasing their JS feature
 closures; it is not whole-process leak freedom. Remove this workaround only
 after an upstream bridge change passes a native finalization regression.
+
+The Core macOS provider probe reproduced a related teardown crash on
+`@nativescript/macos-node-api` 0.5.0-beta.0. JavaScriptCore sweeps a collected
+wrapper and the bridge releases its native object. AppKit can then call back
+into a JavaScript override such as `NSView.isFlipped` while the sweep is
+active. The callback needs a JavaScript allocation and traps. A closed window
+with a scroll-view subtree reproduced the crash. Plain `NSView` containers
+with explicit coordinate conversion avoid that callback. Detach views and
+clear delegates during disposal before dropping their wrappers. Requalify
+finalization before adding JavaScript overrides that AppKit can call during
+teardown.
+
+On Intel, the bridge can hand Core a stale AppKit subview collection during
+insertion, replacement, or window teardown. The CLI-built host uses
+`XplatViewTree` for indexed insertion and recursive detachment. The helper
+reads AppKit's child collections in Objective-C and keeps their wrappers
+out of JavaScript. The bare-host fixture can fall back to the JavaScript
+path, which detaches the owning view if the bridge reports a stale child
+wrapper. Other teardown errors still surface.
+
+AppKit can request ListView row heights before the first Core measure.
+Use the Core layout width in that callback. Looking up the table's clip
+view through the bridge can raise an exception during AppKit layout on Intel.
+
+The installed Intel AppKit runtime can return a stale native color during
+reactive SegmentedBar tint updates. The same signed lifecycle fails with
+both the previous AppKit renderer and the Core provider. Core receives the
+new RGB channels, then the bridge provides the old native color before the
+control setter runs. Check native readback on Intel when changing this
+path or the bridge, including a second distinct color in the same view.
 
 ## Verify a change
 

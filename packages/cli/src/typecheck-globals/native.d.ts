@@ -1,7 +1,7 @@
 // Ambient JS-engine globals for the NativeScript environments (iOS/Android/Windows).
 // The runtime provides all of these but @nativescript/core leaves the global
 // declarations commented out (global-types.d.ts) — same reasoning and shape
-// as apps/mobile/types/globals.d.ts. Platform bridge globals (android,
+// as apps/harness/types/globals.d.ts. Platform bridge globals (android,
 // UIApplication, …) are NOT declared here: they come from the real
 // @nativescript/types packages, which a package must declare when its checked
 // sources use them.

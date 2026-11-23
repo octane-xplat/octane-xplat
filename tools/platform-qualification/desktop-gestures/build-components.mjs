@@ -48,7 +48,7 @@ if (mode === '--fixture-only') {
   // The libraries under qualification are extracted tarballs, never links to
   // their source. This is a packed-content gate, not a frozen fresh-install gate.
   for (const modules of [
-    join(repo, target === 'windows' ? 'apps/windows/node_modules' : 'apps/macos/node_modules'),
+    join(repo, target === 'windows' ? 'tools/windows-host/node_modules' : 'tools/macos-verification/node_modules'),
     join(repo, 'node_modules'),
     ...[
       'motion',
@@ -168,7 +168,7 @@ if (target === 'macos') {
 let config
 
 if (target === 'windows') {
-  const original = JSON.parse(await readFile(join(repo, 'apps/windows/package.json'), 'utf8'))
+  const original = JSON.parse(await readFile(join(repo, 'tools/windows-host/package.json'), 'utf8'))
   const manifest = JSON.parse(await readFile(join(app, 'package.json'), 'utf8'))
 
   for (const name of [

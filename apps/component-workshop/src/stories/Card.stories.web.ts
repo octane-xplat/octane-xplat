@@ -1,5 +1,5 @@
 // Uses the maintained CardShowcase example; do not copy its implementation here.
-import { CardShowcase as Example } from '@xplat/astryx-sandbox/examples/card/CardShowcase.tsrx'
+import { CardShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/card/CardShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

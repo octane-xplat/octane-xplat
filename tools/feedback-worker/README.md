@@ -11,7 +11,7 @@ Worker.
 From the repository root, install this workspace and apply the local migration:
 
 ```sh
-bun install --filter @xplat/feedback-worker --ignore-scripts
+bun install --filter @octane-xplat/feedback-worker --ignore-scripts
 cd tools/feedback-worker
 bun run wrangler d1 migrations apply FEEDBACK --local
 bun run dev
@@ -123,7 +123,7 @@ may retain its own infrastructure metadata under the account's settings.
 From the repository root:
 
 ```sh
-bun run turbo run test typecheck build --filter=@xplat/feedback-worker
+bun run turbo run test typecheck build --filter=@octane-xplat/feedback-worker
 ```
 
 Tests execute the handler against the actual SQL migration using in-memory

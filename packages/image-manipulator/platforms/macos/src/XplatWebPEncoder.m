@@ -1,8 +1,13 @@
 #import "XplatWebPEncoder.h"
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
+#if __has_include(<libwebp/encode.h>)
+#import <libwebp/encode.h>
+#import <libwebp/decode.h>
+#else
 #import <webp/encode.h>
 #import <webp/decode.h>
+#endif
 
 @implementation XplatWebPEncoder
 + (NSData *)encodePNG:(NSData *)data quality:(double)quality {

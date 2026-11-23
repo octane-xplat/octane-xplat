@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Lockstep version bump for the release workflow: sets every publishable
 // package to the same version and regenerates the compatibility manifest and
 // starter pins, including the framework patches config dependency.

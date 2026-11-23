@@ -21,7 +21,7 @@ No browser or device performance task belongs in lightweight PR CI.
    UDID; signing must already be configured. Keep device IDs out of committed data.
 
    ```sh
-   bun run turbo run bench:animation:ios --filter=@xplat/mobile -- simulator 91D40099-A056-497D-A572-ADDDFD6A8F23
+   bun run turbo run bench:animation:ios --filter=@octane-xplat/mobile -- simulator 91D40099-A056-497D-A572-ADDDFD6A8F23
    ```
 
 2. Install the resulting `org.octanexplat.animationquality` app from the

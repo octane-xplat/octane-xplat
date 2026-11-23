@@ -1,4 +1,4 @@
-import { TableBulkActionsTable as Example } from '@xplat/astryx-sandbox/examples/table/TableBulkActionsTable.tsrx'
+import { TableBulkActionsTable as Example } from '@octane-xplat/astryx-sandbox/examples/table/TableBulkActionsTable.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

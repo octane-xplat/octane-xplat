@@ -1,5 +1,5 @@
 // Uses the maintained SearchDemo example; do not copy its implementation here.
-import { SearchDemo as Example } from '@xplat/demos/SearchDemo.tsrx'
+import { SearchDemo as Example } from '@octane-xplat/demos/SearchDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

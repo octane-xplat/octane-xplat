@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useEffect, useRef, useState } from 'octane'
+import { useCallback, useEffect, useRef, useState } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useLayer } from './use-layer.tsrx'
 import { View } from '../layout/View.web.tsrx'
@@ -28,7 +28,7 @@ type Binding = {
  * semantic and a long-press stand-in would repeat the old hover-wrapper trap
  * (decision #47).
  */
-export function Tooltip(props: TooltipProps): JSX.Element @{
+export function useTooltip(props: Omit<TooltipProps, 'trigger'>, direct = false) {
   const [open, setOpen] = useState(false)
   const anchor = useRef<HTMLElement | null>(null)
   const binding = useRef<Binding | null>(null)
@@ -37,12 +37,13 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
   const tooltipId = layer.id
 
   useEffect(() => {
-    if (open) {
+    if (open && !props.disabled) {
       layer.show()
     } else {
       layer.hide()
+      if (props.disabled) closeNow()
     }
-  }, [open, layer.show, layer.hide])
+  }, [open, props.disabled, layer.show, layer.hide])
 
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -106,44 +107,47 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     setOpen(false)
   }
 
-  const bindAnchor = (node: HTMLElement | null) => {
-    anchor.current = node
-    layer.ref(node)
-    if (binding.current?.node === node) {
-      return
-    }
+  const bindAnchor = useCallback(
+    (node: HTMLElement | null) => {
+      anchor.current = node
+      layer.ref(node)
+      if (binding.current?.node === node) {
+        return
+      }
 
-    const old = binding.current
+      const old = binding.current
 
-    if (old) {
-      old.node.removeEventListener('mouseenter', old.enter)
-      old.node.removeEventListener('mouseleave', old.leave)
-      old.node.removeEventListener('focusin', old.focusIn)
-      old.node.removeEventListener('focusout', old.focusOut)
-    }
+      if (old) {
+        old.node.removeEventListener('mouseenter', old.enter)
+        old.node.removeEventListener('mouseleave', old.leave)
+        old.node.removeEventListener('focusin', old.focusIn)
+        old.node.removeEventListener('focusout', old.focusOut)
+      }
 
-    binding.current = null
-    if (!node) {
-      return
-    }
+      binding.current = null
+      if (!node) {
+        return
+      }
 
-    const next: Binding = {
-      node,
-      enter: startOpen,
-      leave: () => {
-        clearOpen()
-        scheduleClose()
-      },
-      focusIn: openNow,
-      focusOut: closeNow,
-    }
+      const next: Binding = {
+        node,
+        enter: startOpen,
+        leave: () => {
+          clearOpen()
+          scheduleClose()
+        },
+        focusIn: openNow,
+        focusOut: closeNow,
+      }
 
-    node.addEventListener('mouseenter', next.enter)
-    node.addEventListener('mouseleave', next.leave)
-    node.addEventListener('focusin', next.focusIn)
-    node.addEventListener('focusout', next.focusOut)
-    binding.current = next
-  }
+      node.addEventListener('mouseenter', next.enter)
+      node.addEventListener('mouseleave', next.leave)
+      node.addEventListener('focusin', next.focusIn)
+      node.addEventListener('focusout', next.focusOut)
+      binding.current = next
+    },
+    [layer.ref, props.disabled, props.openDelay, props.closeDelay],
+  )
 
   useEffect(
     () => () => {
@@ -163,7 +167,7 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
   )
 
   useEffect(() => {
-    if (!open) {
+    if (!open || props.disabled) {
       return
     }
 
@@ -172,8 +176,9 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
       host?.matches?.(FOCUSABLE) ? host : (host?.querySelector?.(FOCUSABLE) ?? host)
     ) as HTMLElement | null
 
-    if (target) {
-      target.setAttribute('aria-describedby', tooltipId)
+    if (target && !direct) {
+      const ids = (target.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
+      target.setAttribute('aria-describedby', [...new Set([...ids, tooltipId])].join(' '))
       described.current = target
     }
 
@@ -182,10 +187,36 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     window.addEventListener('scroll', onScroll, true)
     return () => {
       window.removeEventListener('scroll', onScroll, true)
-      described.current?.removeAttribute('aria-describedby')
+      const node = described.current
+      const ids = (node?.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .filter((id) => id && id !== tooltipId)
+
+      if (ids.length) {
+        node?.setAttribute('aria-describedby', ids.join(' '))
+      } else {
+        node?.removeAttribute('aria-describedby')
+      }
       described.current = null
     }
-  }, [open])
+  }, [open, props.disabled, props.content, direct])
+
+  const panel = props.disabled
+    ? null
+    : layer.render(props.content, {
+        placement: props.placement ?? 'top',
+        alignment: direct ? 'center' : 'start',
+        offset: 8,
+        className: cx('vx-tooltip', props.contentClassName),
+        style: { pointerEvents: 'none', ...styleRecord(props.contentStyle) },
+        accessibilityRole: 'tooltip',
+      })
+
+  return { bindAnchor, panel, descriptionId: open && !props.disabled ? tooltipId : undefined }
+}
+
+export function Tooltip(props: TooltipProps): JSX.Element @{
+  const { bindAnchor, panel } = useTooltip(props)
 
   <View
     id={props.id}
@@ -195,13 +226,6 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     web={props.web}
   >
     {props.trigger}
-    {layer.render(props.content, {
-      placement: props.placement ?? 'top',
-      alignment: 'start',
-      offset: 8,
-      className: cx('vx-tooltip', props.contentClassName),
-      style: { pointerEvents: 'none', ...styleRecord(props.contentStyle) },
-      accessibilityRole: 'tooltip',
-    })}
+    {panel}
   </View>
 }

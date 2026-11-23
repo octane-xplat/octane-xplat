@@ -1454,7 +1454,9 @@ detection uses an `IntersectionObserver` sentinel on web and a scroll-position
 check on native. New-message tracking uses `ResizeObserver` on web and
 `layoutChanged` on native. The Linux entry uses the web leaves; the AppKit
 entry uses AppKit scroll geometry and native text-input behavior.
-See [keyboard-following conversations](software-keyboard.md#keep-a-conversation-steady)
+See the numbered [conversation walkthrough](../../examples/chat/conversation.tsx)
+and [draft with mentions](../../examples/chat/draft-with-mentions.tsx), plus
+[keyboard-following conversations](software-keyboard.md#keep-a-conversation-steady)
 for keyboard policies and history anchoring.
 Windows resolves the shared `index.ts` through its app TypeScript mapping;
 its Chat runtime has not been exercised separately.
@@ -1487,6 +1489,10 @@ export function Example() {
 ```
 
 ## Overlays
+
+Explore numbered walkthroughs for [dialogs](../../examples/overlays/surfaces.tsx),
+[toasts](../../examples/overlays/toasts.tsx), [scrolling](../../examples/overlays/scrolling.tsx),
+and [media previews](../../examples/overlays/media-preview.tsx).
 
 | Component                 | What it is                                        | Key props                                                      |
 | ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |

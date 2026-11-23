@@ -1,4 +1,4 @@
-import { TiptapEditorDemo as Example } from '@xplat/demos/TiptapEditorDemo.tsrx'
+import { TiptapEditorDemo as Example } from '@octane-xplat/demos/TiptapEditorDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

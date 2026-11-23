@@ -1,6 +1,7 @@
 import type { DeviceInfo } from './types'
+import { locale } from './locale.web'
 
-const ua = navigator.userAgent
+const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent
 const osVersion =
   ua.match(/(?:Mac OS X|Windows NT|Android|OS) ([\d._]+)/)?.[1]?.replace(/_/g, '.') ?? ''
 
@@ -9,6 +10,6 @@ export const device: DeviceInfo = {
   osVersion,
   model: 'browser',
   manufacturer: '',
-  language: navigator.language.split('-')[0] ?? '',
-  region: navigator.language.split('-')[1] ?? '',
+  language: locale.language,
+  region: locale.region,
 }

@@ -148,7 +148,7 @@ measured `transform: translate(-50%,-50%)` as a −50dip view offset on
 translates and resolves each axis against the view's own bounds. That fix is
 source-reviewed but has not been app-verified. Entry files must still import
 css as JS modules — `import '@pkg/file.css'`, one per file, like
-`apps/web/src/main.tsrx`. The transform warns when a `.css` source contains
+`apps/harness/web/src/main.tsrx`. The transform warns when a `.css` source contains
 `@import`.
 
 ```ts

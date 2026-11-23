@@ -1,0 +1,315 @@
+diff --git a/src/LexicalAutoEmbedPlugin.tsrx b/src/LexicalAutoEmbedPlugin.tsrx
+index f93e776f860922c659b93ed01b0211980c971841..53374922f46d499035060e53d11c90a539fce2d6 100644
+--- a/src/LexicalAutoEmbedPlugin.tsrx
++++ b/src/LexicalAutoEmbedPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalAutoEmbedPlugin.tsx. Watches pasted
+ // AutoLink/Link nodes that match an embed config (YouTube, tweet, …) and shows a
+ // node menu offering to replace the link with an embed node. Built on the ported
+diff --git a/src/LexicalAutoFocusPlugin.tsrx b/src/LexicalAutoFocusPlugin.tsrx
+index f14277f485bcce30a338ec60ada0a08368dffb3d..a61e66f7436949fc548a1089f7454e5289501506 100644
+--- a/src/LexicalAutoFocusPlugin.tsrx
++++ b/src/LexicalAutoFocusPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalAutoFocusPlugin.ts.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+ import { getActiveElement } from 'lexical';
+diff --git a/src/LexicalAutoLinkPlugin.tsrx b/src/LexicalAutoLinkPlugin.tsrx
+index 5b2924618936d306c10a87c0a4e721fea4f729d2..b47f130319eac35c198ecb608caa594bbe2f86c3 100644
+--- a/src/LexicalAutoLinkPlugin.tsrx
++++ b/src/LexicalAutoLinkPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalAutoLinkPlugin.ts (useAutoLink inlined).
+ import invariant from '@lexical/internal/invariant';
+ import { AutoLinkNode, registerAutoLink } from '@lexical/link';
+diff --git a/src/LexicalBlockWithAlignableContents.tsrx b/src/LexicalBlockWithAlignableContents.tsrx
+index 112cb0f3c80f964ae817ac44ac756d03557e9f15..106f05cc88fe84b50840052b3b89ecfd647298e8 100644
+--- a/src/LexicalBlockWithAlignableContents.tsrx
++++ b/src/LexicalBlockWithAlignableContents.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalBlockWithAlignableContents.tsx. Wraps a
+ // DecoratorBlockNode's contents, syncing node selection + element alignment:
+ // reflects the node's `format` alignment, responds to FORMAT_ELEMENT_COMMAND, and
+diff --git a/src/LexicalCharacterLimitPlugin.tsrx b/src/LexicalCharacterLimitPlugin.tsrx
+index 7d43b5597c6114f4a53cd8e421ebf85c5667a59c..08c5e3734b40ed024ed9af91b5fefad161622b8c 100644
+--- a/src/LexicalCharacterLimitPlugin.tsrx
++++ b/src/LexicalCharacterLimitPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalCharacterLimitPlugin.tsx. Tracks text
+ // length against maxLength, marks overflow, and renders remaining characters. The
+ // renderer is rendered via createElement (octane renders the descriptor) rather
+diff --git a/src/LexicalCheckListPlugin.tsrx b/src/LexicalCheckListPlugin.tsrx
+index 28a7fa84e400db7892a6daa09064c6916268723b..46d33dab4ca85b23647bb0099d7354f06f0943c5 100644
+--- a/src/LexicalCheckListPlugin.tsrx
++++ b/src/LexicalCheckListPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalCheckListPlugin.tsx.
+ import { registerCheckList } from '@lexical/list';
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalClearEditorPlugin.tsrx b/src/LexicalClearEditorPlugin.tsrx
+index 5f5aefd5bbc9e5a2ab5a5d45379097d59928a582..a67dd2ac2c68b530914380a84862c7fa41b2b4fd 100644
+--- a/src/LexicalClearEditorPlugin.tsrx
++++ b/src/LexicalClearEditorPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalClearEditorPlugin.ts. registerClearEditor
+ // comes from @lexical/extension's framework-agnostic core.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalClickableLinkPlugin.tsrx b/src/LexicalClickableLinkPlugin.tsrx
+index 160e2b260102eaab8ed49a0cfa4957bc8a0841bc..97555f09a805be31d2a6d34208761aab6af0782e 100644
+--- a/src/LexicalClickableLinkPlugin.tsrx
++++ b/src/LexicalClickableLinkPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalClickableLinkPlugin.tsx.
+ import { namedSignals } from '@lexical/extension';
+ import { registerClickableLink } from '@lexical/link';
+diff --git a/src/LexicalComposer.tsrx b/src/LexicalComposer.tsrx
+index 5a7d38b13496d7f17a1175adc47ed66a86767661..b0e926238120ef84c1ace9eda92c9603fcbf2a34 100644
+--- a/src/LexicalComposer.tsrx
++++ b/src/LexicalComposer.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalComposer.tsx. Creates a LexicalEditor from
+ // initialConfig once (useMemo), seeds its initial state, provides it via context,
+ // and renders children. `useLayoutEffect` applies the editable flag on mount.
+diff --git a/src/LexicalContentEditable.tsrx b/src/LexicalContentEditable.tsrx
+index e0d5fa2eaa1cd20e5da90b5e17ef8cdef8a64b12..a4bb0d24a6dfe14f6c2b5235cf62291790ae16f4 100644
+--- a/src/LexicalContentEditable.tsrx
++++ b/src/LexicalContentEditable.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalContentEditable.tsx. Reads the editor from
+ // context and renders the editable element; an optional `placeholder` is shown
+ // while the editor can show one. React's `forwardRef` becomes a plain `ref` prop
+diff --git a/src/LexicalDraggableBlockPlugin.tsrx b/src/LexicalDraggableBlockPlugin.tsrx
+index 5b2a23963d2878e24223ca0852e048fb09721207..63eb9f89c5e19164c81b276bf6c72cbf82115f54 100644
+--- a/src/LexicalDraggableBlockPlugin.tsrx
++++ b/src/LexicalDraggableBlockPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalDraggableBlockPlugin.tsx. Renders a drag
+ // handle + drop-target line (portaled into anchorElem) to reorder top-level blocks.
+ // The DOM math helpers are framework-agnostic and copied as-is; the portal body is a
+diff --git a/src/LexicalEditorRefPlugin.tsrx b/src/LexicalEditorRefPlugin.tsrx
+index 9c318de1cc015ee85054be6ac30c8befc158b331..9d0ec446ccb77f20056ae67d5912d163e12abf07 100644
+--- a/src/LexicalEditorRefPlugin.tsrx
++++ b/src/LexicalEditorRefPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalEditorRefPlugin.tsx. Hands the editor to
+ // a callback ref or object ref so UI outside the composer can reach it.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalErrorBoundary.tsrx b/src/LexicalErrorBoundary.tsrx
+index 7b16b2e43be28f4815bfa8c6bc028c2158c9a005..9911a9ffbd8f1e8473ed9b72bfba2be0757b6142 100644
+--- a/src/LexicalErrorBoundary.tsrx
++++ b/src/LexicalErrorBoundary.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalErrorBoundary.tsx. React's class-based
+ // boundary becomes octane's <ErrorBoundary> primitive. octane's ErrorBoundary has
+ // no `onError` prop, so we route it through the fallback render-prop (invoked with
+diff --git a/src/LexicalHashtagPlugin.tsrx b/src/LexicalHashtagPlugin.tsrx
+index 694c9202f086d19c6c60da0c215c451415db2451..30e955f7d749a828690f2edf3368608e4db254a5 100644
+--- a/src/LexicalHashtagPlugin.tsrx
++++ b/src/LexicalHashtagPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalHashtagPlugin.ts.
+ import { HashtagNode, registerLexicalHashtag } from '@lexical/hashtag';
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalHistoryPlugin.tsrx b/src/LexicalHistoryPlugin.tsrx
+index 4458c9b9e25b95e23cb5a8f78005a9a55f76dcda..2355d30b58f3ae38923e894c5ea864ab02425932 100644
+--- a/src/LexicalHistoryPlugin.tsrx
++++ b/src/LexicalHistoryPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalHistoryPlugin.ts (+ shared/useHistory.ts
+ // inlined — it was a single-use internal hook, so the component's auto-slotted
+ // useMemo/useEffect cover it directly).
+diff --git a/src/LexicalHorizontalRuleNode.tsrx b/src/LexicalHorizontalRuleNode.tsrx
+index 52aa9438c1c13a0887b30eeef2d032df81e9cc2b..25541d555f9923259aa9c5e4db3fd63e0def8548 100644
+--- a/src/LexicalHorizontalRuleNode.tsrx
++++ b/src/LexicalHorizontalRuleNode.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalHorizontalRuleNode.tsx. The node's
+ // decorate() returns a `<HorizontalRuleComponent/>` — at octane value position
+ // that lowers to an element descriptor, which the Decorators portal renders into
+diff --git a/src/LexicalHorizontalRulePlugin.tsrx b/src/LexicalHorizontalRulePlugin.tsrx
+index 75135221a19c429c744cfe6fd77e61e2d29008c2..e5e94e13fce1f6ee0a48de65be3e4c8fa43df26e 100644
+--- a/src/LexicalHorizontalRulePlugin.tsrx
++++ b/src/LexicalHorizontalRulePlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalHorizontalRulePlugin.ts.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+ import {
+diff --git a/src/LexicalLinkPlugin.tsrx b/src/LexicalLinkPlugin.tsrx
+index 9924e31f50ee8154692cdcee7ac0dd60dbb123c8..daa4fbea0316b16ab4d520e1268e0d137682f7e4 100644
+--- a/src/LexicalLinkPlugin.tsrx
++++ b/src/LexicalLinkPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalLinkPlugin.ts. namedSignals is from
+ // @lexical/extension's framework-agnostic core.
+ import { namedSignals } from '@lexical/extension';
+diff --git a/src/LexicalListPlugin.tsrx b/src/LexicalListPlugin.tsrx
+index 0648724f3776905fc93a463e49418ce2748078d5..a9f46c71369a47f1045976db06162dc3c9556766 100644
+--- a/src/LexicalListPlugin.tsrx
++++ b/src/LexicalListPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalListPlugin.ts (+ shared/useList.ts inlined
+ // as the third useEffect, matching @lexical/react which registers list twice).
+ import {
+diff --git a/src/LexicalMarkdownShortcutPlugin.tsrx b/src/LexicalMarkdownShortcutPlugin.tsrx
+index 78702cb5407c1851878da33658bb2e2b06e70567..6fae20954edd03514609298748e9f36fe31d7bef 100644
+--- a/src/LexicalMarkdownShortcutPlugin.tsrx
++++ b/src/LexicalMarkdownShortcutPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalMarkdownShortcutPlugin.tsx. The HR
+ // transformer + node come from @lexical/extension's agnostic core.
+ import {
+diff --git a/src/LexicalNestedComposer.tsrx b/src/LexicalNestedComposer.tsrx
+index e5d4de332ce624d92d20178d2200a8f067b99272..919542f5031247284ea59fdeeae80cbf8bc85bf2 100644
+--- a/src/LexicalNestedComposer.tsrx
++++ b/src/LexicalNestedComposer.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalNestedComposer.tsx. Provides a nested
+ // LexicalEditor (e.g. the editor backing an image caption or table cell) to its
+ // children via context, inheriting the parent's theme/nodes/namespace/editable
+diff --git a/src/LexicalNodeContextMenuPlugin.tsrx b/src/LexicalNodeContextMenuPlugin.tsrx
+index bffe5877ee7abe1438a26fe030fab3ea41d63b61..c379aef6c1a0d0622d67ec4703bbe6175abe2747 100644
+--- a/src/LexicalNodeContextMenuPlugin.tsrx
++++ b/src/LexicalNodeContextMenuPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported 1:1 from @lexical/react/src/LexicalNodeContextMenuPlugin.tsx (0.51.0). The
+ // React version is built entirely on @floating-ui/REACT — useFloating, useRole,
+ // useDismiss, useListNavigation, useTypeahead, useInteractions, and the
+diff --git a/src/LexicalNodeEventPlugin.tsrx b/src/LexicalNodeEventPlugin.tsrx
+index ca1c1d805f693816cc53f7e3346bb4e7726eed45..714934d7932ea5d4c7bc6dbfd9cc7ce8df4981bb 100644
+--- a/src/LexicalNodeEventPlugin.tsrx
++++ b/src/LexicalNodeEventPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalNodeEventPlugin.ts.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+ import { $findMatchingParent, $getNearestNodeFromDOMNode, registerEventListener } from 'lexical';
+diff --git a/src/LexicalNodeMenuPlugin.tsrx b/src/LexicalNodeMenuPlugin.tsrx
+index 4371f8e5af6e2b48050928ea6d5cae7a1aa1193b..c0bf499020c1500d00be4b1620856ce8dfec477e 100644
+--- a/src/LexicalNodeMenuPlugin.tsrx
++++ b/src/LexicalNodeMenuPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalNodeMenuPlugin.tsx — a floating menu
+ // anchored to a specific node (the node-anchored counterpart of the typeahead).
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalOnChangePlugin.tsrx b/src/LexicalOnChangePlugin.tsrx
+index 39f348d53ebf7ff89c075d73aaaf148f91463dae..f8cd151929ce7bc9426f43212d9416116afd36db 100644
+--- a/src/LexicalOnChangePlugin.tsrx
++++ b/src/LexicalOnChangePlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalOnChangePlugin.ts.
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+ import { HISTORY_MERGE_TAG } from 'lexical';
+diff --git a/src/LexicalPlainTextPlugin.tsrx b/src/LexicalPlainTextPlugin.tsrx
+index 58fae90da3029e66eee5e8e1c57dbd56f6fab286..f6062da67f4a2ba8fc19f6d0379abf247ff191ba 100644
+--- a/src/LexicalPlainTextPlugin.tsrx
++++ b/src/LexicalPlainTextPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalPlainTextPlugin.tsx — the plain-text twin
+ // of RichTextPlugin (registerPlainText instead of registerRichText).
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalRichTextPlugin.tsrx b/src/LexicalRichTextPlugin.tsrx
+index 7a76364f9072e7d4e64702c74563de49513955c6..fca0956a83e8fcc1a46428087091b482f48aebb2 100644
+--- a/src/LexicalRichTextPlugin.tsrx
++++ b/src/LexicalRichTextPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalRichTextPlugin.tsx. Wires the core
+ // rich-text commands and renders the provided contentEditable, an optional
+ // placeholder, and decorator nodes. (The legacy `isUsingReactExtension` branch is
+diff --git a/src/LexicalSelectionAlwaysOnDisplay.tsrx b/src/LexicalSelectionAlwaysOnDisplay.tsrx
+index 539748324731234ba4c891832e918501df96a20b..e8e4a718156f4c0648681a4847ab5086c2fe3dc5 100644
+--- a/src/LexicalSelectionAlwaysOnDisplay.tsrx
++++ b/src/LexicalSelectionAlwaysOnDisplay.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalSelectionAlwaysOnDisplay.tsx.
+ import { selectionAlwaysOnDisplay } from '@lexical/utils';
+ import { useLexicalComposerContext } from './LexicalComposerContext';
+diff --git a/src/LexicalTabIndentationPlugin.tsrx b/src/LexicalTabIndentationPlugin.tsrx
+index b57d525396b52eff997ba25b4e775087e592c32f..5ac7b50d393adeec7a68d6bc9a77a5746681e07f 100644
+--- a/src/LexicalTabIndentationPlugin.tsrx
++++ b/src/LexicalTabIndentationPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalTabIndentationPlugin.tsx.
+ // registerTabIndentation is from @lexical/extension's framework-agnostic core.
+ import { registerTabIndentation } from '@lexical/extension';
+diff --git a/src/LexicalTableOfContentsPlugin.tsrx b/src/LexicalTableOfContentsPlugin.tsrx
+index 374a55c701f525b95074163bd8921c3f77c529cf..f884c0272232fcf998158be19c67514327c21411 100644
+--- a/src/LexicalTableOfContentsPlugin.tsrx
++++ b/src/LexicalTableOfContentsPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalTableOfContentsPlugin.tsx. Keeps an ordered
+ // list of [key, text, tag] entries in sync with every HeadingNode. Render-prop
+ // component: `children(entries, editor)` returns the element to render.
+diff --git a/src/LexicalTablePlugin.tsrx b/src/LexicalTablePlugin.tsrx
+index 9da1fe936b8a4ee2df55b7e626c63d86c234fa1e..77f13eef5a01fb3c169afc5531862cb0205a5271 100644
+--- a/src/LexicalTablePlugin.tsrx
++++ b/src/LexicalTablePlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalTablePlugin.ts (usePropSignal inlined).
+ import { signal } from '@lexical/extension';
+ import {
+diff --git a/src/LexicalTypeaheadMenuPlugin.tsrx b/src/LexicalTypeaheadMenuPlugin.tsrx
+index 04f073266d232ab45d04499313b3373c2eb3e12d..a8c1cc995ccf9bbd5898721f48225a51f3905bd5 100644
+--- a/src/LexicalTypeaheadMenuPlugin.tsrx
++++ b/src/LexicalTypeaheadMenuPlugin.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/LexicalTypeaheadMenuPlugin.tsx — renders a
+ // floating menu (mentions / slash-command) while the text before the cursor
+ // matches `triggerFn`. `.tsrx` component (auto-slotted hooks); uses octane's
+diff --git a/src/shared/LexicalContentEditableElement.tsrx b/src/shared/LexicalContentEditableElement.tsrx
+index be62e8ed96ea1dcff8ba8a3290c7a428fa5cc737..027b72eb2d0a021a89abf0691f77c42346173e55 100644
+--- a/src/shared/LexicalContentEditableElement.tsrx
++++ b/src/shared/LexicalContentEditableElement.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/shared/LexicalContentEditableElement.tsx.
+ // React's `forwardRef` + `mergeRefs` becomes octane's ref-as-prop + a multi-ref
+ // array (`ref={[userRef, handleRef]}`). `handleRef` binds the editor to the DOM
+diff --git a/src/shared/LexicalDecorators.tsrx b/src/shared/LexicalDecorators.tsrx
+index de170089efdd50279bc6efd0516cd169031f68fd..ac75066d7e06c6256c2daab5fd0971464aebb07c 100644
+--- a/src/shared/LexicalDecorators.tsrx
++++ b/src/shared/LexicalDecorators.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // Ported from @lexical/react/src/shared/useReactDecorators.tsx (the LegacyDecorators
+ // path used by Rich/PlainTextPlugin). React's hook is realized as a `Decorators`
+ // COMPONENT here: each <Decorators/> usage is its own octane scope, so its hooks
+diff --git a/src/shared/LexicalMenu.tsrx b/src/shared/LexicalMenu.tsrx
+index b568f89cb6ea53bd66391d738cc7826e7263022f..618fd429e4bf4aaa1b0f6d16e6fa25bcc8c358a8 100644
+--- a/src/shared/LexicalMenu.tsrx
++++ b/src/shared/LexicalMenu.tsrx
+@@ -1,3 +1,4 @@
++/** @jsxImportSource octane */
+ // The LexicalMenu component + default renderer, ported from
+ // @lexical/react/src/shared/LexicalMenu.tsx. A `.tsrx` component (auto-slotted
+ // hooks). The hooks (useMenuAnchorRef / useDynamicPositioning) + non-component

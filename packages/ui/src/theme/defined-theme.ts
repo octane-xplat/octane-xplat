@@ -7,8 +7,7 @@
  *  inputs (color/radius/motion/type scales, component style overrides,
  *  icon/indicator registries, onMedia axes) are theme-package machinery —
  *  built themes arrive already resolved, which is the shape the six
- *  `theme-*` packages' `built` exports take. See apps/astryx-sandbox
- *  docs/coverage.md finding F-1. */
+ *  `theme-*` packages' `built` exports take. See finding F-1 in the Astryx sandbox coverage report. */
 
 import { defaultThemeTokens } from './astryx-default-tokens'
 

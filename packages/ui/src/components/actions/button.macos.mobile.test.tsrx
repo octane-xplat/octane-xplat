@@ -120,13 +120,13 @@ it('retains content and host while busy, reports busy/name and rejects same-fram
     expect(action).toHaveBeenCalledTimes(1)
     expect(env.host()).toBe(host)
     expect(env.all()).toContain(label)
-    expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: true })
+    expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: undefined })
     expect(host.props.accessibilityLabel).toBe('Save changes')
     expect(String(host.props.style.width)).toContain('180')
     expect(host.props.style.gridRow).toBe('3 / span 1')
     expect(
       env.all().some((node) => String(node.props?.className).includes('vx-button-content--hidden')),
-    ).toBe(true)
+    ).toBe(false)
 
     task.resolve()
     await vi.waitFor(() => {
@@ -325,7 +325,7 @@ it('IconButton shares named busy ownership and preserves icon/ref/metadata', asy
     press()
     flushUniversalSync(() => {})
     expect(action).toHaveBeenCalledTimes(1)
-    expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: true })
+    expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: undefined })
     expect(env.all()).toContain(icon)
     task.resolve()
     await vi.waitFor(() => {

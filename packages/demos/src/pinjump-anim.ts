@@ -1,4 +1,4 @@
-// pinjump lottie fixture (same JSON as apps/mobile/src/assets/lottie-probe.json)
+// Pinjump Lottie fixture.
 export default {
   assets: [],
   layers: [

@@ -11,109 +11,15 @@ in-window surfaces are distinct from the optional platform-native sheet leaf.
 Use `Dialog` for modal content, `AlertDialog` for required decisions, and
 `BottomSheet` for bottom-anchored content.
 
-```tsx
-import { useState } from 'octane'
-import { Dialog, AlertDialog, BottomSheet, Button, Text } from '@octane-xplat/ui'
+The numbered walkthroughs show [shared surfaces](../../../examples/overlays/surfaces.tsx),
+[toast routing](../../../examples/overlays/toasts.tsx),
+[bounded scrolling](../../../examples/overlays/scrolling.tsx), and
+[media preview](../../../examples/overlays/media-preview.tsx).
 
-export function Surfaces() {
-  const [surface, setSurface] = useState<'dialog' | 'alert' | 'sheet' | null>(null)
-  const onOpenChange = (open: boolean) => {
-    if (!open) setSurface(null)
-  }
-  return (
-    <>
-      <Button onPress={() => setSurface('dialog')}>Trip details</Button>
-      <Button onPress={() => setSurface('alert')}>Remove trip</Button>
-      <Button onPress={() => setSurface('sheet')}>Bag details</Button>
-      <Dialog isOpen={surface === 'dialog'} onOpenChange={onOpenChange}>
-        <Text>Trip details</Text>
-      </Dialog>
-      <AlertDialog
-        isOpen={surface === 'alert'}
-        title="Remove trip?"
-        actionLabel="Remove"
-        onOpenChange={onOpenChange}
-        onAction={() => {
-          console.log('Confirmed')
-          setSurface(null)
-        }}
-      />
-      <BottomSheet label="Bag details" isOpen={surface === 'sheet'} onOpenChange={onOpenChange}>
-        <Text>Carry-on</Text>
-      </BottomSheet>
-    </>
-  )
-}
-```
-
-`ToastViewport` owns toast routing; `showToast(options)` and `useToast()` send
-notifications to a mounted viewport or the fallback viewport and return a
-`ToastHandle` (`dismiss()`, `update(options)`) — `null` when a
-`collisionBehavior: 'ignore'` duplicate suppressed the toast.
-
-```tsx
-import { Button, ToastViewport, useToast, showToast } from '@octane-xplat/ui'
-
-function SaveButton() {
-  const toast = useToast()
-  return <Button onPress={() => toast({ body: 'Trip saved' })}>Save</Button>
-}
-
-export function SaveNotice() {
-  return (
-    <>
-      <ToastViewport>
-        <SaveButton />
-      </ToastViewport>
-      <Button onPress={() => showToast({ body: 'Background save complete' })}>
-        Show background notice
-      </Button>
-    </>
-  )
-}
-```
-
-`ScrollableArea` provides scrolling for bounded content and replaces the older
-`ScrollView` and `ScrollBox` names.
-
-```tsx
-import { ScrollableArea, Text } from '@octane-xplat/ui'
-
-export function Details() {
-  return (
-    <ScrollableArea label="Trip details">
-      <Text>Two bags packed</Text>
-    </ScrollableArea>
-  )
-}
-```
-
-`HoverCard` reveals supplementary content around a trigger. `Carousel` arranges
-scrollable slides, and `Lightbox` opens an image collection for closer viewing.
-Keep the image descriptions meaningful for people using assistive technology.
-Replace the sample image URL with an image in your app.
-
-```tsx
-import { useState } from 'octane'
-import { HoverCard, Carousel, Lightbox, Button, Text } from '@octane-xplat/ui'
-
-const media = [{ src: 'https://example.com/trip.jpg', alt: 'A mountain lake on our trip' }]
-
-export function TripPreview() {
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <HoverCard content={<Text>Saved yesterday</Text>}>
-        <Text>Autumn trip</Text>
-      </HoverCard>
-      <Carousel label="Trip previews" hasButtons>
-        <Button onPress={() => setOpen(true)}>View trip photo</Button>
-      </Carousel>
-      <Lightbox isOpen={open} onOpenChange={setOpen} media={media} />
-    </>
-  )
-}
-```
+Toast actions return a handle for dismissal and updates, or `null` when an
+ignored collision suppresses the notification. `ScrollableArea` replaces the
+older `ScrollView` and `ScrollBox` names. Media examples need app-owned images
+with meaningful descriptions.
 
 ## Requirements
 
@@ -164,11 +70,11 @@ export function TripPreview() {
 - AC3: [Ownership and cleanup](../../../docs/app/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/components/overlays/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions. The [AppKit layer content test](../../../packages/ui/src/components/overlays/use-layer-host.macos.mobile.test.tsrx) checks updated content and cleanup through the host bridge with an object driver; it does not establish OS input or rendering.
 - AC4: [Portal-backed surfaces and independent roots](../../../docs/app/primitives.md#own-temporary-surfaces), [native route roots](../../../docs/app/navigation.md#present-a-route-modally), and the maintained [modal portal component tests](../../../packages/ui/src/components/overlays/modal-portal.mobile.test.tsrx). iOS and Android runtime probes verify child-content context inheritance, updates, and close cleanup; Android and iOS tab/Pager probes verify provider context for those component boundaries, including a programmatic iOS Pager page change. OS swipes are not covered. The component test covers `component` + `params` portal ownership and props without device runtime evidence. The [macOS renderer portal fixture](../../../packages/macos-appkit/test/fixtures/portal-lifecycle.macos.tsrx) verifies provider context, updates, and cleanup for an `NSView` target; the AppKitSheet integration probe covers the actual sheet boundary. Scoped sheets, native imperative modals and platform list cells now preserve context; native pushed Pages and route modals do so through canonical `RouteOutlet` ownership and `useRouter()`. Maintained runtime fixtures cover [iOS services/list cells](../../../packages/ui/tests/fixtures/owned-boundaries.ios.tsrx), [Android services/list cells](../../../packages/ui/tests/fixtures/owned-boundaries.android.tsrx), [iOS routes](../../../packages/ui/tests/fixtures/owned-routes.ios.tsrx), [Android routes](../../../packages/ui/tests/fixtures/owned-routes.android.tsrx), [AppKit raw tabs/list cells](../../../packages/macos-appkit/test/fixtures/owned-boundaries.macos.tsrx), [AppKit surfaces](../../../packages/ui/tests/fixtures/owned-surfaces.macos.tsrx), and [web services](../../../packages/ui/tests/fixtures/owned-boundaries.web.tsrx). See [ownership contracts and runtime limits](../notes/portal-boundaries.md).
 - AC5: [Shared component catalog](../../../docs/app/components.md#overlays), [useLayer anchored layers](../../../docs/app/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../../../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../../../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../../../packages/demos/src/ScrollBoxDemo.tsrx).
-- AC6: [Temporary surfaces](../../../docs/app/primitives.md#own-temporary-surfaces), [input readiness evidence](../notes/input-readiness-notes.md), and the maintained [cross-browser input fixture](../../../apps/web/scripts/input-readiness.ts).
+- AC6: [Temporary surfaces](../../../docs/app/primitives.md#own-temporary-surfaces), [input readiness evidence](../notes/input-readiness-notes.md), and the maintained [cross-browser input fixture](../../../tools/web-verification/scripts/input-readiness.ts).
 
   [Nested dismissal](../../../docs/app/primitives.md#close-nested-layers-one-at-a-time), the nested dialog/menu/card in [OverlayDemo](../../../packages/demos/src/OverlayDemo.tsrx), and maintained [web regressions](../../../packages/ui/src/components/overlays/layer-dismissal.web.test.tsrx) and [cross-root object-driver tests](../../../packages/ui/src/components/overlays/layer-dismissal.macos.mobile.test.tsrx). Object-driver evidence does not establish OS keyboard input or native focus traversal.
 
-- AC8: [macOS shared presentations](../../../docs/app/primitives.md#macos-shared-presentations), [maintained example](../../../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../../../apps/macos/test/verify-overlays.mts), and [bridge lifecycle tests](../../../packages/macos-appkit/test/presentation.test.ts).
+- AC8: [macOS shared presentations](../../../docs/app/primitives.md#macos-shared-presentations), [maintained example](../../../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../../../tools/macos-verification/test/verify-overlays.mts), and [bridge lifecycle tests](../../../packages/macos-appkit/test/presentation.test.ts).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See

@@ -263,8 +263,9 @@ root and active hit elements retain their native views; no identity cache outliv
 those leases. Temporary COM queries release on the UI thread. A managed-button hit-path
 pass does not qualify an ordinary Mason track. Readiness queries XamlRoot directly rather
 than probing mobile member names on a WinRT proxy.
-Windows frames and managed holds use cancellable WinUI DispatcherQueue timers
-through the existing owner scheduler. The isolated beta.24 host did not execute
+Windows input frames and managed holds use cancellable WinUI DispatcherQueue
+timers from Platform’s `UiScheduler`. The motion clock uses the same managed
+wakeup service and applies its playback rate only to motion deadlines. The isolated beta.24 host did not execute
 a JavaScript timeout despite its template pump; do not qualify the native
 scheduler by assuming a working global timer. The runtime timeout/pump gap is
 bounded to that host fixture and still needs upstream/packed-host qualification.

@@ -75,7 +75,7 @@ derisks how much of A we could self-host if upstream stalls.
   multi-window OS; safe-area/status-bar services mostly reduce to no-ops;
   `KeyboardAvoiding` stays in the common root API and uses a neutral column
   wrapper without keyboard adjustment.
-- **Verification surface.** The parity sweep (`apps/macos/scripts/parity.ts`
+- **Verification surface.** The parity sweep (`tools/macos-verification/scripts/parity.ts`
   pattern) needs a Windows driver-side twin; geometry baselines will differ
   from both web and mobile.
 
@@ -84,11 +84,11 @@ derisks how much of A we could self-host if upstream stalls.
 These are the parts landed and verified on the macOS host before the Windows
 run below:
 
-- `apps/windows` scaffold: nativescript.config, `native` vite config with
+- `tools/windows-host` scaffold: nativescript.config, `native` vite config with
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
   otherwise resolve a second core copy from inside `packages/*`), tsconfig
   `paths` pinning the app core for the same reason, the harness entry from
-  `apps/mobile`, and `App_Resources/Windows` from upstream's starter.
+  `apps/harness`, and `App_Resources/Windows` from upstream's starter.
 - `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
   builds; `@nativescript/windows` exact `1.0.0-beta.24`; dev-tag CLI
   `nativescript@9.1.2-dev.2026-09-24-*`. Preview-version patch twins carry

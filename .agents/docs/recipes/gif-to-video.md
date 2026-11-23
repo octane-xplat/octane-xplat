@@ -25,7 +25,7 @@ web inputs must be fetchable with any required CORS permission.
 
 ## Documentation
 
-- AC1: [First conversion](../../../docs/packages/package-media-converter.md#convert-an-attachment) and [maintained helper](../../../packages/media-converter/examples/attachment.ts).
+- AC1: [First conversion](../../../docs/packages/package-media-converter.md#convert-an-attachment) and [maintained helper](../../../examples/media/gif-attachment.ts).
 - AC2: [Formats and limits](../../../docs/packages/package-media-converter.md#formats-and-limits).
 - AC3: [Progress and cancellation](../../../docs/packages/package-media-converter.md#show-progress-and-cancel) and [output ownership](../../../docs/packages/package-media-converter.md#convert-an-attachment).
 - AC4: [Platform constraints](../../../docs/packages/package-media-converter.md#formats-and-limits) and [qualification boundaries](../notes/media-conversion.md#verification-boundaries).

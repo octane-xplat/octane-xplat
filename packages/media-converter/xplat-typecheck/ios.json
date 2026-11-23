@@ -1,0 +1,42 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/backend-types.ts",
+		"../src/backend.apple.ts",
+		"../src/backend.ios.ts",
+		"../src/core.ts",
+		"../src/index.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"./isolation-ios.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-converter": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-ios@9.1.3/node_modules/@nativescript/types-ios/index.d.ts"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".ios",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"ios",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

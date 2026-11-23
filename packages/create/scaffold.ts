@@ -545,7 +545,7 @@ export function composeTsconfig(ids) {
   config.references = ['web', 'ios', 'android']
     .filter((env) => resolved.has(env))
     .map((env) => ({
-      path: `./node_modules/.cache/xplat-typecheck/${env}.json`,
+      path: `./xplat-typecheck/${env}.json`,
     }))
 
   return JSON.stringify(config, null, '\t') + '\n'
@@ -793,7 +793,7 @@ function enableNativeInTsconfig(appRoot, read, write, target) {
       config.compilerOptions.paths[key] ??= value
     }
 
-    const ref = `./node_modules/.cache/xplat-typecheck/${target}.json`
+    const ref = `./xplat-typecheck/${target}.json`
 
     config.references ??= []
     if (!config.references.some((entry) => entry.path === ref)) {

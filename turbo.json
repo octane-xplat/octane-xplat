@@ -13,7 +13,6 @@
 		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"test:dev-bridge": { "dependsOn": ["^typegen"], "outputs": [] },
 		"test:accessibility": { "dependsOn": ["^typegen"], "outputs": [] },
-		"test:typescript": { "dependsOn": ["build", "^typegen"], "outputs": [] },
 		"create-octane-xplat#test": { "dependsOn": ["build", "^typegen", "^build"], "outputs": [] },
 		"@octane-xplat/camera#test:ios-writer": {
 			"cache": false,
@@ -40,8 +39,8 @@
 
 		"test:scaffold": { "cache": false, "dependsOn": ["build"] },
 		"test:doctor": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_DOCTOR_REFERENCE_CLI"] },
-		"test:go-doctor": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
-		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
+		"test:go-doctor": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
+		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-foreground-input": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-release-worker": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_RELEASE_BINARY"] },
 		"test:go-native-entry": { "cache": false, "dependsOn": ["build:go"] },
@@ -50,22 +49,22 @@
 		"octane-xplat#test:packed": { "dependsOn": ["build", "@octane-xplat/cli#build:go"], "cache": false },
 		"test:go-device-relay": { "cache": false, "dependsOn": ["build"] },
 		"test:go-workshop-macos": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/workshop#build", "@octane-xplat/macos-build#build"] },
-		"test:go-workshop-engine": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go", "@octane-xplat/macos-build#build", "@octane-xplat/workshop#build"] },
+		"test:go-workshop-engine": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#build:go", "@octane-xplat/macos-build#build", "@octane-xplat/workshop#build"] },
 		"test:go-workshop": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/build#build", "@octane-xplat/workshop#build"] },
 		"test:go-fonts":{"cache":false,"dependsOn":["build:go","build","@octane-xplat/build#build"]},
 		"test:fonts": {"cache": false, "dependsOn":["build"]},
 		"test:updates": {"cache": false,"dependsOn": ["build"]},
 		"test:go-updates": {"cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/build#build"]},
 		"test:go-add": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "create-octane-xplat#build"] },
-		"test:go-upgrade": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build"] },
+		"test:go-upgrade": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/cli-go-probe#build:go", "@octane-xplat/build#build"] },
 		"test:go-clean": { "cache": false, "dependsOn": ["build:go", "build"] },
 		"test:go-patches": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build"] },
-		"test:go-typecheck-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/web#typecheck", "@xplat/macos#typecheck", "@octane-xplat/lightbox#typecheck"] },
+		"test:go-typecheck-real": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/web#typecheck", "@octane-xplat/macos#typecheck", "@octane-xplat/lightbox#typecheck"] },
 		"test:go-build-macos-real": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/macos-build#build"] },
-		"test:go-nativescript-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/app#gen", "@xplat/mobile#typecheck"], "passThroughEnv": ["XPLAT_GO_NS_TARGET", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "DEVELOPER_DIR"] },
-		"test:go-dev-android-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/mobile#typecheck"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
+		"test:go-nativescript-real": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/app#gen", "@octane-xplat/mobile#typecheck"], "passThroughEnv": ["XPLAT_GO_NS_TARGET", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "DEVELOPER_DIR"] },
+		"test:go-dev-android-real": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/mobile#typecheck"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
 		"test:go-dev-android-http": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_GO_ANDROID_HTTP_APP"] },
-		"test:go-dev-ios-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/mobile#typecheck"], "passThroughEnv": ["DEVELOPER_DIR"] },
+		"test:go-dev-ios-real": { "cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/mobile#typecheck"], "passThroughEnv": ["DEVELOPER_DIR"] },
 		"test:go-linux-build": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-build": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-lint": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/lint#build"] },
@@ -74,20 +73,20 @@
 		"measure:go-cli": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"measure:go-cli-onnx": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"test:go-routes": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
-		"test:go-doc-index": { "cache": false, "dependsOn": ["build:go-onnx", "@xplat/cli-go-probe#test:go-model"], "passThroughEnv": ["XPLAT_GO_DOCS_DOWNLOAD"] },
+		"test:go-doc-index": { "cache": false, "dependsOn": ["build:go-onnx", "@octane-xplat/cli-go-probe#test:go-model"], "passThroughEnv": ["XPLAT_GO_DOCS_DOWNLOAD"] },
 		"test:go-docs": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/docs-search#build"] },
-		"test:go-doc-snapshot": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
-		"test:go-doc-data": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go", "@octane-xplat/docs-search#build"] },
+		"test:go-doc-snapshot": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#build:go"] },
+		"test:go-doc-data": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#build:go", "@octane-xplat/docs-search#build"] },
 		"test:go-code": { "cache": false, "dependsOn": ["build:go"] },
-		"test:go-binding": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
+		"test:go-binding": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#build:go"] },
 		"prepare:go-android-reports": { "cache": false, "dependsOn": ["@octane-xplat/cli#build:go", "build:go-tests"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
-		"test:go-android-reports-real": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#prepare:go-android-reports"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "XPLAT_GO_ANDROID_PORT"] },
-		"test:go-reports": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go-tests", "build"] },
+		"test:go-android-reports-real": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#prepare:go-android-reports"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "XPLAT_GO_ANDROID_PORT"] },
+		"test:go-reports": { "cache": false, "dependsOn": ["@octane-xplat/cli-go-probe#build:go-tests", "build"] },
 		"test:go-dev": { "cache": false, "passThroughEnv": ["XPLAT_GO_APPLE_REPORTS_REAL"], "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/macos-build#build"] },
-		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go"] },
+		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/cli-go-probe#build:go"] },
 		"build:go-tests": { "cache": false, "dependsOn":["@octane-xplat/cli#build:go"], "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
-		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
-		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
+		"build:go": { "cache": false, "passThroughEnv": ["CI", "GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION", "XPLAT_GO_DEVTOOLS_SHA256"] },
+		"build:go-onnx": { "cache": false, "passThroughEnv": ["CI", "GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"snapshot:go": { "cache": false, "dependsOn": ["@octane-xplat/lint#build", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/workshop#build"] },
 		"snapshot:go-routes": { "cache": false, "dependsOn": ["@octane-xplat/lint#build", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/workshop#build"] },
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
@@ -97,10 +96,7 @@
 		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },
 		"test:typecheck-envs": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:routes": { "dependsOn": ["build", "^build"], "cache": false },
-		"test:fmt": { "dependsOn": ["^build"] },
 		"test:macos-packaging": { "dependsOn": ["build", "^build"], "cache": false },
-		"test:compatibility": { "dependsOn": ["build", "^build"], "cache": false },
-		"test:build-record": { "cache": false },
 		"@octane-xplat/build#typecheck": { "dependsOn": ["build", "^typegen", "^build"] },
 		"@octane-xplat/build#test:packed": {
 			"dependsOn": ["build", "^build", "^typegen"],
@@ -111,18 +107,6 @@
 			"dependsOn": ["build"],
 			"cache": false,
 			"passThroughEnv": ["XPLAT_DOCS_MODEL_CACHE"]
-		},
-		"//#check:native-readiness": {
-			"cache": false,
-			"passThroughEnv": [
-				"ANDROID_HOME",
-				"ANDROID_SDK_ROOT",
-				"JAVA_HOME",
-				"GRADLE_USER_HOME",
-				"VERIFY_IOS_DEVICE",
-				"VERIFY_ANDROID_DEVICE",
-				"XPLAT_IOS_DEVELOPMENT_TEAM"
-			]
 		},
 		"test:intl": {
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/intl-test-utils.mts"],
@@ -140,9 +124,9 @@
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["types/**"]
 		},
-		// @xplat/app only: gen-routes → gitignored src/routes.gen.*, bamboo codegen
+		// @octane-xplat/app only: gen-routes → gitignored src/routes.gen.*, bamboo codegen
 		// → gitignored src/styled-system/. Consumers resolve styled-system via
-		// tsconfig paths, so app-consuming apps order it via @xplat/app#gen.
+		// tsconfig paths, so app-consuming apps order it via @octane-xplat/app#gen.
 		// gen-routes runs planRoutes off the CLI package sources; its
 		// @octane-xplat/lib/route-pattern import and bamboo codegen's
 		// bamboo.config.ts import resolve through package exports to dist/ —

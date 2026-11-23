@@ -112,10 +112,12 @@ export function Example() {
 Use `onPress` for immediate effects, such as changing local state, moving focus,
 opening a panel, or stopping playback. Use `pressAction` for asynchronous work:
 it must return a promise. Returning a promise from `onPress` does not enable
-pending-state or action-error handling. A pending action shows a loading indicator and prevents
-repeat presses unless `isInterruptible` is true. With that option, each press
-starts another call and the button stays busy until every call settles. Do not
-make a synchronous effect `async` just to use `pressAction`.
+pending-state or action-error handling. A pending action marks the button busy
+immediately and blocks repeat presses without taking away keyboard focus on web.
+The spinner appears after a short delay so a quick save does not flash. Explicit
+`isLoading` shows the spinner immediately for a regular button. With
+`isInterruptible`, each press starts another call and the button stays busy
+until every call settles.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
@@ -151,6 +153,32 @@ export function GuardedSave(props: { valid: boolean; save(): Promise<void> }) {
       pressAction={props.save}
     />
   )
+}
+```
+
+Give an icon-only button a name so people using a screen reader know what it
+does. Use `label` or `accessibilityLabel` with `Button isIconOnly`. The web button
+shows `tooltip` on hover or keyboard focus. AppKit shows it on pointer hover.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function ClosePanel({ close }: { close(): void }) {
+  return <Button isIconOnly icon="xplat-close" label="Close panel" tooltip="Close panel" onPress={close} />
+}
+```
+
+In a browser form, pass `web={{ type: 'submit' }}` to use the browser's form
+submission. Use the form's submit handler for saving, so Enter in a text field
+uses the same workflow as pressing Save. The `web` bag also accepts `type: 'reset'`
+and the browser's `name`, `value`, and `form` attributes. For a link, use
+`href`, `target`, and `web.rel` to set browser navigation options.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function SaveFormButton() {
+  return <Button label="Save" web={{ type: 'submit', name: 'intent', value: 'save' }} />
 }
 ```
 

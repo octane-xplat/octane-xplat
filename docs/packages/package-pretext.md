@@ -10,6 +10,8 @@ bun add @octane-xplat/pretext
 
 ## Measure a paragraph
 
+Follow the [text measurement example](../../examples/text/measure.ts) for the complete code.
+
 `prepare()` measures text once for a font. `layout()` reuses those measurements to calculate the line count and height for a width and line height. Keep the font and line height in sync with the style you use to display the paragraph.
 
 ```ts

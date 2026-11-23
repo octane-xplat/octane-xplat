@@ -29,7 +29,7 @@ Tests are maintained in `packages/ui/src/components/forms/input-readiness.web.te
 `modal-focus.web.test.tsrx`, `text-input.mobile.test.ts`,
 `pressable-accessibility.mobile.test.ts`, `keyboard-inset.mobile.test.ts`,
 `ref-list.web.test.ts`, and the production browser runner
-`apps/web/scripts/smoke.ts`.
+`tools/web-verification/scripts/smoke.ts`.
 Native models reproduce the component/driver seam; they are not OS runtime
 or real-IME tests.
 
@@ -85,7 +85,7 @@ or real-IME tests.
   were fabricated or optional service support removed from the app.
 
 Run the browser qualification with
-`cd apps/web && node scripts/input-readiness.ts`.
+`cd tools/web-verification && node scripts/input-readiness.ts`.
 It defaults to Chromium; set `XPLAT_WEB_BROWSER=firefox` or `webkit` to select
 the other engines. The runner selects an OS-assigned local port and captures no
 images.
@@ -124,7 +124,7 @@ pinned the serial, passed, and restored the previous foreground app.
 - Current Motion evidence includes the 2026-09-30 iOS simulator rerun. This
   pass makes no motion-engine changes and does not replace that evidence.
 
-The maintained native [probe](../../../apps/mobile/test/input-readiness.mobile.tsrx)
+The maintained native [probe](../../../apps/harness/test/input-readiness.mobile.tsrx)
 exposes Focus, Select middle, Controlled write, Blur, Reset and Inspect actions.
 Its Baseline write deliberately assigns native.text directly to reproduce the
 old echo path; applications should use controlled value instead. It was mounted

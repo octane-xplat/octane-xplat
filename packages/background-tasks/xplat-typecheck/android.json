@@ -1,0 +1,41 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../../../examples/background-work/refresh.ts",
+		"../src/index.ts",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/background-tasks": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/platform": [
+				"../../platform/types/generated/index.d.ts"
+			]
+		},
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-android@9.1.1/node_modules/@nativescript/types-android/index.d.ts"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

@@ -28,6 +28,8 @@ bun add -D @octane-xplat/cli
 ```sh
 bun run xplat dev          # pick available targets
 bun run xplat dev macos    # single-target shorthand (kind or device id)
+bun run xplat dev ios --emulator # select an available iOS simulator
+bun run xplat dev android --emulator # select a running Android emulator
 bun run xplat add ios      # enable a platform skipped at create time
 bun run xplat build        # production builds
 bun run xplat build -t macos # experimental AppKit .app + .dmg (universal: Apple Silicon and Intel)
@@ -57,7 +59,8 @@ bun run xplat fonts add ./Inter.ttf
 
 The starter's dev and build scripts call `xplat` for the selected platform.
 For example, `bun run dev:ios` runs `xplat dev ios`, and `bun run build:ios`
-runs `xplat build ios`.
+runs `xplat build ios`. See [Run on iOS and Android](../start/toolchain.md#run-on-ios-and-android)
+for how Xplat chooses a virtual device and how to resolve an ambiguous match.
 
 ```sh
 bun run dev
@@ -261,9 +264,9 @@ snapshots, and labels local project guidance separately. Start with lexical sear
 
 ```sh
 # In this repository, select the web app; in another workspace, select its app id.
-xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+xplat docs search navigation --project "$PWD" --app apps/harness --mode lexical --json
 # Replace DOC_REF with a ref returned by the search.
-xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
+xplat docs read --project "$PWD" --app apps/harness --ref DOC_REF --json
 ```
 
 For semantic search (matching meaning), explicitly prepare the optional native
@@ -273,8 +276,8 @@ your computer. Ordinary search never downloads these assets and reports a lexica
 fallback when embeddings are unavailable; re-index after editing linked docs:
 
 ```sh
-xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
-xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+xplat docs index --project "$PWD" --app apps/harness --package @octane-xplat/ui --json
+xplat docs search "remember input between pages" --project "$PWD" --app apps/harness --json
 ```
 
 The native docs cache lives in its own `XPLAT_MCP_CACHE` namespace. Optional
@@ -283,16 +286,16 @@ external symlink targets and bound traversal; docs larger than 4 MiB produce
 an explicit error:
 
 ```sh
-xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+xplat docs index --project "$PWD" --app apps/harness --package @octane-xplat/ui --json
 ```
 
 Native action discovery reads the running app's development bridge without
 starting Node itself. Start the app with its existing development workflow, then list its
-instances and declared actions. An empty registry is different from an unreachable
-bridge; use the returned instance and revision when invoking:
+instances and declared actions. The listing distinguishes an empty registry
+from an unreachable bridge.
 
 ```sh
-xplat actions list --project "$PWD" --app apps/web --json
+xplat actions list --project "$PWD" --app apps/harness --json
 ```
 
 Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/cli` worker
@@ -300,25 +303,28 @@ installed in the selected project. Use the matching
 release build package; an older worker reports an update requirement.
 The worker checks JavaScript field contracts, including regexes and defaults.
 Go owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
-the returned job through completion and inspect reported effects before retrying:
+the job through completion with `actions run`. The command uses the current
+registry revision for the selected instance. The
+[action guide](../testing/development-actions.md#invoke-and-assert-through-the-cli)
+shows how to select an instance and recover an interrupted wait.
+
+```sh
+xplat actions run --action ACTION_ID --target web --input '{}' --project "$PWD" --app apps/harness --json
+```
+
+Use `actions invoke` for asynchronous submission. Inspect the job's reported
+effects before retrying.
 
 ```sh
 # Replace these values with exact identities from the live listing.
-xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
-xplat actions status JOB_ID --project "$PWD" --json
-xplat job cancel JOB_ID --project "$PWD" --json
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/harness --json
+xplat actions status JOB_ID --project "$PWD" --app apps/harness --json
 ```
 
-Request keys recover live jobs within their app instance/action. Reusing a key
+Request keys recover retained jobs for the same app instance and action. Reusing a key
 with different input or a changed revision fails explicitly. Outcome history is
-bounded, so keys do not promise indefinite protection against reruns. Queued
-cancellation prevents dispatch; cancellation after dispatch is best-effort and
-does not undo changes. A result-contract failure also leaves completed effects
-in place. Read the job's structured result or failure:
-
-```sh
-xplat job status JOB_ID --project "$PWD" --json
-```
+bounded, so keys do not promise indefinite protection against reruns. A
+result-contract failure leaves completed effects in place.
 
 Native `typecheck` runs the selected project's installed TypeScript compiler
 as `tsc --runExternalCode`. The project must already contain compatible
@@ -612,7 +618,29 @@ declarations of linked packages.
 cd /path/to/octane-xplat
 bun install
 bun run turbo run build:go --filter=@octane-xplat/cli
+bun run turbo run build --filter=@octane-xplat/cli  # refresh the umbrella's CLI Vite exports
 bun run turbo run build --filter=@octane-xplat/ui   # only for linked packages
+```
+
+For iOS and Android, link the two app-declared NativeScript packages from the
+same checkout as the umbrella. See [which packages to declare](package-toolchain.md#keep-app-dependencies-explicit).
+Build both packages from the checkout before starting the app.
+
+```sh
+bun run turbo run build --filter=@octane-xplat/nativescript-octane --filter=@octane-xplat/vite-octane
+```
+
+If Node reports a missing `buildTarget` export, check the linked CLI path and
+rebuild its `dist` from that revision.
+
+If your pnpm project installs links through a custom hook, run that project's
+install command before starting NativeScript. Preserve those links by calling
+NativeScript directly with its install-skip flag. Keep any project-specific
+preparation step before the corresponding native command.
+
+```sh
+pnpm exec ns run ios --disable-npm-install
+pnpm exec ns build android --disable-npm-install
 ```
 
 If a pnpm 11 install resolves the
@@ -780,6 +808,7 @@ xplat inspect <sess_…> --testid <name> --json   # bounded named hosts, redacte
 xplat interact <sess_…> --document <id> --testid <name> --mechanism dom-event --json
 xplat capture <sess_…> --json               # needs XPLAT_PERMISSIONS=visual-capture
 xplat actions list --json                   # the dev app's declared action registry
+xplat actions run --action <id> --json      # selects a ready instance and waits
 xplat actions invoke --action <id> --json   # returns a job; --revision guards staleness
 xplat actions status <job_…> --json
 xplat evidence list --json                  # job/inspection/capture artifacts; retain/delete by id
@@ -861,11 +890,12 @@ import { native } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => native(mode))
 ```
 
-The preset resolves the canonical renderer patch's MasonKit imports through
-the app's declared layout engine, including the style subpath: Mason core on
-iOS/Android, or full MasonKit in the repository's experimental Windows harness.
-This also works with pnpm's isolated linker. Keep the canonical renderer patch;
-no edited renderer copy is needed. Core and full MasonKit cannot share an app.
+The preset resolves the owned renderer's MasonKit imports through the app's
+declared layout engine, including the style subpath. Use Mason core on
+iOS/Android. The repository's experimental Windows harness uses full MasonKit.
+This also works with pnpm's isolated linker. The owned renderer includes the
+fixes previously shipped in the community renderer patch. Core and full
+MasonKit cannot share an app.
 See [Windows support status](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md)
 before choosing Windows; a downstream Windows setup is not documented yet.
 
@@ -879,8 +909,8 @@ export default defineConfig(({ mode }) => native(mode))
 
 ## macOS AppKit preset
 
-The experimental AppKit preset is exported separately from
-`@octane-xplat/cli/macos/vite`:
+The macOS preset runs NativeScript Core on AppKit. Import it from
+`@octane-xplat/cli/macos/vite`.
 
 ```js
 import { defineConfig } from 'vite'

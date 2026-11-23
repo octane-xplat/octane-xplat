@@ -43,7 +43,8 @@ int main(void) {
         assert(count == 1 && manager.stops == 1 && requests.count == 0);
         for (NSInteger code = 1; code <= 3; code++) {
             XplatLocationRequest *errorRequest = makeRequest(FakeLocationManager.new);
-            errorRequest.permission = ^(NSString *result) { assert([result isEqualToString:code == 1 ? @"denied" : @"unsupported"]); };
+            // A timeout reports undetermined — retryable, neither denied nor unsupported.
+            errorRequest.permission = ^(NSString *result) { assert([result isEqualToString:code == 1 ? @"denied" : code == 3 ? @"undetermined" : @"unsupported"]); };
             errorRequest.position = ^(NSString *json, NSInteger actual, NSString *message) { assert(!json && actual == code); };
             [errorRequest finish:nil code:code message:@"failure"];
             assert(requests.count == 0);
@@ -62,6 +63,11 @@ int main(void) {
         stale.position = ^(NSString *json, NSInteger code, NSString *message) { assert(json && code == 0); };
         [stale locationManager:stale.manager didUpdateLocations:@[old]];
         assert(stale.finished && requests.count == 0);
+        __block NSString *status = nil;
+        [XplatGeolocation getStatus:^(NSString *result) { status = result; }];
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        // Unconfigured host: non-prompting read reports unsupported.
+        assert([status isEqualToString:@"unsupported"]);
         puts("NATIVE_GEOLOCATION_LIFECYCLE_OK");
     }
 }

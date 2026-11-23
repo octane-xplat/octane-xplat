@@ -744,10 +744,13 @@ test('unsupported layout styles on a leaf keep useful diagnostics', () => {
     console.warn = original
   }
 
-  // The leaf warns on each unsupported key; the masonview surface
-  // advertises flexWrap/alignSelf through its behavior styleKeys.
-  assert.equal(warnings.length, 3)
+  // The leaf warns on each unsupported key — the inline gap shorthand
+  // expands to its longhands — while the masonview surface advertises
+  // flexWrap/alignSelf through its behavior styleKeys.
+  assert.equal(warnings.length, 5)
   assert.ok(warnings.some((message) => message.includes('style.gap on <label>')))
+  assert.ok(warnings.some((message) => message.includes('style.rowGap on <label>')))
+  assert.ok(warnings.some((message) => message.includes('style.columnGap on <label>')))
   assert.ok(!warnings.some((message) => message.includes('style.flexWrap')))
 })
 

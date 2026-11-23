@@ -26,6 +26,13 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     debug = (root as any).__macosDebug
 
   const app = NSApplication.sharedApplication
+  const invokeAccessibilityAction = (action: any) => {
+    if (typeof action.handler === 'function') {
+      action.handler()
+    } else {
+      app.sendActionToFrom(action.selector, action.target, action)
+    }
+  }
   const calls: string[] = []
   let props = {
     nativeEnabled: true,
@@ -52,11 +59,12 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
 
     const button = debug.findId('lease-native'),
       tag = button.tag,
-      target = button.target
+      target = button.target,
+      buttonAction = button.action
 
     console.log('PACKED_ACTION_HANDLES', typeof NSButton, typeof NSView)
     check(
-      app.sendActionToFrom('buttonPressed:', target, button),
+      app.sendActionToFrom(buttonAction, target, button),
       'Native button selector unavailable',
     )
 
@@ -67,10 +75,10 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
       'Handler replacement changed native tag/view',
     )
 
-    app.sendActionToFrom('buttonPressed:', target, button)
+    app.sendActionToFrom(buttonAction, target, button)
     props = { ...props, nativeEnabled: false }
     await render()
-    app.sendActionToFrom('buttonPressed:', target, button)
+    app.sendActionToFrom(buttonAction, target, button)
     check(calls.join(',') === 'first,current', 'Disabled/replaced native action dispatch failed')
 
     const press = debug.findId('lease-press'),
@@ -92,8 +100,10 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     check(click, 'Native click recognizer missing')
 
     const beforeClick = calls.length
+    const clickAction = click.action
+    const clickTarget = click.target
 
-    check(app.sendActionToFrom('viewPressed:', target, click), 'Native click selector unavailable')
+    check(app.sendActionToFrom(clickAction, clickTarget, click), 'Native click selector unavailable')
     check(calls.length === beforeClick + 1, 'Native recognizer identity did not dispatch')
 
     const role =
@@ -140,10 +150,11 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     )
 
     const field = debug.findId('lease-field'),
-      fieldTarget = field.target
+      fieldTarget = field.target,
+      fieldAction = field.action
 
     check(
-      app.sendActionToFrom('textFieldSubmitted:', fieldTarget, field),
+      app.sendActionToFrom(fieldAction, fieldTarget, field),
       'Text submit selector unavailable',
     )
 
@@ -152,7 +163,7 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
 
     const beforeReadonly = calls.length
 
-    app.sendActionToFrom('textFieldSubmitted:', fieldTarget, field)
+    app.sendActionToFrom(fieldAction, fieldTarget, field)
     check(calls.length === beforeReadonly, 'Readonly native text submitted')
 
     const a = debug.findId('lease-link-a'),
@@ -172,13 +183,16 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
       'Same-name links shared native AX action',
     )
 
-    firstAction.handler()
-    secondAction.handler()
+    invokeAccessibilityAction(firstAction)
+    invokeAccessibilityAction(secondAction)
 
     const clearing = debug.findId('lease-clears'),
       clearingTag = clearing.tag
 
-    check(String(clearing.title) === 'Clear me' && !clearing.enabled, 'Pilot button setup missing')
+    check(
+      String(clearing.title) === 'Clear me' && !clearing.enabled,
+      'Pilot button setup missing: ' + JSON.stringify({ title: clearing.title, enabled: clearing.enabled }),
+    )
     props = { ...props, clearButton: true }
     await render()
 
@@ -194,20 +208,21 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
 
     check(
       String(clearing.title) === '' && clearing.enabled && !clearLabel,
-      'Complete prop removal did not reset pilot native state',
+      'Complete prop removal did not reset pilot native state: ' +
+        JSON.stringify({ title: clearing.title, enabled: clearing.enabled, label: clearLabel }),
     )
 
     const before = calls.length
 
-    app.sendActionToFrom('buttonPressed:', clearing.target, clearing)
+    app.sendActionToFrom(clearing.action, clearing.target, clearing)
     check(calls.length === before, 'Removed pilot button handler dispatched')
     console.log('PACKED_ADAPTER_BUTTON_CLEAR_OK')
     root.unmount()
-    app.sendActionToFrom('buttonPressed:', target, button)
-    app.sendActionToFrom('viewPressed:', target, click)
-    app.sendActionToFrom('textFieldSubmitted:', fieldTarget, field)
-    firstAction.handler()
-    secondAction.handler()
+    app.sendActionToFrom(buttonAction, target, button)
+    app.sendActionToFrom(clickAction, clickTarget, click)
+    app.sendActionToFrom(fieldAction, fieldTarget, field)
+    invokeAccessibilityAction(firstAction)
+    invokeAccessibilityAction(secondAction)
     check(
       !press.accessibilityPerformPress() && !ax.accessibilityPerformIncrement(),
       'Retired AX view dispatched',

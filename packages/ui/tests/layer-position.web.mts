@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { test } from 'node:test'
 
 // Use the web harness's declared browser tooling; UI gains no dependencies.
-const requireWeb = createRequire(new URL('../../../apps/web/package.json', import.meta.url))
+const requireWeb = createRequire(new URL('../../../tools/web-verification/package.json', import.meta.url))
 const { chromium } = requireWeb('playwright')
 const { createServer } = await import(requireWeb.resolve('vite'))
 

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useSyncExternalStore } from 'octane'
 import type {
   ResizableRegion,

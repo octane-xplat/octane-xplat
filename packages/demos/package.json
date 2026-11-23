@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/demos",
+	"name": "@octane-xplat/demos",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -52,7 +52,7 @@
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"octane": "catalog:"
 	},
 	"peerDependencies": {

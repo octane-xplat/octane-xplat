@@ -7,7 +7,7 @@ import vm from 'node:vm'
 import ts from 'typescript-classic'
 
 // Installed patched core by default; an isolated extracted candidate may be supplied.
-const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
+const appRequire = createRequire(new URL('../tools/windows-host/package.json', import.meta.url))
 const core = process.env.WINDOWS_CORE_ARTIFACT
 const file = (path) =>
   core ? resolve(core, path) : appRequire.resolve(`@nativescript/core/${path}`)

@@ -4,7 +4,6 @@
 // (the `openWindow` backend for @octane-xplat/ui), `__xplatAppKitMountSheet`,
 // and the `__xplatMacosWindowing` state every loaded copy shares.
 import '@nativescript/macos-node-api'
-import { createMacOSRoot } from './runtime'
 import type { MacOSRootOptions } from './runtime'
 import { announceAppKit } from './host-announce'
 import { notifyAppKitListeners, subscribeAppKitEvent } from './host-events'
@@ -185,6 +184,7 @@ interface MacosWindowingShared {
   resolveApplicationClosed?: (value: void | PromiseLike<void>) => void
   platformServices: PlatformServices
   rootOptions?: MacOSRootOptions
+  createRoot?: (content: NSView, options?: MacOSRootOptions) => MacOSRoot
   terminating?: Set<() => void>
 }
 
@@ -1005,6 +1005,18 @@ export function setWindowContentResolver(resolve: WindowContentResolver | null) 
   shared.resolver = resolve
 }
 
+export function installWindowRootFactory(factory: NonNullable<MacosWindowingShared['createRoot']>) {
+  shared.createRoot ??= factory
+}
+
+export function observeWindowResize(window: NSWindow, listener: () => void): () => void {
+  return subscribeAppKitEvent(shared.platformServices.windowResizeListeners, (resized) => {
+    if (resized && sameNativeWindow(resized, window)) {
+      listener()
+    }
+  }).dispose
+}
+
 /**
  * Open a macOS window hosting its own Octane root. `kind` is a behavior
  * contract: 'regular' opens an independent window, 'dialog' presents as a
@@ -1032,6 +1044,11 @@ export function openWindow(options: MacOSOpenWindowOptions = {}): AppKitWindowCo
 
   if (!shared.running) {
     throw new Error('Cannot open a macOS window after application termination has started')
+  }
+
+  const createRoot = shared.createRoot
+  if (!createRoot) {
+    throw new Error('The macOS host has no window root factory')
   }
 
   const kind = options.kind ?? 'regular'
@@ -1157,7 +1174,7 @@ export function openWindow(options: MacOSOpenWindowOptions = {}): AppKitWindowCo
       )
     }
 
-    controller.root = createMacOSRoot(nativeWindow.contentView, shared.rootOptions) as MacOSRoot
+    controller.root = createRoot(nativeWindow.contentView, shared.rootOptions)
     controller.root.render(
       component as UniversalComponent,
       options.props ?? { data: controller.data, controller },

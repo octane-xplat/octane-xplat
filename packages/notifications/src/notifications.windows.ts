@@ -2,6 +2,7 @@
 // Microsoft.Windows.AppNotifications, but no leaf exists yet; report explicit
 // unavailability instead of pulling @nativescript/local-notifications (mobile
 // only) into the bundle.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
 import type { NotificationsImpl } from './types'
 
@@ -17,5 +18,9 @@ export const notifications: Permissioned<NotificationsImpl> = {
   isAvailable: async () => false,
   getPermissions: async () => UNSUPPORTED,
   requestPermissions: async () => UNSUPPORTED,
-  notify: () => {},
+  // Same unsupported contract as the web and macOS leaves — a send that can
+  // never be delivered throws rather than dropping silently.
+  notify: () => {
+    throw new UnavailabilityError('notifications')
+  },
 }

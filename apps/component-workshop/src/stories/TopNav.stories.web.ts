@@ -1,5 +1,5 @@
 // Uses the maintained TopNavShowcase example; do not copy its implementation here.
-import { TopNavShowcase as Example } from '@xplat/astryx-sandbox/examples/topnav/TopNavShowcase.tsrx'
+import { TopNavShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/topnav/TopNavShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

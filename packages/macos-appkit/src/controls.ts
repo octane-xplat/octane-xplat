@@ -272,7 +272,7 @@ export function createControls(deps: Dependencies) {
     if (name === 'title' || name === 'text') {
       node.view!.title = String(value ?? '')
     } else if (name === 'accessibilityLabel') {
-      node.view!.setAccessibilityLabel?.(String(value ?? ''))
+      node.view!.accessibilityLabel = String(value ?? '')
     } else if (name === 'isEnabled' || name === 'enabled') {
       node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
     } else if (name === 'onPress' || name === 'onTap') {

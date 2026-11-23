@@ -25,6 +25,6 @@
 			".windows"
 		]
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsrx", "examples/**/*.tsrx"],
+	"include": ["src/**/*.ts", "src/**/*.tsrx", "../../examples/motion/component.tsrx", "../../examples/motion/presence.tsrx", "../../examples/motion/video-crop-surface.tsrx"],
 	"exclude": ["src/**/*.test.*"]
 }

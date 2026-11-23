@@ -5,6 +5,9 @@
 import { createRoot, useEffect, useState } from 'octane'
 import { App } from './App.tsrx'
 import type { ListedDevtoolsServer } from '../record.ts'
+import plugins from 'virtual:octane-devtools-panels'
+
+declare const __XPLAT_DEVTOOLS_PROJECT__: string | null
 
 async function fetchServers(): Promise<ListedDevtoolsServer[]> {
   try {
@@ -12,7 +15,10 @@ async function fetchServers(): Promise<ListedDevtoolsServer[]> {
       servers?: ListedDevtoolsServer[]
     }
 
-    return Array.isArray(body.servers) ? body.servers : []
+    const servers = Array.isArray(body.servers) ? body.servers : []
+    return __XPLAT_DEVTOOLS_PROJECT__
+      ? servers.filter((server) => server.appRoot === __XPLAT_DEVTOOLS_PROJECT__)
+      : servers
   } catch {
     return []
   }
@@ -72,7 +78,7 @@ function Picker() {
         </button>
       </header>
       {record ? (
-        <App key={record.key} record={record} />
+        <App key={record.key} record={record} plugins={plugins} />
       ) : (
         <div className="dt-empty">Pick a dev server above to connect.</div>
       )}

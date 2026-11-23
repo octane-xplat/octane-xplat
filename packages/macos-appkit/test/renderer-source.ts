@@ -91,6 +91,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['input-elements', 'notifySearchTextChange'],
   ['input-elements', 'syncSearchBar'],
   ['controls', 'makeSwitch'],
+  ['picker-control', 'buildPopUpControl'],
   ['picker-elements', 'makePopUpControl'],
   ['picker-elements', 'makeListPicker'],
   ['picker-elements', 'notifyListPickerChange'],
@@ -111,6 +112,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['controls', 'makeActivityIndicator'],
   ['controls', 'syncActivityIndicator'],
   ['controls', 'makeSlider'],
+  ['glass-backdrop', 'mountGlassBackdrop'],
   ['container-elements', 'makeLiquidGlass'],
   ['layout', 'layoutLength'],
   ['layout', 'pinLayoutChild'],
@@ -632,7 +634,7 @@ export function rendererSource(): string {
         )
       }
 
-      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$)/.test(key)) {
+      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$|buildPopUpControl$)/.test(key)) {
         builtinHelpers.set(key, text)
       }
 

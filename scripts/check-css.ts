@@ -5,7 +5,7 @@
 // declarations SILENTLY — a typo'd or web-only prop half-applies a rule.
 //
 // Registry = scripts/ns-css-registry.json, generated from the installed
-// @nativescript/core's cssName registrations (see gen-css-registry.mjs —
+// @nativescript/core's cssName registrations (see gen-css-registry.ts —
 // re-run it on core upgrades).
 //
 // Platform blocks are filtered for each native target before auditing, and

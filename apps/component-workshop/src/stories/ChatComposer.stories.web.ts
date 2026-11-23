@@ -1,5 +1,5 @@
 // Uses the maintained ChatComposerShowcase example; do not copy its implementation here.
-import { ChatComposerShowcase as Example } from '@xplat/astryx-sandbox/examples/chatcomposer/ChatComposerShowcase.tsrx'
+import { ChatComposerShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/chatcomposer/ChatComposerShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

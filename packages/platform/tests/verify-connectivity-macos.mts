@@ -107,7 +107,7 @@ setTimeout(function() {
 )
 
 const result = spawnSync(
-  await macOSExecutable(resolve(repo, 'apps/macos'), 'macos/host'),
+  await macOSExecutable(resolve(repo, 'tools/macos-verification'), 'macos/host'),
   [
     join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
     script,

@@ -4,7 +4,7 @@ import { Screen, RouteOutlet, Tabs, HStack, NavLink, Text, useThemeScheme } from
 import { Parity } from '../app/parity.tsrx'
 import { Home } from '../Home.tsrx'
 import { Test } from '../Test.tsrx'
-import { Gallery } from '@xplat/demos'
+import { Gallery } from '@octane-xplat/demos'
 import { router } from '@octane-xplat/ui/routing'
 import type { TabSpec } from '@octane-xplat/ui'
 // Parity dump step — runs after the sweep via the __xplatSweepDone slot;

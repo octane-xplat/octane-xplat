@@ -105,7 +105,7 @@ The maintained [AppKit fixture](../../packages/notifications/tests/verify-macos.
 compiles and loads the native leaf, checks metadata selectors, constructs a real
 immediate request, and tests permission/error/thread and submission behavior
 with an intercepted notification center. The
-[small runnable handler](../../packages/notifications/tests/send-reminder.ts)
+[small runnable handler](../../examples/notifications/send-reminder.ts)
 shows the example used above. Packed consumer checks cover macOS Bundler and
 NodeNext declaration resolution, plus the existing web/mobile typing lanes.
 

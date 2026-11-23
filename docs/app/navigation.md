@@ -2406,7 +2406,7 @@ import './routes.gen'
 // For request-time HTML, use @octane-xplat/web-host/server with the catalog.
 ```
 
-For native Frame debugging, read the [Frame lifecycle reference](../../.agents/skills/octane-xplat/references/navigation/native-frames.md).
+For native Frame debugging, read the [Frame lifecycle reference](../../.agents/docs/guides/navigation/native-frames.md).
 For current commands and evidence, read [navigation checks](../../.agents/docs/navigation-checks.md).
 
 

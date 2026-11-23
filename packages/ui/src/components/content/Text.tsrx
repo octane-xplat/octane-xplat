@@ -2,14 +2,14 @@
 import { createContext, useContext } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Application } from '@nativescript/core'
-import type { TextProps } from '../../props'
+import type { PlatformWidgetProps, TextProps } from '../../props'
 import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useTheme } from '../../theme/use-theme.tsrx'
-import { textScaleStyle } from '../forms/text-scale'
+import { textScaleStyle, type TextScaleStyle } from '../forms/text-scale'
 
 import type { JSX } from 'octane/jsx-runtime'
 
@@ -31,6 +31,28 @@ function TextScope(props: { children?: any }) {
   return InText({ value: true, children: props.children })
 }
 
+const NO_SCALE: TextScaleStyle = {}
+
+/** Whether the type scale reads theme tokens. Ambient (`inherit`) text with no
+ *  size, weight, or color override resolves to no scale style. */
+function readsThemeTokens(props: TextProps): boolean {
+  return Boolean(
+    (props.type && props.type !== 'inherit') ||
+    props.size ||
+    props.weight ||
+    (props.color && props.color !== 'inherit'),
+  )
+}
+
+/** Escape bags and modifiers re-apply after every render because authored
+ *  props can overwrite them. Without them only one-time host preparation
+ *  remains, so the ref keeps a stable identity across renders. */
+function textHostRef(props: PlatformWidgetProps<TextProps>): (view: any) => void {
+  return props.ios || props.android || props.modifiers
+    ? (view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))
+    : prepareUIHost
+}
+
 /**
  * Text run — the shared typography leaf. Import from `@octane-xplat/ui`.
  *
@@ -38,8 +60,13 @@ function TextScope(props: { children?: any }) {
  */
 export function Text(props: TextProps): unknown @{
   const inText = useContext(InText)
-  const theme = useTheme()
-  const scale = textScaleStyle(theme.tokens, props)
+  let scale = NO_SCALE
+
+  // Ambient text skips the theme read; its color and type come from classes.
+  if (readsThemeTokens(props)) {
+    scale = textScaleStyle(useTheme().tokens, props)
+  }
+
   const maxLines = props.maxLines ?? 0
 
   const textStyle: Record<string, any> = {
@@ -68,9 +95,13 @@ export function Text(props: TextProps): unknown @{
     textStyle.minHeight = lineHeight
   }
 
+  const hostRef = textHostRef(props)
+  // Plain strings and numbers cannot contain nested runs; skip the scope.
+  const plainChildren = typeof props.children === 'string' || typeof props.children === 'number'
+
   @if (inText) {
     <span
-      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
+      ref={hostRef}
       className={[props.className]}
       {...layoutChildProps(props, textStyle)}
     >
@@ -82,7 +113,7 @@ export function Text(props: TextProps): unknown @{
     <label
       id={props.id}
       testID={props.testID ?? ''}
-      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
+      ref={hostRef}
       {...layoutChildProps(props, textStyle)}
       className={[
         'vx-text',
@@ -102,7 +133,11 @@ export function Text(props: TextProps): unknown @{
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      <TextScope>{props.children}</TextScope>
+      @if (plainChildren) {
+        <>{props.children}</>
+      } @else {
+        <TextScope>{props.children}</TextScope>
+      }
     </label>
   }
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/motion",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Declarative motion and retained presence for Octane on web, iOS and Android",
 	"keywords": [
 		"android",
@@ -66,7 +66,7 @@
 	},
 	"devDependencies": {
 		"@octane-xplat/video": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",

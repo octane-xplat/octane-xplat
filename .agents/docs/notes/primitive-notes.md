@@ -1,14 +1,14 @@
 # Primitive implementation constraints
 
 Use the [component guide](../../../docs/app/components.md) and
-[primitive skill reference](../../skills/octane-xplat/references/primitives.md)
+[primitive contributor guide](../guides/primitives.md)
 for supported APIs. This note carries implementation constraints that are easy
 to lose when changing the native driver. It does not duplicate the API inventory
 or retain superseded prop sketches.
 
 ## Driver semantics
 
-Read [driver semantics](../../skills/octane-xplat/references/primitives/driver-semantics.md)
+Read [driver semantics](../guides/primitives/driver-semantics.md)
 before changing parenting, slots, event aliases, or native prop writes. Text
 children require a text host; arbitrary layouts do not render bare text. Native
 props assign view properties, not DOM attributes. A prop write can echo an event;
@@ -97,25 +97,27 @@ failures.
 
 From the repo root, install with `bun install --frozen-lockfile`, then:
 
-1. Build the harness: `bun run turbo run build --filter=@xplat/web`.
-2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
+1. Build the harness: `bun run turbo run build --filter=@octane-xplat/web`.
+2. From `tools/web-verification`, run `node scripts/bench-virtual-list-contract.ts`.
    It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
    mounts, or failed empty/disposal checks.
-3. From `apps/web`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
+3. From `tools/web-verification`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
    The JSON separates sampled row geometry, rAF callback intervals, live-list
    collected heap, and collected heap after route disposal. rAF alone does not
    prove compositor presentation timing.
-4. From `apps/mobile`, run
+4. From `apps/harness`, run
    `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts ios variable`,
    or replace `ios` with `android` and supply an ADB serial. Android requires
    Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control and
    `demo500` for the actual List ×500 demo, including its slots and row state.
    The swipe sequence moves forward through four viewports, then revisits rows.
 
-Native runners require Python 3 and take an exclusive advisory lock at
-`/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` for build and
-use. Other native sessions must use the same lock convention; an advisory lock
-cannot protect against a nonparticipating session. The runner fails if busy.
+Native runners require Python 3 and take the exclusive shared advisory lock at
+`$TMPDIR/octane-xplat-target-locks/<target>.lock` (through
+`scripts/with-native-target-lock.py`, the same directory protocol as
+`scripts/with-target-lock.ts`) for build and use. Other native sessions must
+use the same lock convention; an advisory lock cannot protect against a
+nonparticipating session. The runner fails if busy.
 It uses `org.nativescript.xplat.vlistbench` (override with
 `XPLAT_VLIST_APP_ID`) to avoid replacing the normal harness app. iOS builds,
 installs, and launches with `simctl`; it never reboots an already booted simulator.

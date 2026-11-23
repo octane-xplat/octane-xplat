@@ -1,5 +1,5 @@
 // Uses the maintained StackItemShowcase example; do not copy its implementation here.
-import { StackItemShowcase as Example } from '@xplat/astryx-sandbox/examples/stackitem/StackItemShowcase.tsrx'
+import { StackItemShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/stackitem/StackItemShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

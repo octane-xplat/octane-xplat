@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
+import { timeOfDay } from '../src/picker-time.ts'
 
 const source = stripTypeScriptTypes(rendererSource())
 
@@ -28,7 +29,6 @@ function controlFixture() {
     constants +
       '\n' +
       [
-        'timeOfDay',
         'makeTimePicker',
         'notifyTimeChange',
         'syncTimePicker',
@@ -60,6 +60,7 @@ function controlFixture() {
       registerElementType: () => {},
 
       Date,
+      timeOfDay,
       NSDatePicker: { alloc: () => ({ initWithFrame: () => view }) },
       NSDate: {
         dateWithTimeIntervalSince1970: (seconds: number) => ({ timeIntervalSince1970: seconds }),

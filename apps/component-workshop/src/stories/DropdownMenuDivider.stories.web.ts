@@ -1,5 +1,5 @@
 // Uses the maintained ShellNavTemplate example; do not copy its implementation here.
-import { ShellNavTemplate as Example } from '@xplat/astryx-sandbox/examples/pages/shell-nav.tsrx'
+import { ShellNavTemplate as Example } from '@octane-xplat/astryx-sandbox/examples/pages/shell-nav.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

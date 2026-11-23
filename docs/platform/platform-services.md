@@ -670,6 +670,9 @@ import-copy (iOS) refs are session-scoped; copy durable data with
 
 ## Share text and URLs
 
+Follow the [sharing walkthrough](../../examples/sharing/share-content.ts) to
+connect text and link actions to feedback in your app.
+
 Use the shared `share` service to offer text or a link to the system's sharing
 options:
 
@@ -956,7 +959,7 @@ is temporary; keep it until all preview and upload consumers finish.
 Check denial and cancellation on a fresh test app without resetting an existing
 app's permissions or data. Then capture once after an already-granted permission,
 confirm a non-null result, release it, and verify the app-created preview is gone.
-The [nonvisual browser probe](../../apps/web/scripts/optional-services.ts) uses a
+The [nonvisual browser probe](../../tools/web-verification/scripts/optional-services.ts) uses a
 synthetic file-input payload and never renders or inspects an image. The
 [cleanup tests](../../packages/media/tests/cleanup.test.mts) inject read/conversion
 failures; they do not qualify camera hardware or native permission dialogs.

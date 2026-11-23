@@ -1,5 +1,5 @@
 // Uses the maintained AvatarShowcase example; do not copy its implementation here.
-import { AvatarShowcase as Example } from '@xplat/astryx-sandbox/examples/avatar/AvatarShowcase.tsrx'
+import { AvatarShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/avatar/AvatarShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

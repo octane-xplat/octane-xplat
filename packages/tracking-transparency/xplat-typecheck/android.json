@@ -1,0 +1,44 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/backend-types.ts",
+		"../src/backend.android.ts",
+		"../src/index.ts",
+		"../src/no-gate.ts",
+		"../src/permission.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"../src/use-tracking-permissions.tsx",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/tracking-transparency": [
+				"../src/index.ts"
+			]
+		},
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-android@9.1.1/node_modules/@nativescript/types-android/index.d.ts"
+		],
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

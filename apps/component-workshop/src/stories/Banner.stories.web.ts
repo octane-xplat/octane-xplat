@@ -1,5 +1,5 @@
 // Uses the maintained BannerShowcase example; do not copy its implementation here.
-import { BannerShowcase as Example } from '@xplat/astryx-sandbox/examples/banner/BannerShowcase.tsrx'
+import { BannerShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/banner/BannerShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

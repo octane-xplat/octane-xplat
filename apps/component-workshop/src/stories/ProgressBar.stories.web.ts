@@ -1,5 +1,5 @@
 // Uses the maintained ProgressBarShowcase example; do not copy its implementation here.
-import { ProgressBarShowcase as Example } from '@xplat/astryx-sandbox/examples/progressbar/ProgressBarShowcase.tsrx'
+import { ProgressBarShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/progressbar/ProgressBarShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

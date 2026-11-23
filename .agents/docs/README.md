@@ -30,6 +30,27 @@ framework; the app-building guides for downstream users live in `docs/`.
   and local workarounds.
 - [Releases](releases.md) — package and publication workflow.
 
+## Contributor guides
+
+Start with the guide for the task. Follow its links for platform-specific
+behavior and the public examples it builds on.
+
+| Task | Read |
+| --- | --- |
+| Set up a consumer app or a framework harness | [App setup](guides/app-setup.md) |
+| Operate an installed `xplat` project | [CLI workflow and versioned context](guides/cli-workflow.md) |
+| Expose app actions for verification | [Development actions](guides/development-actions.md) |
+| Work with hooks, context, refs, or the universal runtime | [Octane semantics](guides/octane.md) |
+| Implement a platform leaf or choose a platform API | [Platform files](guides/platform-leaves.md) |
+| Build or review a primitive | [Component contracts](guides/primitives.md) and [native driver semantics](guides/primitives/driver-semantics.md) |
+| Style shared or native UI | [Styling, tokens, and theme boundaries](guides/styling.md) |
+| Work with routes, stacks, loaders, or rendering | [Navigation](guides/navigation.md) |
+| Implement dialogs, sheets, or portals | [Overlay ownership](guides/overlays.md) |
+| Integrate platform services, motion, or device capabilities | [Services](guides/services.md) |
+| Verify app behavior or build a component preview | [Verification workflows](guides/verification-workflows.md) |
+| Develop or validate a consumer package | [Package development](guides/package-development.md) |
+| Assess platform support or a workaround | [Limits and evidence](guides/known-limits.md) |
+
 ## Working records
 
 - [LiquidGlass layout ownership](liquid-glass.md) — one Mason node, native UIKit

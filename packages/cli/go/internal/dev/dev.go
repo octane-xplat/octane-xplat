@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -49,10 +50,16 @@ func prepareDevEngines(ctx context.Context, projectRoot string, targets []devTar
 			if target.Kind == "ios" && runtime.GOOS != "darwin" {
 				return nil, errors.New("iOS development requires a Mac")
 			}
-			if target.Kind == "windows" && runtime.GOOS != "windows" {
-				return nil, errors.New("Windows NativeScript development requires Windows")
+			if target.Kind == "windows" {
+				engine.Directory, err = project.WindowsToolchainRoot(projectRoot, manifest)
+				if err != nil {
+					return nil, err
+				}
+				if runtime.GOOS != "windows" {
+					return nil, errors.New("Windows NativeScript development requires Windows")
+				}
 			}
-			entry, err := project.InstalledProjectEntry(projectRoot, "nativescript", "bin", "ns")
+			entry, err := project.InstalledProjectEntry(engine.Directory, "nativescript", "bin", "ns")
 			if err != nil {
 				return nil, err
 			}
@@ -233,7 +240,22 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	ctx = context.WithValue(ctx, proc.ProcessGraceKey{}, 3*time.Second)
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	choice := devSelection{Target: routes.OptionalString(values, "target"), Device: routes.OptionalString(values, "device"), Targets: routes.OptionalString(values, "targets")}
+	choice := devSelection{
+		Target:   routes.OptionalString(values, "target"),
+		Device:   routes.OptionalString(values, "device"),
+		Targets:  routes.OptionalString(values, "targets"),
+		Emulator: values["emulator"] == true,
+	}
+	if choice.Emulator {
+		switch {
+		case choice.Device != nil:
+			return errors.New("--emulator cannot be combined with --device")
+		case choice.Targets != nil:
+			return errors.New("--emulator cannot be combined with --targets")
+		case choice.Target != nil && *choice.Target != "ios" && *choice.Target != "android":
+			return errors.New("--emulator accepts only ios or android as a target")
+		}
+	}
 	if choice.Device != nil && strings.TrimSpace(*choice.Device) == "" {
 		return errors.New("--device requires an exact device target id")
 	}
@@ -255,7 +277,7 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 		return err
 	}
 	var chosen []devTarget
-	if choice.Target == nil && choice.Device == nil && choice.Targets == nil && proc.ForegroundInput(ctx) != nil && proc.BuildTerminal(proc.ForegroundInput(ctx)) && proc.BuildTerminal(os.Stdout) {
+	if choice.Target == nil && choice.Device == nil && choice.Targets == nil && !choice.Emulator && proc.ForegroundInput(ctx) != nil && proc.BuildTerminal(proc.ForegroundInput(ctx)) && proc.BuildTerminal(os.Stdout) {
 		chosen, err = promptDevTargets(ctx, all, proc.ForegroundInput(ctx))
 	} else {
 		chosen, err = selectDevTargets(all, choice)
@@ -266,6 +288,19 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	if len(chosen) == 0 {
 		return errors.New("no development targets found")
 	}
+	manifest, err := project.Manifest(projectRoot)
+	if err != nil {
+		return err
+	}
+	motionRate := 1.0
+	if configured, exists := cli.Object(cli.Object(manifest["xplat"])["dev"])["motionRate"]; exists {
+		var valid bool
+		motionRate, valid = configured.(float64)
+		if !valid || !(motionRate > 0 && motionRate <= 1) {
+			return errors.New("xplat.dev.motionRate must be greater than 0 and at most 1")
+		}
+	}
+
 	engines, err := prepareDevEngines(ctx, projectRoot, chosen)
 	if err != nil {
 		return err
@@ -357,7 +392,6 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	} else {
 		defer store.Close()
 	}
-	manifest, _ := project.Manifest(projectRoot)
 	appID := cli.StringValue(manifest["name"])
 	if appID == "" {
 		appID = filepath.Base(projectRoot)
@@ -376,6 +410,9 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 			// XPLAT_DEV_BACKEND reaches only the Node engine process; the Vite
 			// plugin surface must never define it into served app code.
 			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge, "XPLAT_DEV_BACKEND="+backendGrants[engine.Target.ID])
+			if engine.Target.Kind != "linux" {
+				observation.Environment = append(observation.Environment, "XPLAT_DEV_MOTION_RATE="+strconv.FormatFloat(motionRate, 'g', -1, 64))
+			}
 		}
 		if retain {
 			observation.Environment = append(append([]string{}, observation.Environment...), "XPLAT_TARGET="+engine.Target.Kind)

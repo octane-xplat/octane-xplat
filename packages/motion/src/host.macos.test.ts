@@ -92,6 +92,20 @@ describe('AppKit Motion channels', () => {
     expect(node).not.toHaveProperty('translateX')
   })
 
+  it('writes through a NativeScript view to its AppKit backing layer', () => {
+    const { node, values } = host()
+    const adapter = attachHost({ nativeViewProtected: node })
+
+    adapter.write({ x: 15, opacity: 0.4 })
+    expect(values.get('transform.translation.x')).toBe(15)
+    expect(node.alphaValue).toBe(0.4)
+
+    adapter.restore()
+    expect(values.get('transform.translation.x')).toBe(0)
+    expect(node.alphaValue).toBe(0.8)
+    expect(setLayoutProjectionScale).toHaveBeenCalledWith(node, null)
+  })
+
   it('retains omitted native channels, clamps opacity, and restores the native baseline', () => {
     const { node, values } = host()
     const adapter = attachHost(node)

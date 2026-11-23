@@ -2,10 +2,10 @@
 	"files": [],
 	"references": [
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/web.json"
+			"path": "./xplat-typecheck/web.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/macos.json"
+			"path": "./xplat-typecheck/macos.json"
 		}
 	]
 }

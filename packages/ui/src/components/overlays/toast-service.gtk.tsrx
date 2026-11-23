@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useContext } from 'octane'
 import { hostGlobal } from '../../internal/platform/host-bridge'
 import type { ShowToastFn, ToastOptions, ToastPosition } from '../../props'

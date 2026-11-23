@@ -124,10 +124,11 @@ type devAppHub struct {
 	pending        int
 	pendingSockets int
 	panelSeq       int
+	motionPending  map[string]devMotionPending
 }
 
 func newDevAppHub() *devAppHub {
-	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}, backends: map[devBackendKey]*devBackendPeer{}, panels: map[string]*devPanelPeer{}}
+	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}, backends: map[devBackendKey]*devBackendPeer{}, panels: map[string]*devPanelPeer{}, motionPending: map[string]devMotionPending{}}
 }
 
 func (server *devServer) appGrant(target devTarget) devAppGrant {
@@ -426,6 +427,9 @@ func (hub *devAppHub) dispatch(command string, values map[string]any) (any, *cli
 	case "actions list":
 		live, disconnected := []any{}, []any{}
 		for _, peer := range hub.peers {
+			if !peer.ready && peer.disconnectedAt == "" {
+				continue // Wait until the app's registration is acknowledged.
+			}
 			entry := devPeerSnapshot(peer)
 			if peer.disconnectedAt != "" {
 				disconnected = append(disconnected, entry)

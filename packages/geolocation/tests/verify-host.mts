@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const app = await mkdtemp(join(tmpdir(), 'xplat-location-host-'))
@@ -37,9 +37,10 @@ try {
     script,
     `
 if (typeof XplatGeolocation === 'undefined') throw Error('Geolocation metadata missing');
-if (typeof XplatGeolocation.ensure !== 'function' || typeof XplatGeolocation.positionTimeoutMaximumAgeCompletion !== 'function') throw Error('Selectors missing');
+if (typeof XplatGeolocation.ensure !== 'function' || typeof XplatGeolocation.getStatus !== 'function' || typeof XplatGeolocation.positionTimeoutMaximumAgeCompletion !== 'function') throw Error('Selectors missing');
 if (XplatGeolocation.isAvailable()) throw Error('Unconfigured command-line host must remain unsupported');
 console.log('MACOS_GEOLOCATION_HOST_BOUNDARY_OK');
+setTimeout(function() { globalThis.__xplatStopHost(); }, 0);
 `,
   )
 
@@ -48,7 +49,7 @@ console.log('MACOS_GEOLOCATION_HOST_BOUNDARY_OK');
     [
       join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
       script,
-      artifact.metadata,
+      artifact.metadata[macOSHostArch()],
       bootstrap,
     ],
     { encoding: 'utf8', timeout: 10000 },

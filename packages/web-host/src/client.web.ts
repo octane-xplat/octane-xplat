@@ -143,13 +143,16 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
   } as never) as RouterInstance<ContractsOf<Catalog>, string>
 
   platform.attach(router)
+  let root: Root | undefined
+
   try {
     if (match) {
       platform.initialize(match, routeRenderContent(options.catalog, match))
     }
 
     const props = { host: platform, router, App: options.App }
-    const root =
+
+    root =
       startup === 'hydrate'
         ? hydrateRoot(container, WebRouterRoot, props, {
             identifierPrefix,
@@ -157,8 +160,10 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
           })
         : createRoot(container, { identifierPrefix })
 
+    const app = root
+
     if (startup !== 'hydrate') {
-      flushSync(() => root.render(WebRouterRoot, props))
+      flushSync(() => app.render(WebRouterRoot, props))
     }
 
     script.remove()
@@ -168,20 +173,20 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
       })
 
       if (result.status !== 'committed') {
-        root.unmount()
         throw new Error(`Initial client navigation failed: ${result.status}`)
       }
     }
 
     return {
       router,
-      root,
+      root: app,
       dispose() {
-        root.unmount()
+        app.unmount()
         router.dispose()
       },
     }
   } catch (error) {
+    root?.unmount()
     router.dispose()
     throw error
   }

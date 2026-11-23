@@ -5,7 +5,8 @@
 // (oxlint-plugin.ts and tsrx.ts).
 //
 // Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
-// files own DOM code; `.mobile/.ios/.android.*`, `apps/mobile`, and
+// files and the shared app's web/Linux webview sources own DOM code;
+// `.mobile/.ios/.android.*`, the remaining `apps/harness` sources, and
 // unsuffixed files with a `.web.*` sibling own NativeScript. Other unsuffixed
 // files are shared. The `exclude` option covers trees that break that default.
 
@@ -19,7 +20,15 @@ const norm = (f) => f.split('\\').join('/')
 // `.web.`/`.linux.` anywhere in the name — `foo.web.test.tsrx` and
 // `foo.linux.test.tsrx` are target-specific files too. Linux's system
 // webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
-export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
+export const isWebFile = (f) => {
+  const file = norm(f)
+
+  return (
+    /\.(web|linux)\./.test(file) ||
+    (!/\.(mobile|ios|android|macos|windows|gtk)\./.test(file) &&
+      /(^|\/)apps\/harness\/(web|linux)\/src\//.test(file))
+  )
+}
 
 const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.ts', '.cjs', '.jsx', '.ts', '.js']
@@ -44,7 +53,7 @@ const isNativeDefaultFile = (f) => {
 export const isNativeFile = (f) =>
   !isWebFile(f) &&
   (/\.(mobile|ios|android|macos|windows|gtk)\./.test(norm(f)) ||
-    /(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
+    /(^|\/)apps\/(harness|windows)\//.test(norm(f)) ||
     /(^|\/)src\/native\//.test(norm(f)) ||
     isNativeDefaultFile(f))
 
@@ -1494,63 +1503,65 @@ const RETIRED_PRAGMAS = [
   'octane',
 ]
 
-// The pragma selects the JSX vocabulary — only files that contain JSX need
-// it. JSX-free native leaves (styled, use-store) omit it by design. Native
-// files take '@octane-xplat/jsx'; browser (.web/.linux) files take the /dom
-// facade — via pragma in mixed workspaces or the workspace tsconfig default
-// in browser-only ones (a missing /dom there is not an error).
+// Octane's type-only TSRX transform selects its DOM runtime by default.
+// Native host tags need an override, even in a native TypeScript program.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
   if (!norm(filename).endsWith('.tsrx') || fileExcluded(filename, options)) {
     return []
   }
 
-  const file = norm(filename)
-  const first = source.split('\n')[0] ?? ''
-  const pragmaMatch = /@jsxImportSource\s+([^\s*]+)/.exec(first)
+  const header = source.slice(0, program.body[0]?.start)
+  const pragma = /(?:\/\*\*?|\/\/)[ \t]*@jsxImportSource\s+([^\s*]+)/.exec(header)
 
-  if (pragmaMatch) {
-    const value = pragmaMatch[1]
+  if (!pragma) {
+    if (isNativeFile(filename)) {
+      for (const [node] of walk(program)) {
+        const name = node.type === 'JSXOpeningElement' && jsxName(node.name)
 
-    if (RETIRED_PRAGMAS.includes(value)) {
-      return [
-        {
-          node: program,
-          message:
-            "Retired JSX pragma '" +
-            value +
-            "' — use '@octane-xplat/jsx' (native) or '@octane-xplat/jsx/dom' (browser).",
-        },
-      ]
+        if (name && name !== 'style' && /^[a-z][^.]*$/.test(name)) {
+          return [
+            {
+              node: node.name,
+              message: `Native host elements in TSRX need '${NATIVE_PRAGMA}' on line 1.`,
+            },
+          ]
+        }
+      }
     }
 
-    if (value === '@octane-xplat/jsx' && (file.includes('.web.') || file.includes('.linux.'))) {
-      return [
-        {
-          node: program,
-          message:
-            "Browser files type against '@octane-xplat/jsx/dom', not the native facade pragma.",
-        },
-      ]
-    }
-  }
-
-  if (!isNativeFile(filename)) {
     return []
   }
 
-  if (source.startsWith(NATIVE_PRAGMA)) {
-    return []
+  const value = pragma[1]
+
+  if (RETIRED_PRAGMAS.includes(value)) {
+    return [
+      {
+        node: program,
+        message:
+          "Retired JSX pragma '" +
+          value +
+          "' — use '@octane-xplat/jsx' (native) or '@octane-xplat/jsx/dom' (browser).",
+      },
+    ]
   }
 
-  for (const [node] of walk(program)) {
-    if (node.type === 'JSXOpeningElement') {
-      return [
-        {
-          node: program,
-          message: `Native leaves with JSX must start with '${NATIVE_PRAGMA}' on line 1 — nothing may precede it.`,
-        },
-      ]
-    }
+  if (value === '@octane-xplat/jsx' && isWebFile(filename)) {
+    return [
+      {
+        node: program,
+        message: "Browser files type against '@octane-xplat/jsx/dom', not the native facade pragma.",
+      },
+    ]
+  }
+
+  if (isNativeFile(filename) && !source.startsWith(NATIVE_PRAGMA)) {
+    return [
+      {
+        node: program,
+        message: `Native leaves that set a JSX pragma must start with '${NATIVE_PRAGMA}' on line 1.`,
+      },
+    ]
   }
 
   return []

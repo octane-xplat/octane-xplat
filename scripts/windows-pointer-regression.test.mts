@@ -6,7 +6,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 
 // Execute the installed, patched Windows implementation without booting WinRT.
-const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
+const appRequire = createRequire(new URL('../tools/windows-host/package.json', import.meta.url))
 const coreFile = (path) =>
   process.env.WINDOWS_CORE_ARTIFACT
     ? resolve(process.env.WINDOWS_CORE_ARTIFACT, path)

@@ -1,0 +1,54 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../../../examples/media/crop-selection.tsrx",
+		"../../../examples/probes/image-crop-selection.tsrx",
+		"../src/Gesture.tsrx",
+		"../src/Guide.tsrx",
+		"../src/ImageCrop.tsrx",
+		"../src/Source.tsrx",
+		"../src/geometry.ts",
+		"../src/index.ts",
+		"../src/props.ts",
+		"./isolation-ios.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@octane-xplat/image-crop": [
+				"../src/index.ts"
+			],
+			"octane": [
+				"../node_modules/octane"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".ios",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"ios",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}
