@@ -327,7 +327,13 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
     if (!node.propDefaults.has(name)) {
       return
     }
-    value = isRegisteredProperty(view, name) ? unsetValue : node.propDefaults.get(name)
+    if (view instanceof ActionBar && name === 'titleView') {
+      // The first imperative prop can replace a JSX child. The old view
+      // snapshot is not the default if that child has since been removed.
+      value = node.children.find((child) => child.view instanceof View)?.view ?? null
+    } else {
+      value = isRegisteredProperty(view, name) ? unsetValue : node.propDefaults.get(name)
+    }
   }
   // Core raises `<name>Change` for a script write exactly as for a user
   // edit; a controlled input must not see its own value come back as one.

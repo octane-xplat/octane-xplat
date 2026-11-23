@@ -466,6 +466,24 @@ describe('nativeScriptDriver', () => {
     expect(view<core.ActionBar>(1).titleView).toBe(view(2))
   })
 
+  it('restores the current JSX ActionBar title after an imperative title is cleared', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'actionbar'), create(2, 'label'), create(3, 'label'), insert(1), insert(2, 1))
+    const bar = view<core.ActionBar>(1)
+    const title = view(2)
+    const imperativeTitle = view(3)
+
+    apply(update(1, { titleView: imperativeTitle }))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBe(title)
+
+    apply(update(1, { titleView: imperativeTitle }), remove(2, 1))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBeNull()
+  })
+
   it('recreate swaps a node for another type in place', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(
