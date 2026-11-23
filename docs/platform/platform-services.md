@@ -683,8 +683,8 @@ const textResult = await share.text('A note to share')
 const linkResult = await share.url('https://example.com', 'Example')
 ```
 
-On iOS, Android, and macOS, these calls open the native share picker. A macOS
-Browser implementations use the Web
+On iOS, Android, and macOS, these calls open the native share picker.
+Browsers use the Web
 Share API when available and copy the content when the browser offers
 clipboard access. Check the result: `shared` means the share flow was
 opened or completed by the target, `copied` means the fallback copied the
@@ -703,8 +703,7 @@ else console.log(result) // shared or cancelled; neither proves recipient delive
 For native AppKit, rebuild the host after updating the share package. It owns
 its compiled picker bridge and waits for service completion or cancellation;
 opening a picker alone is not shared. Keep local files alive until the promise
-settles. Actual OS UI and transfer remain unqualified. The separate hosted macOS
-webview backend still reports shared on picker launch. See
+settles. Actual OS UI and transfer remain unqualified. See
 [native AppKit sharing](../packages/package-share.md#native-appkit-sharing).
 
 ```ts
@@ -717,17 +716,17 @@ recording or a document your app just saved. The path must be an absolute
 filesystem path or `file://` URL; Android also accepts `content://` URIs.
 On iOS the result is `shared` or `cancelled` (the sheet reports dismissal);
 on Android the system chooser reports no outcome, so a launched sheet
-resolves `shared`. Browsers cannot share a file by path, so web resolves
-`unavailable` — the same call inside a macOS-hosted webview reaches the
-AppKit share picker.
+resolves `shared`. Browsers return `unavailable` for local file paths.
 
 ```ts
-import { files } from '@octane-xplat/files'
 import { share } from '@octane-xplat/share'
 
-const saved = await files.writeBytes('clip.mov', bytes)
-const result = await share.file(saved.uri, { subject: 'Share clip' })
-if (result === 'unavailable') console.log('No file-share path on this target')
+// Call with the absolute path or file:// URL of an existing app file.
+export async function shareClip(path: string) {
+  const result = await share.file(path, { subject: 'Share clip' })
+  if (result === 'unavailable') console.log('No file-share path on this target')
+  return result
+}
 ```
 
 On Android the package declares its own FileProvider

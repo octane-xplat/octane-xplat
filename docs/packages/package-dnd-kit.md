@@ -27,8 +27,7 @@ platform implementation. Native apps also need the existing
 entry ships source, like other macOS leaves — include its `src/**/*.tsx` and
 `src/**/*.tsrx` in the macOS renderer transform (the workspace config already
 does) — and it supplies AbortController/AbortSignal where JavaScriptCore lacks
-them. macOS WebView apps select the web entry instead. No leaf CSS build is
-required; drag feedback uses style objects.
+them. Drag feedback uses style objects.
 
 ```tsx
 import { useState } from 'octane'
@@ -329,6 +328,6 @@ and no virtualized offscreen target discovery — only mounted, measurable
 targets participate. Use a separate DndContext in each
 native renderer root (pages and sheets do not share context).
 
-Android runtime drag and macOS WebView drag remain unqualified. Native handler
+Android runtime drag remains unqualified. Native handler
 dispatch does not establish OS gesture delivery, hit-testing or arbitration with
 scroll gestures. Verify those interactions on every target your app ships.

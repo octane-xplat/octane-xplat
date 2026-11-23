@@ -1143,9 +1143,9 @@ and desktop entry; settings under
   change on the pinned NativeScript runtime with GTK 4.14.5. Live theme
   switching and the rest of that journey need separate qualification.
 
-- URI scheme handling is unavailable. The GTK desktop entry declares no
-  MimeType, and `x-scheme-handler` links do not reach the GTK host. The install scripts themselves are not yet qualified on a real
-  Linux host.
+- Custom URI schemes are unavailable. The GTK desktop entry omits
+  `MimeType`, so `x-scheme-handler` links do not reach the app. The install
+  scripts still need qualification on a real Linux host.
 - Clipboard coverage is text-only writes (`copyText`/`useClipboard`
   claim the display clipboard); reads and other formats are not exposed.
   Secure storage, notifications and files remain unqualified — the GTK

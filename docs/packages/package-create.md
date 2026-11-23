@@ -53,31 +53,7 @@ when adding a native or browser implementation.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-create).
 
-## Start a library package
-
-To start a reusable package instead of an app, select the library template:
-
-```sh
-bun create octane-xplat my-controls --template library
-cd my-controls
-bun run typecheck
-bun run typegen
-bun run test:packed
-```
-
-`pnpm create` and `--package-manager` choose the library's manager the same
-way; run the same scripts as `pnpm run …` in a pnpm project.
-
-The library starter publishes source for web, iOS, and Android, which the
-consuming app compiles. It includes conditional exports, generated `.d.ts`
-declarations, lint and unit-test
-scripts, and a packed-consumer check. Pass `--name @acme/my-controls` to set a
-scoped npm package name; otherwise the folder name becomes the package name.
-Library creation installs dependencies but does not start an app dev server.
-Desktop targets are not included in this starter.
-Follow [Publish a reusable component library](../app/component-libraries.md)
-for app-based development, generated types, packed consumers, assets and npm
-publication.
+## Choose app targets
 
 The creator asks which platforms to target — web, iOS, and Android are all
 pre-selected. Pass `--targets` to skip the prompt:
@@ -91,16 +67,13 @@ Platforms skipped here can be enabled later with `bun run xplat add <platform>`
 inside the app. (Non-interactive runs without `--targets` scaffold all
 three.)
 
-The creator copies the template, installs dependencies with Bun, and starts
-the web dev server when the web target is included. Open the printed URL and
-open `my-app` in your agent.
-Ask it to read `AGENTS.md` and `.agents/skills/xplat/SKILL.md`, then build a
-packing checklist with add, pack, and remove actions using in-memory state.
-Check the result before asking for the next feature: add “Passport” and
-“Charger,” pack Passport, and confirm that one item remains. Reloading should
-clear the list in this in-memory version. The
-[first-flow guide](https://octane-xplat.goddardai.org/toolchain#build-and-check-your-first-flow)
-includes the full prompt and failure checks.
+The creator copies the template and installs dependencies with your selected
+package manager. When the web target is included, it starts the browser dev
+server after installation. Open the printed URL to try the starter, then follow
+the [first-flow guide](../start/toolchain.md#build-and-check-your-first-flow)
+to turn it into a packing checklist.
+
+## Understand the generated app files
 
 A Bun app pins `bun@1.4.4` and keeps its named catalogs, overrides, and patch
 registrations in `package.json`; `bun.lock` records what Bun installed, and
@@ -137,6 +110,29 @@ is your choice to make.
 
 Apps start with the runtime, build packages, and tests their selected platforms
 need. Feature packages are added when you use them.
+
+## Start a library package
+
+To start a reusable package, select the library template:
+
+```sh
+bun create octane-xplat my-controls --template library
+cd my-controls
+bun run typecheck
+bun run typegen
+bun run test:packed
+```
+
+`pnpm create` and `--package-manager` choose the library's manager the same
+way. Use `pnpm run` for the scripts in a pnpm project.
+
+The library starter publishes source for web, iOS, and Android, which the
+consuming app compiles. It includes conditional exports, generated `.d.ts`
+declarations, lint and unit-test scripts, and a packed-consumer check.
+Pass `--name @acme/my-controls` to set a scoped npm package name. By default,
+the folder name becomes the package name. Library creation installs dependencies
+and prints next steps. To try the component in an app and prepare for npm
+publication, follow the [component-library guide](../app/component-libraries.md).
 
 ## Run app tests
 

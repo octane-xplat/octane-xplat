@@ -34,17 +34,16 @@ The AppKit Lottie leaf uses Airbnb Lottie 4.6.1 and supports inline JSON in
 `data`, raw JSON in `src`, absolute local JSON files, `file://` URLs, and HTTPS
 JSON. Relative paths, `~/`/`res://` bundle aliases, HTTP URLs, `.lottie`/`.zip`
 archives, and external image assets are not supported there. Fit modes map to
-AppKit content modes, but pixel parity has not been visually reviewed. The
-harness motion-package route remains unsupported because its gesture and
-reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
-fixture does not establish motion-package support. AppKit applies app and
-Bamboo stylesheets, with the [limits listed for the renderer](../packages/package-macos-appkit.md#apply-stylesheets):
-state selectors and window-resize media queries have source support that has
-not been checked on a running Mac, media queries use one viewport for every
-window, and keyframe playback is limited to a source path. See the
-[Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
-[non-visual macOS checks](../../tools/macos-verification/README.md#non-visual-smoke-checks) for
-the runtime evidence and its boundaries.
+AppKit content modes, but pixel parity has not been visually reviewed. See
+the [Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md).
+
+The [AppKit animation guide](../app/animation-gestures.md#existing-imperative-animation)
+explains the shared animation clock and the ref-animation limits.
+AppKit applies app and Bamboo stylesheets. The AppKit provider test covers
+independent width-based media queries and resize updates in two windows.
+See the [renderer limits](../packages/package-macos-appkit.md#apply-stylesheets)
+and [provider test coverage](../../.agents/docs/appkit-renderer.md) for the
+scope of those checks.
 
 A **seam** is a part where shared code meets platform behavior, such as
 opening a keyboard or camera. Each row describes one feature or seam.

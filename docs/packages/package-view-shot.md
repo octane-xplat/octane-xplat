@@ -193,12 +193,10 @@ and runtime are deferred.
 | Native macOS                | PNG, JPEG                | Unavailable        | Attached AppKit NSView                                                |
 | Linux GTK                   | PNG                      | Unavailable        | GTK 4.14+ mapped widget, GSK renderer                                 |
 | Experimental native Windows | PNG                      | Unavailable        | Attached XAML host and required WinRT projections                     |
-| Linux DOM/webview           | PNG, JPEG                | Unavailable        | Select the web condition and browser backend                          |
 
-Query the selected backend rather than assuming that the package's presence
-makes an operation available. GTK has a dedicated `gtk` condition; a Linux
-webview must use the web condition. The standalone native `linux` entry is
-unavailable. Windows remains an experimental repository host.
+Query the selected backend to find out whether capture is available. Native
+Linux apps use the `gtk` condition. The `linux` entry reports unavailable.
+On Linux browsers, web apps use the web backend.
 
 ```ts
 import { viewShot } from '@octane-xplat/view-shot'

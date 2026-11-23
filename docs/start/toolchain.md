@@ -302,13 +302,21 @@ bun run typecheck
 bun run build
 ```
 
-In a pnpm project, run the preview with `pnpm dlx` and the rest as
-`pnpm run …`.
+In a pnpm project, use `pnpm dlx` for both upgrade commands and `pnpm run`
+for the project checks.
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm run xplat doctor
+pnpm run typecheck
+pnpm run build
+```
 
 The preview writes nothing and exits `1` when changes are needed. Applying
 updates the framework packages, compiler, bundler, enabled test/native tools,
-and matching patches, then runs bun install. It keeps app-specific packages
-and local links. A custom patch or conflicting override stops the command
+and matching patches, then installs with the workspace's package manager.
+It keeps app-specific packages and local links. A custom patch or conflicting override stops the command
 before any file changes; reconcile the named conflict and run it again.
 
 ```sh
@@ -481,7 +489,7 @@ The `.app` uses system JavaScriptCore and bundles no Node executable or JS
 engine binary; `xplat dev` runs the Vite watcher in Node while the AppKit app
 and Octane HMR run in the JavaScriptCore host. See
 the [macOS experiment
-notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
+notes](../../tools/macos-verification/README.md)
 for signing, notarization, and icon setup.
 
 ```json
@@ -564,7 +572,7 @@ the UI package root. An adapted sweep covers the Home shell, Apps gallery,
 nine demos, and Test/probe surface. The AppKit renderer implements a bounded
 set of components and style tokens, while missing host services report
 `unsupported` or `unavailable`. This verifies the in-repository harness, not
-general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
+general NativeScript or web parity; see the [macOS experiment notes](../../tools/macos-verification/README.md)
 for the measured boundary.
 
 ### Desktop hosting boundary

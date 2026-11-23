@@ -159,23 +159,19 @@ not prove a single runtime. Return to tarballs for the final consumer check.
 Keep the framework's NativeScript Vite patches when compiling source packages;
 do not exclude the library from compilation to hide a transform failure.
 
-Use the template's `catalog:xplat` compatibility set together. The current
-starter pins Octane 0.16.3, its Vite plugin 0.5.0, parser 0.20.0, TypeScript 5.9.3
-and TypeScript plugin 0.4.11. These are a tested toolchain set, not a claim that
-all versions inside a broad peer range work. Inspect the generated workspace
-file and doctor output for the installed release, rather than independently
-upgrading compiler pieces:
+Keep the library template's `catalog:xplat` versions together. The catalog
+pins Octane, the Vite plugin, the parser, and TypeScript for the starter release
+you installed. Find it in `package.json` for Bun or `pnpm-workspace.yaml` for
+pnpm. Use the CLI to check those packages and preview a coordinated upgrade:
 
 ```sh
 bun run xplat doctor
 bunx @octane-xplat/cli@latest upgrade --check
 ```
 
-The generated workspace pins the lint checker's optional `oxlint-tsgolint`
-peer at 7.0.2005 through its managed overrides, matching Oxlint 1.90.0's
-requirement. Ordinary lint passed in qualification; type-aware lint
-compatibility is a separate question. Inspect the install rather than silently
-ignoring a peer warning:
+The starter also carries the lint checker's managed version overrides. If
+installation reports a peer warning, inspect the installed versions before
+changing the overrides:
 
 ```sh
 bun pm ls --all

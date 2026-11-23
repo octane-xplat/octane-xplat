@@ -13,16 +13,19 @@ share picker may need different code on each platform.
 Xplat gives those parts a common name so your screen can ask to share
 without choosing a browser or phone implementation itself.
 [Platform files](../platform/module-resolution.md) explain how that selection works.
-Check [target support](spec.md#choose-your-targets) when adding a platform:
-shared names do not mean every feature is available everywhere.
+Check [target support](spec.md#choose-your-targets) when adding a platform.
+If you want to try this button, install [the share package](../packages/package-share.md)
+in your app first, then put the component in `src/ShareButton.tsx`.
 
 ```tsx
 import { share } from '@octane-xplat/share'
 import { Pressable, Text } from '@octane-xplat/ui'
 
-export function Example() {
+export function ShareButton() {
   return (
-    <Pressable onPress={() => share({ text: 'Packing list' })}>
+    <Pressable onPress={() => {
+      void share.text('Packing list').catch(error => console.error('Sharing failed', error))
+    }}>
       <Text>Share list</Text>
     </Pressable>
   )
@@ -70,15 +73,16 @@ browser or native APIs, or when you want a different layout or OS control.
 For example:
 
 ```text
-ShareButton.tsrx          native default
-ShareButton.web.tsrx      browser implementation
-ShareButton.mobile.tsrx   implementation shared by iOS and Android
+ShareButton.tsx          default implementation
+ShareButton.web.tsx      browser implementation
+ShareButton.mobile.tsx   implementation shared by iOS and Android
 ```
 
-The screen keeps one import:
+The screen keeps one import. It can render `<ShareButton />` regardless of
+which file the build selects.
 
 ```ts
-
+import { ShareButton } from './ShareButton'
 ```
 
 The build selects the right file. Each version should accept the same

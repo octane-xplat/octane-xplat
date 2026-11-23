@@ -7,9 +7,9 @@
   </picture>
 </h1>
 
-Build the app you imagine for **web, iOS, Android, macOS, Windows, and Linux**
-from one TypeScript codebase. Share your screens and logic, then use each
-platform's capabilities whenever your app calls for them.
+Build apps for **web, iOS, and Android** from one TypeScript codebase.
+Share screens and logic, then use each platform's own capabilities where your
+app needs them. Experimental native targets also cover macOS, Windows, and Linux.
 
 Octane Xplat brings together [Octane](https://github.com/octanejs/octane)'s
 compiled UI, [NativeScript](https://docs.nativescript.org/)'s native platform
@@ -62,7 +62,7 @@ your effort stays focused on your app.
 
 ## Start building
 
-With [Node.js, Bun, and bun installed](docs/start/toolchain.md#create-and-run):
+With [Node.js and either Bun or pnpm installed](docs/start/toolchain.md#create-and-run):
 
 ```sh
 bun create octane-xplat my-app     # or: pnpm create octane-xplat my-app
@@ -73,8 +73,7 @@ Open the local URL it prints, then build with your editor, your coding agent,
 or both. [Run on iOS and Android](docs/start/toolchain.md#run-on-ios-and-android)
 when you're ready.
 
-**Currently in alpha.** Web, iOS, and Android are included in the starter;
-macOS, Windows, and Linux hosts are experimental. APIs can change.
+**Currently in alpha.** APIs can change between releases.
 [Platform support and limits](docs/start/spec.md#choose-your-targets).
 
 [Documentation](https://octane-xplat.goddardai.org) ·

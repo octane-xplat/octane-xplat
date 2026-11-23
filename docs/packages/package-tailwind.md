@@ -9,12 +9,12 @@ The npm bootstrap placeholder has no supported API.
 
 ## Configure the compiler
 
-Install the candidate as a development dependency in the app, alongside its
-existing build tools. Use the same Xplat version as the app. The compiler runs
-during development and builds; it adds no Tailwind runtime to UI or the CLI.
+Install the candidate as a development dependency alongside your app's build
+tools. Use a tarball that matches the app's Xplat version and substitute its
+filename below. The compiler runs during development and builds.
 
 ```sh
-bun add -D ./octane-xplat-tailwind-0.20.0.tgz
+bun add -D ./octane-xplat-tailwind-VERSION.tgz
 ```
 
 Add the compiler after the app's existing Xplat preset. Web apps need the
@@ -170,24 +170,22 @@ development maps are a separate capability.
 
 ## Linux hosts
 
-Linux's webview uses browser CSS and Linux source leaves. Preserve its existing
-browser CSS preset and module conditions. GTK is a separate native renderer:
-it uses the `gtk` CSS target and native generated-output diagnostics. Browser
-computed styles do not qualify either a real Linux webview or GTK session.
+For a native Linux app, add Tailwind to the
+[GTK4/GJS preset](../platform/linux-gtk.md#configure-the-app). It uses the
+`gtk` CSS target and checks the generated styles against the native subset.
+For a web app running in a Linux browser, use the web configuration above.
 
 ```ts
-// Styling portion of the existing Linux webview Vite configuration.
-import { css } from '@octane-xplat/build/vite'
+// vite.gtk.config.ts
+import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
 import { tailwind } from '@octane-xplat/tailwind/vite'
 
-const config = {
-  plugins: [css('web'), tailwind()],
-  resolve: { conditions: ['linux', 'web'] },
+export default async (env: { mode: string }) => {
+  const config = await linuxGtk(env)
+  return { ...config, plugins: [...(config.plugins ?? []), tailwind()] }
 }
 ```
 
-Windows and an unspecified `native` CSS target fail explicitly. visionOS,
-full GTK and Linux webview apps, native UI Theme/modal/media lifecycles, and
-SSR/hydration of actual UI components still require separate qualification.
-Keep these limits when evaluating the candidate; installed CSS compilation,
-browser layout and native object/style measurements establish different things.
+Windows and an unspecified `native` CSS target fail explicitly. Full GTK apps,
+visionOS, native UI themes, modals and media, and rendering and hydrating UI
+components on the web still require separate qualification.

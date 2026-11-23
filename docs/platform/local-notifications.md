@@ -37,8 +37,7 @@ useful message for the non-granted outcomes. If permission was denied, explain
 how to enable notifications in system or browser settings — `canAskAgain:
 false` means the platform cannot re-prompt. `getPermissions()` reads the same
 state without prompting on native AppKit and the browser Notification API.
-The hosted macOS webview backend still requests authorization for reads; avoid
-probing through that separate backend. After importing this leaf, the shared
+After importing this leaf, the shared
 `permissions.requestPermissions('notifications')` dispatcher uses the same
 permission owner. The dispatcher reports `unsupported` when no owner is
 installed.
