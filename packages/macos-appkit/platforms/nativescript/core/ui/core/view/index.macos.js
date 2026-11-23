@@ -448,10 +448,28 @@ export class ContainerView extends View {
     }
 }
 export class CustomLayoutView extends ContainerView {
+    _intrinsicSize;
     createNativeView() {
         const window = getWindow && getWindow();
         const frame = window ? window.contentView.frame : CGRectMake(0, 0, 0, 0);
-        return createNativeScriptActionView(this, frame);
+        return createNativeScriptActionView(this, frame, () => this._intrinsicSize);
+    }
+    getMasonIntrinsicSize() {
+        const child = this.layoutView;
+        if (!child || child === this) {
+            this._intrinsicSize = undefined;
+            return;
+        }
+        const { measuredWidth, measuredHeight } = View.measureChild(
+            this, child, layout.UNSPECIFIED, layout.UNSPECIFIED,
+        );
+        // AppKit can ask for intrinsic size while Mason is already computing.
+        // Publish the resolved size without re-entering the engine.
+        this._intrinsicSize = NSMakeSize(
+            layout.toDeviceIndependentPixels(measuredWidth),
+            layout.toDeviceIndependentPixels(measuredHeight),
+        );
+        return this._intrinsicSize;
     }
     get ios() {
         return undefined;

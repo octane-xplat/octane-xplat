@@ -1,6 +1,6 @@
 import type { View } from '@nativescript/core/ui/core/view'
 import { GestureTypes } from '@nativescript/core/ui/gestures'
-import { interop, NSButton, NSEvent, NSView, type NSRect } from '@octane-xplat/platform/macos'
+import { interop, NSButton, NSEvent, NSView, type NSRect, type NSSize } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
 
 export function activateNativeScriptView(view: View): boolean {
@@ -41,6 +41,7 @@ export function activateNativeScriptView(view: View): boolean {
 }
 
 const owners = new WeakMap<object, View>()
+const intrinsicSizes = new WeakMap<object, () => NSSize | undefined>()
 
 function actionRole(role: unknown) {
   switch (role) {
@@ -68,6 +69,11 @@ class CoreActionView extends NSView {
 
   static {
     registerGestureClass(this)
+  }
+
+  // @ts-expect-error ObjC accessor implements a generated native property.
+  get intrinsicContentSize(): NSSize {
+    return intrinsicSizes.get(this)?.() ?? { width: -1, height: -1 }
   }
 
   // AppKit exposes these methods as properties in its generated declarations.
@@ -105,14 +111,21 @@ class CoreActionView extends NSView {
   }
 }
 
-export function createNativeScriptActionView(owner: View, frame: NSRect): NSView {
+export function createNativeScriptActionView(
+  owner: View,
+  frame: NSRect,
+  getIntrinsicSize?: () => NSSize | undefined,
+): NSView {
   const native = CoreActionView.alloc().initWithFrame(frame)
   owners.set(native, owner)
-  // The bridge declares Objective-C accessors as properties and binds the
-  // overrides above as methods on the native class.
+  if (getIntrinsicSize) {
+    intrinsicSizes.set(native, getIntrinsicSize)
+  }
+  // The bridge binds the accessors above as native properties.
   return native as unknown as NSView
 }
 
 export function releaseNativeScriptActionView(native: NSView) {
   owners.delete(native)
+  intrinsicSizes.delete(native)
 }
