@@ -22,6 +22,7 @@ import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkDateLifecycle } from './date-lifecycle'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
+import { checkListLifecycle } from './list-lifecycle'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
@@ -1481,6 +1482,7 @@ setTimeout(async () => {
     await checkFormattedLinks()
     await checkControlLifecycle(checkActivityLifecycle)
     await checkControlLifecycle(checkDateLifecycle)
+    await checkControlLifecycle(checkListLifecycle)
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

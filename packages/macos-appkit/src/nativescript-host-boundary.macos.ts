@@ -94,7 +94,8 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
   emitProgrammaticChange(type, property) {
     return (
       (type === 'searchbar' && property === 'text') ||
-      (type === 'datepicker' && property === 'date')
+      (type === 'datepicker' && property === 'date') ||
+      (type === 'listpicker' && property === 'selectedIndex')
     )
   },
 

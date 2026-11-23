@@ -1,14 +1,15 @@
 // macOS Core provider: ListPicker for AppKit — NSPopUpButton
 // with target-action selectedIndexChange, ported from
 // ui/list-picker/index.ios.js.
-import { ListPickerBase, itemsProperty, selectedIndexProperty, selectedValueProperty } from '@nativescript/core/ui/list-picker/list-picker-common';
-import { layout } from '@nativescript/core/utils';
+import { ListPickerBase, itemsProperty, selectedIndexProperty } from '@nativescript/core/ui/list-picker/list-picker-common';
 export * from '@nativescript/core/ui/list-picker/list-picker-common';
 const ListPickerTargetImpl = NSObject.extend({
     ['selected:'](sender) {
         const owner = this._weakOwner ? this._weakOwner.deref() : null;
-        if (owner) {
-            selectedIndexProperty.nativeValueChange(owner, Number(sender.indexOfSelectedItem));
+        if (owner?.isEnabled && sender === owner.nativeViewProtected) {
+            const index = Number(sender.indexOfSelectedItem);
+            owner.updateSelectedValue(index);
+            selectedIndexProperty.nativeValueChange(owner, index);
         }
     },
 }, {
@@ -35,6 +36,11 @@ export class ListPicker extends ListPickerBase {
         if (nv) {
             nv.target = null;
             nv.action = null;
+            nv.removeAllItems();
+        }
+        if (this._target) {
+            this._target._weakOwner = undefined;
+            this._target = undefined;
         }
         super.disposeNativeView();
     }
@@ -43,13 +49,6 @@ export class ListPicker extends ListPickerBase {
     }
     get macos() {
         return this.nativeViewProtected;
-    }
-    _getItemTitle(index) {
-        const items = this.items;
-        if (!items || index < 0 || index >= items.length)
-            {return '';}
-        const item = this._getItemAsString ? this._getItemAsString(index) : items[index];
-        return item == null ? '' : String(item);
     }
     _updateItems() {
         const nv = this.nativeViewProtected;
@@ -61,13 +60,17 @@ export class ListPicker extends ListPickerBase {
             const items = this.items;
             if (items) {
                 for (let i = 0; i < items.length; i++) {
-                    nv.addItemWithTitle(this._getItemTitle(i));
+                    // NSPopUpButton.addItemWithTitle merges duplicate labels.
+                    const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
+                        this._getItemAsString(i), null, '',
+                    );
+                    nv.menu.addItem(item);
                 }
             }
-            const sel = this.selectedIndex;
-            if (sel >= 0 && sel < nv.numberOfItems) {
-                nv.selectItemAtIndex(sel);
-            }
+            selectedIndexProperty.coerce(this);
+            nv.selectItemAtIndex(this.selectedIndex);
+            nv.invalidateIntrinsicContentSize();
+            this.requestLayout();
         }
         finally {
             this._updatingItems = false;
@@ -79,12 +82,6 @@ export class ListPicker extends ListPickerBase {
     [itemsProperty.setNative](_value) {
         this._updateItems();
     }
-    [selectedValueProperty.getDefault]() {
-        return null;
-    }
-    [selectedValueProperty.setNative](_value) {
-        this._updateItems();
-    }
     [selectedIndexProperty.getDefault]() {
         return -1;
     }
@@ -92,14 +89,6 @@ export class ListPicker extends ListPickerBase {
         const nv = this.nativeViewProtected;
         if (nv && !this._updatingItems) {
             nv.selectItemAtIndex(value < 0 ? -1 : value);
-        }
-    }
-    onMeasure(widthMeasureSpec, heightMeasureSpec) {
-        const nv = this.nativeViewProtected;
-        if (nv) {
-            const width = layout.getMeasureSpecSize(widthMeasureSpec);
-            const fit = nv.fittingSize;
-            this.setMeasuredDimension(width, Math.max(fit.height || 26, 22));
         }
     }
 }

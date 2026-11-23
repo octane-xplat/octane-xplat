@@ -1,6 +1,6 @@
 import ListPicker, { listRef, listRefEvents, listChanges } from './List'
 
-import { NSControlSize, NSPopUpButton } from '@octane-xplat/platform/macos'
+import { NSApplication, NSControlSize, NSPopUpButton } from '@octane-xplat/platform/macos'
 
 export async function checkListLifecycle(root: any, nativeWindow: any) {
   const debug = root.__macosDebug
@@ -98,7 +98,7 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
   const before = listChanges.length
 
   first.selectItemAtIndex(0)
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(
     listChanges.length === before + 1 &&
       listChanges.at(-1).value === 0 &&
@@ -107,7 +107,7 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
     'ListPicker native event payload failed',
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(listChanges.length === before + 1, 'ListPicker unchanged action emitted an event')
   await advance()
   check(
