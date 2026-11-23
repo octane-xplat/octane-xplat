@@ -1,6 +1,7 @@
 // Renders the production bundle in jsdom — catches boot hangs, empty
 // render loops, and missing content without a browser. Run after build.
-import { execFileSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
+import { once } from 'node:events'
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
 import { join, relative, dirname, basename } from 'node:path'
@@ -135,6 +136,7 @@ if (batchOffset !== undefined) {
     await verifyGuide(path)
   }
 
+  assert('no missing or duplicate child keys in the guide batch', keyDiagnostics.length === 0)
   process.exit(fail ? 1 : 0)
 }
 
@@ -368,14 +370,6 @@ assert(
   ),
 )
 
-// Start a fresh jsdom process for each batch. The full generated API corpus
-// exceeds the default Node heap when one runtime keeps every navigation.
-const runner = fileURLToPath(import.meta.url)
-
-for (let offset = 0; offset < guidePaths.length; offset += pagesPerProcess) {
-  execFileSync(process.execPath, [runner, String(offset)], { stdio: 'inherit' })
-}
-
 // Cmd-K palette: open via the global shortcut, query for an API symbol,
 // and select the top hit — it should route to that doc (+anchor). The
 // palette is the shared CommandPalette, so its combobox contract is part
@@ -443,14 +437,15 @@ const searchRow = [...root.querySelectorAll('.nav-row')].find((el) =>
 )
 
 searchRow?.click()
-await settle()
+await waitFor('palette reopens from nav row', () => window.document.getElementById('palette-query'))
 assert('palette reopens from nav row', Boolean(window.document.getElementById('palette-query')))
 
 window.document
   .getElementById('palette-query')
   ?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
-await settle()
+await waitFor('escape closes palette', () => !window.document.getElementById('palette-query'))
+await waitFor('focus returns to palette trigger', () => window.document.activeElement === searchRow)
 assert('escape closes palette', !window.document.getElementById('palette-query'))
 assert('focus returns to palette trigger', window.document.activeElement === searchRow)
 
@@ -460,4 +455,29 @@ assert(
   root.querySelectorAll('.constellation svg polygon').length > 100,
 )
 
-process.exit(fail ? 1 : 0)
+if (fail) {
+  process.exit(1)
+}
+
+// Bound jsdom memory by giving each batch a fresh process and keeping at most
+// two batches active. Exercise the interactive flow before walking the corpus.
+const runner = fileURLToPath(import.meta.url)
+const offsets = Array.from(
+  { length: Math.ceil(guidePaths.length / pagesPerProcess) },
+  (_, index) => index * pagesPerProcess,
+)
+
+async function verifyBatches() {
+  while (offsets.length > 0) {
+    const offset = offsets.shift()
+    const child = spawn(process.execPath, [runner, String(offset)], { stdio: 'inherit' })
+    const [code] = await once(child, 'exit')
+
+    if (code !== 0) {
+      throw new Error('Guide batch failed at offset ' + offset)
+    }
+  }
+}
+
+await Promise.all([verifyBatches(), verifyBatches()])
+process.exit(0)
