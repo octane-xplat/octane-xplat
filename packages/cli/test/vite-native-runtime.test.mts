@@ -43,7 +43,7 @@ test('native preset loads without alien-signals in the app or Octane dependency 
     makePackage(
       '@octane-xplat/vite-octane',
       { main: 'index.js' },
-      'export const octaneConfig = () => ({})',
+      'export const octaneConfig = (_, options) => options.framework?.config ?? {}',
     )
 
     makePackage(
@@ -227,6 +227,23 @@ export { View, Style }
       },
     )
 
+    await t.test('Windows requires Core with a Windows application provider', async () => {
+      writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'windows-app' }))
+      process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
+      makePackage('@nativescript/core', { main: 'index.js' }, 'export {}')
+      await assert.rejects(native('production'), /has no Windows application provider/)
+
+      const application = join(root, 'node_modules/@nativescript/core/application')
+      mkdirSync(application)
+      writeFileSync(join(application, 'index.windows.js'), 'export {}')
+      makePackage(
+        '@nativescript/vite',
+        { exports: { './framework': './index.js' } },
+        'export const config = { define: { __WINDOWS_PREVIEW_PROVIDER__: "true" } }',
+      )
+      assert.equal((await native('production')).define.__WINDOWS_PREVIEW_PROVIDER__, 'true')
+    })
+
     await t.test('Windows resolves renderer Mason imports through the app engine', async () => {
       const full = '@octane-xplat/nativescript-masonkit'
 
@@ -330,6 +347,16 @@ export { View, Style }`,
         }
       },
     )
+
+    await t.test('Windows barrel can re-export its extensionless native base', async () => {
+      const leaf = join(root, 'barrel.windows.ts')
+      const base = join(root, 'barrel.ts')
+      writeFileSync(leaf, 'export * from "./barrel"')
+      writeFileSync(base, 'export const value = "shared"')
+      const config = await native('production')
+      const plugin = config.plugins.find(({ name }) => name === 'xplat-native-relative-resolution')
+      assert.equal(plugin.resolveId.handler('./barrel', leaf), base.replaceAll('\\', '/'))
+    })
 
     await t.test(
       'linked native components share the app renderer and test-host registry',

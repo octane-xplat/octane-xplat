@@ -13,6 +13,8 @@ export type VirtualListBenchItem = {
 }
 
 export type VirtualListBenchTarget = 'web' | 'ios' | 'android' | 'macos'
+export type VirtualListBenchResult = Awaited<ReturnType<typeof runVirtualListBenchTrace>>
+export type VirtualListInputResult = Awaited<ReturnType<typeof runVirtualListInputTrace>>
 
 export type VirtualListBenchRowBox = {
   index: number

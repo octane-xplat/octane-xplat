@@ -64,6 +64,41 @@ The workspace pins the matching NativeScript Windows packages. Do not upgrade
 `@nativescript/windows`, core, or Vite independently while testing this
 experimental target.
 
+## Core provider and packed consumer
+
+Windows already used the same Octane universal renderer and NativeScript driver
+as iOS and Android. The Windows preview supplies the Core implementation files,
+and the NativeScript Windows runtime owns the WinUI process, WinRT projection,
+app lifecycle, and MSIX packaging. macOS gets its provider files and host from
+`@octane-xplat/macos-appkit`. Both presets resolve Core and the shared renderer
+from the installation that owns the platform provider.
+
+The Windows preset loads the app's pinned `@nativescript/vite/framework` and
+registers the Octane flavor with that copy. Its bundle and HTTP development
+graphs use the same preview Core package. The preset tries `.windows` before
+unsuffixed modules. The harness maps its gesture port to the
+Windows source explicitly because its workspace UI path wildcard shadows the
+package export. The harness VirtualList profiling page reports that the
+profiling adapter is unavailable on Windows.
+Windows uses the full MasonKit pin because the mobile Mason Core package
+does not supply Windows native artifacts. Keep the matching x64 Widgets
+artifact paired with the patched preview, as described below.
+
+The packed suite stages a separate Bun installation from package tarballs. The
+first command checks the production bundle and the device module server on any
+supported build host. The second builds and launches the fixture from a signed-in
+Windows desktop, checks the Core/WinUI peers and Mason geometry, dispatches a
+Core button event, edits a live component, and checks unmount cleanup.
+
+```sh
+bun run turbo run test:core --filter=@octane-xplat/windows
+bun run turbo run test:core --filter=@octane-xplat/windows -- --native
+```
+
+The device-server check establishes compilation and HTTP routing. The native
+fixture checks dispatched Core events. OS input, Narrator, ARM64, and visual
+parity require their own checks.
+
 ## Run an owned desktop helper
 
 When an agent uses Task Scheduler to enter the signed-in desktop session,

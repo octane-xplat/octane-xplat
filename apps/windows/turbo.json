@@ -2,6 +2,23 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"test:core": {
+			"dependsOn": [
+				"@octane-xplat/build#build",
+				"@octane-xplat/lib#typegen",
+				"@octane-xplat/vite-octane#build"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"CommonProgramFiles",
+				"CommonProgramFiles(x86)",
+				"ProgramFiles",
+				"ProgramFiles(x86)",
+				"LOCALAPPDATA",
+				"NODE_OPTIONS",
+				"PROCESSOR_ARCHITECTURE"
+			]
+		},
 		"test:filesystem": {
 			"dependsOn": [],
 			"env": ["WINDOWS_CORE_ARTIFACT"],

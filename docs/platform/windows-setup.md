@@ -2,16 +2,16 @@
 
 > Check the Windows boundary before choosing it for an app.
 
-Windows is an experimental target. The current verified setup is the
-framework repository's private `apps/windows` harness; it depends on workspace
-packages and preview NativeScript versions. It is a framework development
-workflow, not a downstream app setup guide.
+Windows is an experimental WinUI 3 target. It uses the Windows preview of
+NativeScript Core for controls and the same Octane renderer as the other
+NativeScript targets. The framework repository's private `apps/windows`
+harness pairs the preview with a matching Windows runtime and
+MasonKit layout engine.
 
 `create-octane-xplat` does not currently offer Windows as a selectable target.
-The CLI can detect a manually configured NativeScript Windows app, but that
-alone does not establish a supported downstream setup. You do not need to clone
-the Octane Xplat monorepo just because the framework's own test-harness steps
-use it; a supported downstream Windows workflow is not documented yet.
+The CLI can detect a manually configured NativeScript Windows app. A separate
+package installation is used to check Windows bundling and development-server
+module resolution. General downstream app setup remains experimental.
 
 For current app target availability and limits, see
 [Choose your targets](../start/spec.md#choose-your-targets). The examples below

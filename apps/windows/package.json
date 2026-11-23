@@ -7,6 +7,7 @@
 		"xplat": "xplat",
 		"windows": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev windows",
 		"build:windows": "ns build windows",
+		"test:core": "node test/core/packed.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mts ../../scripts/windows-pointer-regression.test.mts",
 		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mts"

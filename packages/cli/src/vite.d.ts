@@ -98,7 +98,7 @@ export interface XplatNativeOptions {
   extra?: UserConfig
 }
 
-/** Full native (iOS/Android) Vite config — the shared preset. Resolves the
+/** Full native (iOS/Android/Windows) Vite config — the shared preset. Resolves the
  *  app's own vite/vite-octane/octane toolchain (async because it loads
  *  through the app's node_modules). */
 export function native(
