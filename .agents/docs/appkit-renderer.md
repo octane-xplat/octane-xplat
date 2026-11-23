@@ -435,6 +435,13 @@ clear delegates during disposal before dropping their wrappers. Requalify
 finalization before adding JavaScript overrides that AppKit can call during
 teardown.
 
+The installed Intel AppKit runtime can return a stale native color during
+reactive SegmentedBar tint updates. The same signed lifecycle fails with
+both the current AppKit renderer and the Core provider. Core receives the
+new RGB channels, then the bridge provides the old native color before the
+control setter runs. Check native readback on Intel when changing this
+path or the bridge, including a second distinct color in the same view.
+
 ## Verify a change
 
 The Node suite includes direct factory tests and older VM fixtures. The legacy

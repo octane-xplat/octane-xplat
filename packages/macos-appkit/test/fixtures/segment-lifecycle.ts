@@ -107,7 +107,7 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
 
   check(
     Number(first.selectedSegmentBezelColor.greenComponent) === 1,
-    'SegmentedBar reactive tint failed',
+    'SegmentedBar reactive tint failed: ' + first.selectedSegmentBezelColor.description,
   )
 
   const before = segmentChanges.length
