@@ -242,6 +242,44 @@ async function checkKeyedLayout() {
   }
 }
 
+function ProjectedLeaves(props: { width: number }) {
+  return (
+    <masonview id="projection-layout" style={{ width: 200, height: 55, display: 'flex' }}>
+      <proxyviewcontainer>
+        <proxyviewcontainer>
+          <label id="projected-leaf" text="A" style={{ width: props.width, height: 20 }} />
+        </proxyviewcontainer>
+      </proxyviewcontainer>
+    </masonview>
+  )
+}
+
+async function checkProjectedLeaves() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(ProjectedLeaves, { width: 40 })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const parent = debug.findId('projection-layout')
+    const label = debug.findId('projected-leaf')
+    const width = () => label.alignmentRectForFrame(label.frame).size.width
+    if (label.superview !== parent || width() !== 40) {
+      throw new Error('Core omitted initial geometry on an AppKit view projected through proxies')
+    }
+    root.render(ProjectedLeaves, { width: 75 })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (debug.findId('projected-leaf') !== label || width() !== 75) {
+      throw new Error('Core lost reactive geometry on an AppKit view projected through proxies')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function AbsoluteLeaf(props: { bottom: boolean }) {
   return (
     <masonview style={{ width: 120, height: 100, position: 'relative' }}>
@@ -1177,6 +1215,7 @@ setTimeout(async () => {
     await checkKeyedLayout()
     await checkNestedContent()
     await checkInsetReset()
+    await checkProjectedLeaves()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

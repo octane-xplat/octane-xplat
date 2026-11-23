@@ -264,12 +264,9 @@ function updateProps(node: HostNode, next: Readonly<Record<string, unknown>>): v
   }
   applyProps(node, next)
   node.props = next
-  if (
-    node.parent !== null &&
-    !isPortalTarget(node.parent) &&
-    isMasonContainer(node.parent.type, node.parent.view)
-  ) {
-    applyMasonChildLayout(node, node.parent)
+  const layoutParent = masonLayoutParent(node)
+  if (layoutParent !== null) {
+    applyMasonChildLayout(node, layoutParent)
   }
 }
 
@@ -673,12 +670,34 @@ function applyMasonContainerProp(node: HostNode, view: ViewBase, name: string, v
   }
 }
 
+/** Viewless proxies place their children in the nearest concrete layout. */
+function masonLayoutParent(node: HostNode): HostNode | null {
+  let parent = node.parent
+  while (parent !== null && !isPortalTarget(parent)) {
+    if (parent.type !== 'proxyviewcontainer') {
+      return isMasonContainer(parent.type, parent.view) ? parent : null
+    }
+    parent = parent.parent
+  }
+  return null
+}
+
 /** Keep foreign leaves in sync with the effective NativeScript cascade.
  * MasonKit's property handlers only forward to its own _styleHelper views.
  * Observe longhand changes so classes, pseudo states, inline removal and
  * stylesheet refreshes follow the same path. Rebind on loaded because the
  * native leaf may not exist at insert, or may have been recreated. */
-function applyMasonChildLayout(node: HostNode, parent: HostNode) {
+function applyMasonChildLayout(node: HostNode, parent: HostNode | null) {
+  if (node.type === 'proxyviewcontainer') {
+    for (const child of node.children) {
+      applyMasonChildLayout(child, parent)
+    }
+    return
+  }
+  if (parent === null) {
+    releaseMasonChildLayout(node.view)
+    return
+  }
   const view = node.view
   if (!view || Reflect.get(view, '_styleHelper') !== undefined) {
     return
@@ -1198,7 +1217,7 @@ function tabViewOwning(node: HostNode): HostNode | null {
 }
 
 function detach(container: NativeScriptContainer, node: HostNode): void {
-  releaseMasonChildLayout(node.view)
+  applyMasonChildLayout(node, null)
   const parent = node.parent
   const siblings = childrenOf(container, parent)
   const index = siblings.indexOf(node)
@@ -1259,9 +1278,10 @@ function attach(container: NativeScriptContainer, node: HostNode): void {
   addViewChild(parentView, node.view, index)
   // The child's mason leaf node exists only once the parent has attached it;
   // synchronize effective styles after attachment.
-  if (parent !== null && !isPortalTarget(parent) && isMasonContainer(parent.type, parent.view)) {
-    for (const sibling of childrenOf(container, parent)) {
-      applyMasonChildLayout(sibling, parent)
+  const layoutParent = masonLayoutParent(node)
+  if (layoutParent !== null) {
+    for (const sibling of siblings) {
+      applyMasonChildLayout(sibling, layoutParent)
     }
   }
   markTabView(tabViewOwning(node))
@@ -1471,7 +1491,7 @@ function recreateView(
       `NativeScript driver: re-registered <${nextType}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`,
     )
   }
-  releaseMasonChildLayout(previous)
+  applyMasonChildLayout(node, null)
   const parentView = hostViewOf(container, node.parent)
   for (const child of node.children) {
     if (child.view !== null) {
@@ -1531,7 +1551,7 @@ function recreateView(
   }
   if (isMasonContainer(node.type, node.view)) {
     for (const child of node.children) {
-      releaseMasonChildLayout(child.view)
+      applyMasonChildLayout(child, null)
       applyMasonChildLayout(child, node)
     }
   }
