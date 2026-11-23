@@ -19,6 +19,12 @@ export interface PressableInternalProps extends PressableProps {
   _nativeAnchor?: boolean
   href?: string
   target?: string
+  _describedBy?: string
+  _buttonType?: 'button' | 'submit' | 'reset'
+  _buttonName?: string
+  _buttonValue?: string | number
+  _buttonForm?: string
+  _anchorRel?: string
 }
 
 export function Pressable(props: PressableProps): JSX.Element @{
@@ -50,10 +56,17 @@ export function Pressable(props: PressableProps): JSX.Element @{
 
   <Tag
     ref={forwardedRef}
-    type={asButton ? 'button' : undefined}
+    type={asButton ? (internal._buttonType ?? 'button') : undefined}
+    name={asButton ? internal._buttonName : undefined}
+    value={asButton ? internal._buttonValue : undefined}
+    form={asButton ? internal._buttonForm : undefined}
     href={asAnchor ? internal.href : undefined}
     target={asAnchor ? internal.target : undefined}
-    rel={asAnchor && internal.target === '_blank' ? 'noreferrer' : undefined}
+    rel={
+      asAnchor
+        ? (internal._anchorRel ?? (internal.target === '_blank' ? 'noreferrer' : undefined))
+        : undefined
+    }
     disabled={asButton && props.disabled ? true : undefined}
     id={props.id}
     data-testid={props.testID}
@@ -64,6 +77,7 @@ export function Pressable(props: PressableProps): JSX.Element @{
     })}
     role={asButton || asAnchor ? undefined : (props.accessibilityRole ?? 'button')}
     aria-label={props.accessibilityLabel}
+    aria-describedby={internal._describedBy}
     aria-description={props.accessibilityHint}
     aria-valuetext={props.accessibilityValue}
     aria-busy={props.accessibilityState?.busy || undefined}

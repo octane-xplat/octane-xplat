@@ -14,6 +14,7 @@ export type Internationalization = {
 }
 
 const english: Record<string, string> = {
+  '@astryx.button.loading': 'Loading',
   '@astryx.selector.placeholder': 'Select…',
   '@astryx.selector.empty': 'No options',
   '@astryx.selector.emptySearchResults': 'No results found',
@@ -32,6 +33,7 @@ const english: Record<string, string> = {
 /** French static strings used by Selector and Pagination, from Astryx 0.6.4
  * (Meta Platforms, MIT). This is deliberately not a complete Astryx catalog. */
 export const frFR: Readonly<Record<string, string>> = {
+  '@astryx.button.loading': 'Chargement',
   '@astryx.selector.placeholder': 'Sélectionner…',
   '@astryx.selector.empty': 'Aucune option',
   '@astryx.selector.emptySearchResults': 'Aucun résultat trouvé',

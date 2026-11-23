@@ -7763,22 +7763,7 @@ export type Elevation = 'none' | 'low' | 'med' | 'high'
  *  class hooks (the upstream catalog is open the same way). */
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | (string & {})
 
-/** Button composes Pressable — same-props/same-pixels, self-drawn. `isLoading`
- *  shows the spinner and blocks presses. Props follow the shared action vocabulary
- *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
- *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `pressAction`,
- *  `isInterruptible`); use `onPress` for synchronous effects.
- *  `pressAction` failures report through `onActionError`.
- *
- * @example
- * ```tsx
- * import { Button } from '@octane-xplat/ui'
- *
- * <Button label="Save" variant="primary" pressAction={save} onActionError={showError} />
- * ```
- * @see PressableProps for the interaction base, IconButtonProps, ButtonGroupProps.
- */
-export interface ButtonProps extends Omit<PressableProps, 'disabled'> {
+interface ButtonBaseProps extends Omit<PressableProps, 'disabled'> {
   /** Synchronous effect before navigation and pressAction. preventDefault skips
    *  both; thrown errors follow the renderer path, not onActionError. */
   onPress?: (event: ActivationEvent) => void
@@ -7791,16 +7776,15 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled'> {
   size?: FieldControlSize
   /** Disabled state — blocks presses and dims the button. */
   isDisabled?: boolean
-  /** Loading state — shows the spinner and blocks presses. */
+  /** Shows the loading spinner. Repeat activation is blocked unless interruptible. */
   isLoading?: boolean
   /** Keep the button interactive while a `pressAction` is pending — each
    *  press then starts another overlapping call without cancelling the
    *  in-flight one. */
   isInterruptible?: boolean
-  /** Asynchronous work run after onPress; return its promise (result ignored)
-   *  so pending work shows the loading spinner unless
-   *  `isInterruptible` keeps presses live. Presses during a pending call
-   *  are ignored (never queued); retrying a failed action is another
+  /** Asynchronous work run after onPress. The returned promise marks the button
+   *  busy immediately, with a short delay before the spinner. Repeat presses
+   *  are ignored by default (never queued); retrying a failed action is another
    *  press. The call's own promise is the completion handle to await. */
   pressAction?: () => Promise<unknown>
   /** Reports a `pressAction` failure — a thrown error or a rejected
@@ -7809,8 +7793,6 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled'> {
   onActionError?: (error: unknown) => void
   /** Leading icon — a node (e.g. `<Icon />`) or a registered icon name. */
   icon?: Renderable
-  /** Square icon-only button; `label` becomes the accessible name. */
-  isIconOnly?: boolean
   /** Trailing content slot. */
   endContent?: Renderable
   /** Resting elevation — floating-button shadow. @default 'none' */
@@ -7820,9 +7802,40 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled'> {
   /** Navigate on press — web renders a real anchor (new-tab/keyboard intact);
    *  native opens the URL with the platform browser. Unsafe schemes blocked. */
   href?: string
-  /** Link target for `href`. @default '_self' */
+  /** Web link target for `href`. @default '_self' */
   target?: string
+  /** Browser form attributes and link relationship. Other web host overrides
+   * are supported through the same bag. */
+  web?: PlatformProps & {
+    type?: 'button' | 'submit' | 'reset'
+    name?: string
+    value?: string | number
+    form?: string
+    rel?: string
+  }
 }
+
+/** Button composes Pressable — same-props/same-pixels, self-drawn. `isLoading`
+ *  shows the spinner and blocks presses. Props follow the shared action vocabulary
+ *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
+ *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `pressAction`,
+ *  `isInterruptible`); use `onPress` for synchronous effects.
+ *  `pressAction` failures report through `onActionError`. An icon-only button
+ *  needs a `label` or `accessibilityLabel`.
+ *
+ * @example
+ * ```tsx
+ * import { Button } from '@octane-xplat/ui'
+ *
+ * <Button label="Save" variant="primary" pressAction={save} onActionError={showError} />
+ * ```
+ * @see PressableProps for the interaction base, IconButtonProps, ButtonGroupProps.
+ */
+export type ButtonProps = ButtonBaseProps & ButtonName
+
+type ButtonName =
+  | { isIconOnly?: false }
+  | ({ isIconOnly?: boolean } & ({ label: string } | { accessibilityLabel: string }))
 
 /** Collapsible shows/hides `children` behind a `trigger`. Controlled via
  *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`.
@@ -8518,7 +8531,7 @@ export interface MenuSurfaceProps {
 /** The `DropdownMenu` trigger described as shared-`Button` props — every
  *  `ButtonProps` field except the press handler, which the menu owns
  *  (Astryx `DropdownMenuButtonProps`). */
-export type DropdownMenuButtonProps = Omit<ButtonProps, 'pressAction' | 'onPress'>
+export type DropdownMenuButtonProps = Omit<ButtonBaseProps, 'pressAction' | 'onPress'> & ButtonName
 
 /** Both data rows and compound children use the same menu contracts.
  *

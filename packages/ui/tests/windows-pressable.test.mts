@@ -435,6 +435,9 @@ const menuSupport = moduleFile(
   'menu-support',
   `
 export const useButtonGroup=()=>undefined;
+export const useInputGroup=()=>undefined;
+export const useButtonLoading=(pending,loading)=>pending||loading;
+export const useTranslator=()=>()=> 'Loading';
 export const useSize=(size)=>size??'md';
 export const reportActionError=error=>{throw error};
 `,
@@ -457,6 +460,9 @@ const menuButton = compiled('menu-button', read('actions/Button.tsrx'), {
   '../feedback/ActivityIndicator.tsrx': menuSpinner,
   '../media/Icon.tsrx': icon,
   './use-button-action.tsrx': menuButtonAction,
+  './use-button-loading.tsrx': menuSupport,
+  '../forms/input-group-context': menuSupport,
+  '../../internal/platform/internationalization': menuSupport,
   './button-group-context': menuSupport,
   '../layout/size-context': menuSupport,
   '../../routing/safe-url': safeUrl,

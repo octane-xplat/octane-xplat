@@ -2924,6 +2924,11 @@
 	.vx-button:active:where(:not(:disabled, [aria-disabled='true'], .vx-button--disabled)) {
 		background-image: linear-gradient(var(--color-overlay-pressed), var(--color-overlay-pressed));
 	}
+	@media (forced-colors: active) {
+		.vx-button:where(.vx-button--primary, .vx-button--secondary, .vx-button--destructive) {
+			border: 1px solid ButtonText;
+		}
+	}
 	/* xplat-web-only:end */
 	.vx-button--disabled,
 	.vx-card--disabled {
@@ -2936,6 +2941,9 @@
 		padding: 0;
 		flex-shrink: 0;
 		max-width: none;
+	}
+	.vx-button--input-addon {
+		border-radius: 0;
 	}
 	.vx-button--group-first,
 	.vx-button--group-middle,
@@ -2957,11 +2965,11 @@
 	.vx-toggle-button-group {
 		display: inline-flex;
 	}
-	.vx-button-group.vx-button-group--horizontal > :not(:first-child) {
+	.vx-button-group.vx-button-group--horizontal > :nth-child(n+2 of :not(.vx-visually-hidden, [hidden], template, [popover])) {
 		border-left-width: 1px;
 		border-left-color: var(--color-border);
 	}
-	.vx-button-group.vx-button-group--vertical > :not(:first-child) {
+	.vx-button-group.vx-button-group--vertical > :nth-child(n+2 of :not(.vx-visually-hidden, [hidden], template, [popover])) {
 		border-top-width: 1px;
 		border-top-color: var(--color-border);
 	}

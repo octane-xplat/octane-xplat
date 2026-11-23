@@ -47,6 +47,12 @@ export function Save(props: { valid: boolean; save(): Promise<void> }) {
 }
 ```
 
+Managed Button actions report busy immediately and delay the visual spinner to
+avoid flashing on quick completion. Keep focus and block duplicates separately.
+Give `Button isIconOnly` a `label` or `accessibilityLabel`. On web, `tooltip`
+supports hover and focus, and `web={{ type: 'submit' }}` opts into browser form
+submission. See the [Button guide](../../../../../docs/app/interactive-actions.md#button-states-and-actions).
+
 ## AppKit busy feedback
 
 Spinner now forwards named sizes, text/node labels, contrast, accessible names,
