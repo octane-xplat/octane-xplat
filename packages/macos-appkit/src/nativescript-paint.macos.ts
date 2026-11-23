@@ -1,5 +1,6 @@
 import type { Color } from '@nativescript/core/color'
 import type { CoreTypes } from '@nativescript/core/core-types'
+/* oxlint-disable xplat/no-ns-deep-import -- The AppKit View loads this registry while Core initializes. Use the defining modules to avoid a cycle through the Core barrel. */
 import { CssProperty, ShorthandProperty } from '@nativescript/core/ui/core/properties'
 import { Style } from '@nativescript/core/ui/styling/style'
 import {
@@ -9,6 +10,7 @@ import {
   borderTopRightRadiusProperty,
 } from '@nativescript/core/ui/styling/style-properties'
 import { PercentLength } from '@nativescript/core/ui/styling/length-shared'
+/* oxlint-enable xplat/no-ns-deep-import */
 import type { Background } from '@nativescript/core/ui/styling/background-common'
 import { layout } from '@nativescript/core/utils'
 import { CATransaction, type CALayer } from '@octane-xplat/platform/macos'

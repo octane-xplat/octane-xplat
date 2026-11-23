@@ -1,5 +1,4 @@
-import type { View } from '@nativescript/core/ui/core/view'
-import { GestureTypes } from '@nativescript/core/ui/gestures'
+import { GestureTypes, type View } from '@nativescript/core'
 import { interop, NSButton, NSEvent, NSView, type NSRect, type NSSize } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
 

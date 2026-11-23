@@ -1,4 +1,3 @@
-import { unsetValue } from '@nativescript/core'
 import type { TextAreaProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 
@@ -7,6 +6,7 @@ export type TextAreaSizingProps = Pick<TextAreaProps, 'rows' | 'autoGrow' | 'max
 export function fitTextAreaHeight(
   view: any,
   props: TextAreaSizingProps,
+  unsetValue: object,
   lineHeight: () => number,
 ): () => void {
   if (!view) {

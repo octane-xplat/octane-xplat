@@ -128,7 +128,7 @@ for (const file of [
   'content-lifecycle.ts',
   'WindowContent.macos.tsx',
   'main.ts',
-  'dev-shell.ts',
+  'dev-shell.macos.ts',
   'types.ts',
   'style-merge.ts',
   'globals.d.ts',
@@ -140,7 +140,7 @@ if (actionBarOnly) {
   for (const [source, target] of [
     ['actionbar-main.ts', 'main.ts'],
     ['ActionBarHmr.macos.tsx', 'App.macos.tsx'],
-    ['actionbar-dev-shell.ts', 'dev-shell.ts'],
+    ['actionbar-dev-shell.ts', 'dev-shell.macos.ts'],
   ]) {
     await cp(join(fixture, source), join(app, 'src', target))
   }
@@ -150,7 +150,7 @@ if (liquidGlassOnly) {
   for (const [source, target] of [
     ['liquidglass-main.ts', 'main.ts'],
     ['LiquidGlassHmr.macos.tsx', 'App.macos.tsx'],
-    ['liquidglass-dev-shell.ts', 'dev-shell.ts'],
+    ['liquidglass-dev-shell.ts', 'dev-shell.macos.ts'],
   ]) {
     await cp(join(fixture, source), join(app, 'src', target))
   }

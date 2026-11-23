@@ -470,7 +470,7 @@ for the component bundle. It retains renderer and Octane imports so the
 CLI-managed shell can share their live instances across edits. Build the
 shell with `packaged: true`. Install the module table before loading the
 component bundle so it uses the shell's Core, renderer, and Octane instances.
-The [independent development shell](../../packages/macos-appkit/test/fixtures/dev-shell.ts)
+The [independent development shell](../../packages/macos-appkit/test/fixtures/dev-shell.macos.ts)
 shows how to update the mounted root after an edit.
 
 ```ts
@@ -515,12 +515,12 @@ export default config
 ```
 
 ```js
-// vite.shell.config.mjs — src/dev-shell.ts owns the window and mounts the root.
+// vite.shell.config.mjs — src/dev-shell.macos.ts owns the window and mounts the root.
 import { defineConfig } from 'vite'
 import { macos } from '@octane-xplat/cli/macos/vite'
 
 export default defineConfig(async ({ mode }) => {
-  const config = await macos(mode, { entry: 'src/dev-shell.ts', outDir: 'dist/dev' })
+  const config = await macos(mode, { entry: 'src/dev-shell.macos.ts', outDir: 'dist/dev' })
   return { ...config, build: { ...config.build, emptyOutDir: false } }
 })
 ```

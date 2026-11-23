@@ -1,8 +1,8 @@
-import { Utils } from '@nativescript/core'
+import { unsetValue, Utils } from '@nativescript/core'
 import { fitTextAreaHeight, type TextAreaSizingProps } from './text-area-height'
 
 export function fitTextArea(view: any, props: TextAreaSizingProps): () => void {
-  return fitTextAreaHeight(view, props, () => {
+  return fitTextAreaHeight(view, props, unsetValue, () => {
     const iosLine = view.ios?.font?.lineHeight
     const androidLine = view.android?.getLineHeight?.()
 
