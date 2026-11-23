@@ -586,6 +586,13 @@ const MASON_LEAF_STYLE_KEYS = [
   'gridColumnEnd',
 ]
 
+// Viewless groups can supply placement defaults to each projected child.
+const MASON_PROJECTED_STYLE_KEYS = [
+  'position', 'left', 'right', 'top', 'bottom',
+  'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd',
+  'order', 'alignSelf', 'justifySelf', 'flexGrow', 'flexShrink', 'flexBasis',
+]
+
 const masonLeafBindings = new WeakMap<
   ViewBase,
   {
@@ -706,6 +713,33 @@ function applyMasonChildLayout(node: HostNode, parent: HostNode | null) {
     masonLeafBindings.get(view)?.sync()
     return
   }
+  const proxies: HostNode[] = []
+  let ancestor = node.parent
+  while (ancestor !== null && !isPortalTarget(ancestor) && ancestor.type === 'proxyviewcontainer') {
+    proxies.push(ancestor)
+    ancestor = ancestor.parent
+  }
+  const projectedProperties = new Map(
+    proxies.length
+      ? _getStyleProperties()
+          .filter((property) => MASON_PROJECTED_STYLE_KEYS.includes(property.name))
+          .map((property) => [property.name, property])
+      : [],
+  )
+  const hasPlacementStyle = (host: HostNode, key: string) => {
+    const style = host.view?.style
+    const property = projectedProperties.get(key)
+    if (!style || !property) {
+      return false
+    }
+    if (property.isSet(style)) {
+      return true
+    }
+    // A write equal to Core's default can still override a proxy.
+    const authored = host.props.style
+    return authored !== null && typeof authored === 'object' && Reflect.get(authored, key) != null
+  }
+
   let native: unknown
   let leaf: MasonStyle | undefined
   let defaultDisplay: unknown
@@ -715,6 +749,12 @@ function applyMasonChildLayout(node: HostNode, parent: HostNode | null) {
       return
     }
     let value = Reflect.get(view.style, key)
+    if (projectedProperties.has(key) && !hasPlacementStyle(node, key)) {
+      const proxy = proxies.find((ancestor) => hasPlacementStyle(ancestor, key))
+      if (proxy?.view) {
+        value = Reflect.get(proxy.view.style, key)
+      }
+    }
     // Core omits collapsed children from measurement. Mason must omit the
     // same leaf from layout, otherwise the two hosts disagree on its box.
     // Keep the cascade intact so uncollapsing restores authored display.
@@ -788,12 +828,22 @@ function applyMasonChildLayout(node: HostNode, parent: HostNode | null) {
     view.style.on?.(key + 'Change', handler)
     return [key + 'Change', handler]
   })
+  for (const proxy of proxies) {
+    for (const key of projectedProperties.keys()) {
+      proxy.view?.style.on?.(key + 'Change', sync)
+    }
+  }
   view.on('loaded', sync)
   masonLeafBindings.set(view, {
     sync,
     dispose() {
       for (const [event, handler] of handlers) {
         view.style.off?.(event, handler)
+      }
+      for (const proxy of proxies) {
+        for (const key of projectedProperties.keys()) {
+          proxy.view?.style.off?.(key + 'Change', sync)
+        }
       }
       view.off('loaded', sync)
     },

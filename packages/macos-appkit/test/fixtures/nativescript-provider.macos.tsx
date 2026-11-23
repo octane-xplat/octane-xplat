@@ -280,6 +280,45 @@ async function checkProjectedLeaves() {
   }
 }
 
+function ProjectedGrid(props: { row: string; explicitRow?: string }) {
+  return (
+    <masonview
+      style={{ display: 'grid', width: 100, height: 60, gridTemplateRows: '30px 30px' }}
+    >
+      <proxyviewcontainer style={{ gridRow: props.row }}>
+        <contentview id="projected-grid-item" style={{ gridRow: props.explicitRow }} />
+      </proxyviewcontainer>
+    </masonview>
+  )
+}
+
+async function checkProjectedGrid() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(ProjectedGrid, { row: '1' })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const item = debug.findId('projected-grid-item')
+    const initialY = item.frame.origin.y
+    root.render(ProjectedGrid, { row: '2' })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (initialY - item.frame.origin.y !== 30) {
+      throw new Error('Core did not forward a changed grid row from the proxy')
+    }
+    root.render(ProjectedGrid, { row: '2', explicitRow: '1' })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (item.frame.origin.y !== initialY || debug.findId('projected-grid-item') !== item) {
+      throw new Error('Core did not honor the projected child’s authored grid row')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function AbsoluteLeaf(props: { bottom: boolean }) {
   return (
     <masonview style={{ width: 120, height: 100, position: 'relative' }}>
@@ -353,9 +392,10 @@ async function checkNestedContent() {
     const grid = debug.findId('nested-grid')
     const label = debug.findId('centered-label')
     const origin = label.alignmentRectForFrame(label.frame).origin
+    const natural = debug.findId('natural-content')
     if (grid.frame.size.width !== 200 || grid.frame.size.height !== 80 ||
       Math.abs(origin.x - 70) >= 1 || Math.abs(origin.y - 30) >= 1 ||
-      debug.findId('natural-content').frame.size.height !== 18) {
+      natural.frame.size.height !== 18 || natural.intrinsicContentSize.height !== 18) {
       throw new Error('Core ContentView did not measure and lay out its content inside Mason')
     }
   } finally {
@@ -1216,6 +1256,7 @@ setTimeout(async () => {
     await checkNestedContent()
     await checkInsetReset()
     await checkProjectedLeaves()
+    await checkProjectedGrid()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
