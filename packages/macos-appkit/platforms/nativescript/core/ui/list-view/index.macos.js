@@ -98,6 +98,8 @@ export class ListView extends ListViewBase {
     nativeViewProtected;
     _tableView;
     _delegate;
+    _refreshTable;
+    _measuringRow = false;
     // native cell NSView -> bound Core view; per-row measured heights;
     // per-template measure cells so heightOfRow never binds unseen rows.
     _cellMap = new Map();
@@ -165,6 +167,12 @@ export class ListView extends ListViewBase {
         table.rowSizeStyle = -1; /* NSTableViewRowSizeStyleCustom */
         const column = NSTableColumn.alloc().initWithIdentifier('main');
         table.addTableColumn(column);
+        scroll.documentView = table;
+        return scroll;
+    }
+    initNativeView() {
+        super.initNativeView();
+        const table = this.nativeViewProtected.documentView;
         this._tableView = table;
         this._delegate = ListViewDelegateImpl.new();
         this._delegate._owner = new WeakRef(this);
@@ -174,11 +182,11 @@ export class ListView extends ListViewBase {
         // more direct than observing selection-change notifications.
         table.target = this._delegate;
         table.action = NSSelectorFromString('itemClicked:');
-        scroll.documentView = table;
-        return scroll;
     }
     disposeNativeView() {
         const table = this._tableView;
+        this._tableView = undefined;
+        this._refreshTable = undefined;
         if (table) {
             // Nil JS-backed delegate/dataSource/action before super's native
             // detach — a finalizer-time dealloc must never re-enter JS.
@@ -186,6 +194,10 @@ export class ListView extends ListViewBase {
             table.action = null;
             table.dataSource = null;
             table.delegate = null;
+        }
+        if (this._delegate) {
+            this._delegate._owner = undefined;
+            this._delegate = undefined;
         }
         this._cellMap.clear();
         this._heightCache.clear();
@@ -208,8 +220,8 @@ export class ListView extends ListViewBase {
         const w = layout.getMeasureSpecSize(this.widthMeasureSpec || this._widthMeasureSpec);
         if (w > 0)
             {return w;}
-        const clip = this._tableView?.superview; // NSClipView
-        return clip ? clip.bounds.size.width : 200;
+        const clipWidth = Number(this._tableView?.superview?.bounds?.size?.width);
+        return clipWidth > 0 ? clipWidth : 200;
     }
     _notifyItemLoading(view, index) {
         const args = { eventName: ITEMLOADING, object: this, index, view };
@@ -271,12 +283,28 @@ export class ListView extends ListViewBase {
     // Per-row height: explicit rowHeight > measured bound cell > template
     // estimate (one driver-bound measure cell per template key).
     _heightOfRow(tableView, index) {
+        if (tableView !== this._tableView || index < 0 || index >= this._rowCount()) {
+            return DEFAULT_ROW_HEIGHT;
+        }
         const fixed = this._effectiveRowHeight;
         if (fixed > 0)
             {return fixed;}
         const cached = this._heightCache.get(index);
         if (cached !== undefined)
             {return cached;}
+        // Binding a template can request layout and reenter AppKit's height
+        // delegate before this row is cached. Let the outer measurement finish.
+        if (this._measuringRow) {
+            return DEFAULT_ROW_HEIGHT;
+        }
+        this._measuringRow = true;
+        try {
+            return this._measureRow(index);
+        } finally {
+            this._measuringRow = false;
+        }
+    }
+    _measureRow(index) {
         const template = this._getItemTemplate(index);
         let measureView = this._measureCells.get(template.key);
         if (!measureView) {
@@ -321,7 +349,19 @@ export class ListView extends ListViewBase {
     }
     refresh() {
         this._heightCache.clear();
-        this._tableView?.reloadData();
+        const table = this._tableView;
+        if (!table || this._refreshTable === table) {
+            return;
+        }
+        // AppKit can request row views and heights during reloadData. Wait
+        // until the current Core batch or delegate callback finishes.
+        this._refreshTable = table;
+        queueMicrotask(() => {
+            if (this._refreshTable === table) {
+                this._refreshTable = undefined;
+                table.reloadData();
+            }
+        });
     }
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
         this._widthMeasureSpec = widthMeasureSpec;
