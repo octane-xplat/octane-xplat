@@ -14,7 +14,8 @@ export class Progress extends ProgressBase {
         view.style = 0; // NSProgressIndicatorStyleBar
         view.indeterminate = false;
         view.minValue = 0;
-        view.maxValue = this.maxValue || 100;
+        view.maxValue = 100;
+        view.doubleValue = 0;
         return view;
     }
     get ios() {
@@ -26,14 +27,22 @@ export class Progress extends ProgressBase {
     [valueProperty.getDefault]() {
         return 0;
     }
-    [valueProperty.setNative](value) {
-        this.macos.doubleValue = value;
+    [valueProperty.setNative]() {
+        this._syncRange();
     }
     [maxValueProperty.getDefault]() {
         return 100;
     }
-    [maxValueProperty.setNative](value) {
-        this.macos.maxValue = value;
+    [maxValueProperty.setNative]() {
+        this._syncRange();
+    }
+    _syncRange() {
+        const view = this.nativeViewProtected;
+        const maximum = this.maxValue;
+        // Core re-coerces value before the native max setter runs. Set the
+        // range and value together so AppKit never clamps a new value to the old max.
+        view.maxValue = maximum > 0 ? maximum : 100;
+        view.doubleValue = maximum > 0 ? Math.max(0, Math.min(this.value, maximum)) : 0;
     }
     // Color gaps: NSProgressIndicator has no tint API.
     [colorProperty.getDefault]() {

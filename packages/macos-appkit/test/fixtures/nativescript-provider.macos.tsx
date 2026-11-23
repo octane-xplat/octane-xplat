@@ -23,6 +23,7 @@ import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkDateLifecycle } from './date-lifecycle'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import { checkListLifecycle } from './list-lifecycle'
+import { checkProgressLifecycle } from './progress-lifecycle'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
@@ -1483,6 +1484,7 @@ setTimeout(async () => {
     await checkControlLifecycle(checkActivityLifecycle)
     await checkControlLifecycle(checkDateLifecycle)
     await checkControlLifecycle(checkListLifecycle)
+    await checkControlLifecycle(checkProgressLifecycle)
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
