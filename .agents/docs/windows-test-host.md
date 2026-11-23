@@ -97,6 +97,10 @@ This keeps the unsuffixed implementation reachable when a Windows wrapper
 imports it, as the dropdown menu and tab list do.
 The workspace harness uses the same native Bamboo Vite adapter as mobile to
 compile styles from the shared app package during builds and device sessions.
+Route specificity ties use code-unit ordering. The pinned Windows runtime
+throws `RangeError: Internal error. Icu error.` when the route catalog tries
+to sort identifiers using `String.localeCompare`. Locale-aware formatting
+still requires separate runtime support.
 
 The packed suite stages a separate Bun installation from package tarballs. The
 first command checks the production bundle and the device module server on any
