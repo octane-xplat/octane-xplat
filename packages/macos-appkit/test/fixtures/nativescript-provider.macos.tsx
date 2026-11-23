@@ -242,6 +242,48 @@ async function checkKeyedLayout() {
   }
 }
 
+function AbsoluteLeaf(props: { bottom: boolean }) {
+  return (
+    <masonview style={{ width: 120, height: 100, position: 'relative' }}>
+      <label
+        id="absolute-leaf"
+        text="Inset"
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: props.bottom ? undefined : 0,
+          bottom: props.bottom ? 0 : undefined,
+          width: 60,
+          height: 20,
+        }}
+      />
+    </masonview>
+  )
+}
+
+async function checkInsetReset() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(AbsoluteLeaf, { bottom: false })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const label = debug.findId('absolute-leaf')
+    const y = () => label.alignmentRectForFrame(label.frame).origin.y
+    const initialY = y()
+    root.render(AbsoluteLeaf, { bottom: true })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (debug.findId('absolute-leaf') !== label || initialY - y() !== 80) {
+      throw new Error('Core retained a cleared absolute inset on a Mason leaf')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function NestedContent() {
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column' }}>
@@ -1134,6 +1176,7 @@ setTimeout(async () => {
     await checkForeignView()
     await checkKeyedLayout()
     await checkNestedContent()
+    await checkInsetReset()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

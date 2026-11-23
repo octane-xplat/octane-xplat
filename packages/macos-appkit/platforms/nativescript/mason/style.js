@@ -442,12 +442,13 @@ export function ensureMasonStyleProperties() {
         if (existing.has(name)) {
             continue;
         }
-        // Keep the engine's defaults. A cleared flex basis forwards an
-        // explicit reset to foreign leaves that previously had a basis.
+        // Resolved styles must forward an explicit reset when a foreign
+        // leaf drops its authored flex basis or absolute inset.
+        const hasAutoDefault = name === 'flexBasis' || DIM_EDGES.includes(name);
         new CssProperty({
             name,
             cssName,
-            defaultValue: name === 'flexBasis' ? 'auto' : undefined,
+            defaultValue: hasAutoDefault ? 'auto' : undefined,
             affectsLayout: globalThis.__NS_CAP__?.propertyChangesRequestLayout === true,
         }).register(CoreStyle);
     }
