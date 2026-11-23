@@ -38,11 +38,29 @@ function masonryChildren(view) {
     view.eachLayoutChild?.((child) => out.push(child));
     return out;
 }
+function glassCellDefaults(parent, dict) {
+    if (!parent?.__masonOverlayGrid) {
+        return dict;
+    }
+    if (!dict.gridArea || dict.gridArea === 'auto') {
+        for (const axis of ['gridRow', 'gridColumn']) {
+            if ([axis, axis + 'Start', axis + 'End'].every((key) => !dict[key] || dict[key] === 'auto')) {
+                dict[axis] = '1';
+            }
+        }
+    }
+    for (const axis of ['alignSelf', 'justifySelf']) {
+        if (!dict[axis] || dict[axis] === 'auto') {
+            dict[axis] = 'stretch';
+        }
+    }
+    return dict;
+}
 /** Syncs `view`'s subtree into the engine — styles every node, rebuilds
  *  children arrays, marks leaves dirty so the engine re-measures them each
  *  pass. Dropped children are collected into `dropped` for the root's
  *  post-sync free sweep. Ported from syncMasonTree/syncMasonNode. */
-function syncMasonTree(view, dropped) {
+function syncMasonTree(view, dropped, parent) {
     const helper = view._styleHelper;
     if (!helper || !helper.masonNode) {
         return null;
@@ -53,19 +71,25 @@ function syncMasonTree(view, dropped) {
     // parent compute sizes the chrome, then computeScrollContent re-styles
     // and re-computes the content. Same authored↔content oscillation as
     // macos-appkit's applyMasonStyle.
-    helper.applyStyle(isScroll && isMasonry(view.parent) ? chromeDict(view, helper) : isScroll ? scrollContentDict(view, helper) : rootDict(view, helper));
+    const dict = isScroll && isMasonry(view.parent) ? chromeDict(view, helper) : isScroll ? scrollContentDict(view, helper) : rootDict(view, helper);
+    helper.applyStyle(glassCellDefaults(parent, dict));
     const order = [];
     const handles = [];
     for (const child of masonryChildren(view)) {
         let handle;
         if (isMasonry(child)) {
-            handle = syncMasonTree(child, dropped);
+            handle = syncMasonTree(child, dropped, view);
         }
         else {
             const leaf = child.nativeViewProtected ? Style.fromView(child, child.nativeViewProtected) : undefined;
             handle = leaf?.masonNode;
             if (handle) {
-                leaf.applyStyle();
+                if (view.__masonOverlayGrid) {
+                    const style = engineStyleDict(leaf._authored, { collapsed: child.style.visibility === 'collapse' });
+                    leaf.applyStyle(glassCellDefaults(view, style));
+                } else {
+                    leaf.applyStyle();
+                }
                 invoke('dirty', [handle]); // re-measure every pass
             }
         }
@@ -118,6 +142,9 @@ function rootDict(view, helper) {
         horizontal: view.__isMasonHorizontal === true,
         collapsed: view.style?.visibility === 'collapse',
     });
+    if (view.__masonOverlayGrid) {
+        dict.display ??= 'grid';
+    }
     const spec = view.__masonSpec;
     if (spec) {
         if (dict.width == null && spec.widthMode !== layout.UNSPECIFIED) {

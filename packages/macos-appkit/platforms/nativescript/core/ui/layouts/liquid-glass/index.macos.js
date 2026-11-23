@@ -1,7 +1,9 @@
-import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout';
+import { View as MasonView } from '../../../../mason/index';
 import { mountGlassBackdrop } from '../../../../../../src/glass-backdrop';
 
-export class LiquidGlass extends GridLayout {
+export class LiquidGlass extends MasonView {
+    __masonOverlayGrid = true;
+
     initNativeView() {
         super.initNativeView();
         this._backdrop = mountGlassBackdrop(this.nativeViewProtected);
