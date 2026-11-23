@@ -2,7 +2,7 @@
 import { parseModule } from '@tsrx/core'
 
 /** Keep native handles inside a source-tree component that owns their portals. */
-export function tabItemContentRoots({ listView = true } = {}) {
+export function tabItemContentRoots() {
   return {
     name: 'xplat-appkit-owned-content',
     enforce: 'pre',
@@ -26,7 +26,7 @@ export function tabItemContentRoots({ listView = true } = {}) {
       const ast = parseModule(source, id.split('?')[0])
       const edits = []
       const bindings = new Map()
-      const names = { tabviewitem: '__PortalTabItem', ...(listView ? { listview: '__PortalList' } : {}) }
+      const names = { tabviewitem: '__PortalTabItem', listview: '__PortalList' }
       function binding(tag) {
         if (bindings.has(tag)) {
           return bindings.get(tag)

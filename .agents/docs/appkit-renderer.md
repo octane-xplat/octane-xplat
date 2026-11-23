@@ -55,6 +55,10 @@ detaching its native view. Each host installs the window root factory when it
 starts. Window sizing and close behavior stay in `host-windowing.ts`.
 Core mounts its main root inside the AppKit host's pinned content view.
 Replacing the root keeps the existing window, delegate, and size pins.
+The macOS compiler adapter gives tabs and ListView row renderers portals
+in their declaring Octane tree. Same-count ListView updates rebind visible
+rows in place. An AppKit factory template can own its own root through
+`createMacOSRoot`; the list releases that root when it retires the factory view.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
 mouse contact stream. Wait for the underlying AppKit view's window

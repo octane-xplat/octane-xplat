@@ -16,6 +16,8 @@ import { layout } from '@nativescript/core/utils';
 import { Color } from '@nativescript/core/color';
 import { isFunction } from '@nativescript/core/utils/types';
 import { View as MasonView } from '../../../mason/index';
+import { FailureCollector } from '../../../../../src/failures';
+import { unmountAppKitContentRoot } from '../../../../../src/nativescript-content-ownership';
 export * from '@nativescript/core/ui/list-view/list-view-common';
 const ITEMLOADING = ListViewBase.itemLoadingEvent;
 const ITEMTAP = ListViewBase.itemTapEvent;
@@ -23,6 +25,7 @@ const LOADMORE = ListViewBase.loadMoreItemsEvent;
 const CELL_ID = 'ListViewCell';
 const DEFAULT_ROW_HEIGHT = 44;
 let builderRegistered = false;
+let nextPortalCellId = 0;
 
 function registerBuilderElements() {
     if (!builderRegistered) {
@@ -62,9 +65,12 @@ const ListViewDelegateImpl = NSObject.extend({
     },
     ['tableView:didAddRowView:forRow:'](_table, _rowView, row) {
         const owner = this._listView();
-        if (owner && row >= owner._rowCount() - 1) {
+        if (owner && row >= 0 && row === owner._rowCount() - 1) {
             owner.notify({ eventName: LOADMORE, object: owner });
         }
+    },
+    ['tableView:didRemoveRowView:forRow:'](_table, rowView, row) {
+        this._listView()?._scheduleCellRetirement(rowView.viewAtColumn(0), row);
     },
     _listView() {
         return this._owner ? this._owner.deref() : null;
@@ -88,6 +94,10 @@ const ListViewDelegateImpl = NSObject.extend({
             params: [interop.types.id, interop.types.int64],
         },
         'itemClicked:': { returns: interop.types.void, params: [interop.types.id] },
+        'tableView:didRemoveRowView:forRow:': {
+            returns: interop.types.void,
+            params: [interop.types.id, interop.types.id, interop.types.int64],
+        },
         'tableView:didAddRowView:forRow:': {
             returns: interop.types.void,
             params: [interop.types.id, interop.types.id, interop.types.int64],
@@ -98,11 +108,17 @@ export class ListView extends ListViewBase {
     nativeViewProtected;
     _tableView;
     _delegate;
+    _defaultGridColor;
+    _defaultGridStyle;
     _refreshTable;
     _measuringRow = false;
     // native cell NSView -> bound Core view; per-row measured heights;
     // per-template measure cells so heightOfRow never binds unseen rows.
     _cellMap = new Map();
+    _visibleCells = new Map();
+    _factoryCells = new Map();
+    _portalCells = new Map();
+    _notifyPortal;
     _heightCache = new Map();
     _measureCells = new Map();
     _widthMeasureSpec = 0;
@@ -125,6 +141,18 @@ export class ListView extends ListViewBase {
             },
         };
         this._itemTemplatesInternal = [this._defaultTemplate];
+    }
+    get __onCellTarget() {
+        return this._notifyPortal;
+    }
+    set __onCellTarget(notify) {
+        if (this._notifyPortal !== notify) {
+            this._notifyPortal = notify;
+            for (const cell of this._portalCells.keys()) {
+                this._releasePortal(cell);
+            }
+            this.refresh();
+        }
     }
     get itemTemplate() {
         return super.itemTemplate;
@@ -167,6 +195,8 @@ export class ListView extends ListViewBase {
         table.rowSizeStyle = -1; /* NSTableViewRowSizeStyleCustom */
         const column = NSTableColumn.alloc().initWithIdentifier('main');
         table.addTableColumn(column);
+        this._defaultGridColor = table.gridColor;
+        this._defaultGridStyle = table.gridStyleMask;
         scroll.documentView = table;
         return scroll;
     }
@@ -199,7 +229,20 @@ export class ListView extends ListViewBase {
             this._delegate._owner = undefined;
             this._delegate = undefined;
         }
-        this._cellMap.clear();
+        for (const cell of this._portalCells.keys()) {
+            this._releasePortal(cell);
+        }
+        for (const cell of this._factoryCells.keys()) {
+            this._releaseFactoryCell(cell);
+        }
+        for (const cell of this._cellMap.keys()) {
+            this._releaseCoreCell(cell);
+            cell.bindingContext = undefined;
+        }
+        this._visibleCells.clear();
+        if (this.nativeViewProtected) {
+            this.nativeViewProtected.documentView = null;
+        }
         this._heightCache.clear();
         this._measureCells.clear();
         super.disposeNativeView();
@@ -223,18 +266,91 @@ export class ListView extends ListViewBase {
         const clipWidth = Number(this._tableView?.superview?.bounds?.size?.width);
         return clipWidth > 0 ? clipWidth : 200;
     }
-    _notifyItemLoading(view, index) {
-        const args = { eventName: ITEMLOADING, object: this, index, view };
+    _notifyItemLoading(view, index, nativeCell) {
+        const args = { eventName: ITEMLOADING, object: this, index, view, appKitCell: nativeCell };
         this.notify(args);
         return args.view || this._getDefaultItemContent(index);
     }
-    // Creates or rebinds the Core view for a row. Returns { cell, view }.
-    _prepareCell(nativeCell, index) {
-        let view = this._cellMap.get(nativeCell) || null;
-        if (!view) {
-            view = this._getItemTemplate(index).createView();
+    _releasePortal(cell) {
+        const binding = this._portalCells.get(cell);
+        if (binding) {
+            this._portalCells.delete(cell);
+            cell.bindingContext = undefined;
+            const { notify, id, generation } = binding;
+            queueMicrotask(() => notify({ type: 'release', id, generation }));
         }
-        view = this._notifyItemLoading(view, index);
+    }
+    _bindPortal(cell, index, item) {
+        const existing = this._portalCells.get(cell);
+        if (existing?.index === index && Object.is(existing.item, item)) {
+            return;
+        }
+        const id = existing?.id ?? ++nextPortalCellId;
+        const generation = (existing?.generation ?? 0) + 1;
+        const notify = this._notifyPortal;
+        const binding = { id, generation, notify, index, item };
+        this._portalCells.set(cell, binding);
+        cell.bindingContext = item;
+        queueMicrotask(() => {
+            if (this._portalCells.get(cell) === binding) {
+                notify({ type: 'bind', id, generation, index, item, target: cell });
+            }
+        });
+    }
+    _releaseFactoryCell(cell) {
+        const entry = this._factoryCells.get(cell);
+        if (entry) {
+            this._factoryCells.delete(cell);
+            const failures = new FailureCollector();
+            failures.run('list factory root', () => unmountAppKitContentRoot(entry.view));
+            failures.run('list factory binding', () => { entry.view.bindingContext = undefined; });
+            failures.run('list factory detach', () => entry.view.removeFromSuperview());
+            failures.throwIfFailed();
+        }
+    }
+    _releaseCoreCell(cell) {
+        const entry = this._cellMap.get(cell);
+        if (entry) {
+            this._cellMap.delete(cell);
+            const view = entry.view;
+            if (view.parent === this) {
+                this._removeView(view);
+            } else if (view.nativeViewProtected?.superview === cell) {
+                view.nativeViewProtected.removeFromSuperview();
+            }
+        }
+    }
+    _prepareCell(nativeCell, index) {
+        const item = this._getDataItem(index);
+        if (this._notifyPortal) {
+            this._releaseCoreCell(nativeCell);
+            this._releaseFactoryCell(nativeCell);
+            this._bindPortal(nativeCell, index, item);
+            this.notify({ eventName: ITEMLOADING, object: this, index, appKitCell: nativeCell });
+            return null;
+        }
+        const template = this._getItemTemplate(index);
+        const templateInput = template === this._defaultTemplate ? this.itemTemplate : template;
+        const factory = this._factoryCells.get(nativeCell);
+        if (factory && factory.templateInput === templateInput && Object.is(factory.item, item)) {
+            return null;
+        }
+        this._releaseFactoryCell(nativeCell);
+        const previous = this._cellMap.get(nativeCell);
+        if (previous && previous.templateInput !== templateInput) {
+            this._releaseCoreCell(nativeCell);
+        }
+        let view = this._cellMap.get(nativeCell)?.view ?? template.createView();
+        if (view instanceof NSView) {
+            this._factoryCells.set(nativeCell, {
+                view, templateInput, item, index, height: Number(view.frame.size.height),
+            });
+            nativeCell.bindingContext = view.bindingContext = item;
+            view.autoresizingMask = 18;
+            nativeCell.addSubview(view);
+            return null;
+        }
+        view = this._notifyItemLoading(view, index, nativeCell);
         if (view instanceof ProxyViewContainer) {
             const sp = new StackLayout();
             sp.addChild(view);
@@ -244,14 +360,12 @@ export class ListView extends ListViewBase {
             this._addView(view);
         }
         this._prepareItem(view, index);
+        nativeCell.bindingContext = view.bindingContext;
         view._listViewItemIndex = index;
-        const bound = this._cellMap.get(nativeCell);
+        const bound = this._cellMap.get(nativeCell)?.view;
         if (bound !== view) {
-            // Detach the stale bound view's native view from the cell.
-            const boundNv = bound?.nativeViewProtected;
-            if (boundNv && boundNv.superview === nativeCell)
-                {boundNv.removeFromSuperview();}
-            this._cellMap.set(nativeCell, view);
+            this._releaseCoreCell(nativeCell);
+            this._cellMap.set(nativeCell, { view, templateInput });
         }
         const nv = view.nativeViewProtected;
         if (nv && nv.superview !== nativeCell) {
@@ -261,16 +375,43 @@ export class ListView extends ListViewBase {
         }
         return view;
     }
-    // New or recycled native cell for the row.
-    _viewForRow(tableView, index) {
-        let nativeCell = tableView.makeViewWithIdentifierOwner(CELL_ID, this._delegate);
-        if (!nativeCell) {
-            nativeCell = NSView.alloc().initWithFrame(CGRectMake(0, 0, this._tableWidth(), DEFAULT_ROW_HEIGHT));
-            nativeCell.identifier = CELL_ID;
+    _scheduleCellRetirement(cell, index) {
+        if (!cell) {
+            return;
         }
-        const view = this._prepareCell(nativeCell, index);
-        this._layoutCell(nativeCell, view, index);
-        return nativeCell;
+        const table = this._tableView;
+        queueMicrotask(() => {
+            if (this._tableView === table && Number(table.rowForView(cell)) !== index) {
+                this._retireCell(cell, index);
+            }
+        });
+    }
+    _retireCell(cell, index) {
+        if (cell && this._visibleCells.get(index) === cell) {
+            this._visibleCells.delete(index);
+            this._releasePortal(cell);
+            this._releaseFactoryCell(cell);
+            cell.bindingContext = undefined;
+        }
+    }
+    // Keep the native host while a visible row changes data. AppKit can
+    // recycle the host for another index after it removes the row.
+    _viewForRow(tableView, index) {
+        if (index < 0 || index >= this._rowCount()) {
+            return NSView.new();
+        }
+        let cell = this._visibleCells.get(index);
+        if (!cell) {
+            cell = tableView.makeViewWithIdentifierOwner(CELL_ID, this._delegate);
+            if (!cell) {
+                cell = NSView.alloc().initWithFrame(CGRectMake(0, 0, this._tableWidth(), DEFAULT_ROW_HEIGHT));
+                cell.identifier = CELL_ID;
+            }
+            this._visibleCells.set(index, cell);
+            const view = this._prepareCell(cell, index);
+            this._layoutCell(cell, view, index);
+        }
+        return cell;
     }
     _layoutCell(nativeCell, view, index) {
         const width = this._tableWidth();
@@ -278,6 +419,11 @@ export class ListView extends ListViewBase {
         nativeCell.frame = CGRectMake(0, 0, width, rowHeight);
         if (view) {
             View.layoutChild(this, view, 0, 0, width, rowHeight);
+        } else {
+            const factory = this._factoryCells.get(nativeCell);
+            if (factory) {
+                factory.view.frame = CGRectMake(0, 0, width, rowHeight);
+            }
         }
     }
     // Per-row height: explicit rowHeight > measured bound cell > template
@@ -292,6 +438,9 @@ export class ListView extends ListViewBase {
         const cached = this._heightCache.get(index);
         if (cached !== undefined)
             {return cached;}
+        if (this._notifyPortal) {
+            return DEFAULT_ROW_HEIGHT;
+        }
         // Binding a template can request layout and reenter AppKit's height
         // delegate before this row is cached. Let the outer measurement finish.
         if (this._measuringRow) {
@@ -306,6 +455,16 @@ export class ListView extends ListViewBase {
     }
     _measureRow(index) {
         const template = this._getItemTemplate(index);
+        for (const factory of this._factoryCells.values()) {
+            if (factory.index === index) {
+                return factory.height || DEFAULT_ROW_HEIGHT;
+            }
+        }
+        // External AppKit factory views have separate Octane roots. Create them
+        // when AppKit actually asks for the row.
+        if (template !== this._defaultTemplate) {
+            return DEFAULT_ROW_HEIGHT;
+        }
         let measureView = this._measureCells.get(template.key);
         if (!measureView) {
             measureView = template.createView();
@@ -331,8 +490,8 @@ export class ListView extends ListViewBase {
         if (row < 0)
             {return;}
         const cellView = this._tableView.viewAtColumnRowMakeIfNecessary(0, row, false);
-        const view = cellView ? this._cellMap.get(cellView) : undefined;
-        this.notify({ eventName: ITEMTAP, object: this, index: row, view });
+        const view = cellView ? this._cellMap.get(cellView)?.view : undefined;
+        this.notify({ eventName: ITEMTAP, object: this, index: row, view, appKitCell: cellView });
     }
     scrollToIndex(index, animated = true) {
         this._tableView?.scrollRowToVisible(index);
@@ -359,7 +518,18 @@ export class ListView extends ListViewBase {
         queueMicrotask(() => {
             if (this._refreshTable === table) {
                 this._refreshTable = undefined;
-                table.reloadData();
+                const count = this._rowCount();
+                for (const [index, cell] of this._visibleCells) {
+                    if (index >= count) {
+                        this._retireCell(cell, index);
+                    } else {
+                        const view = this._prepareCell(cell, index);
+                        this._layoutCell(cell, view, index);
+                    }
+                }
+                if (count !== Number(table.numberOfRows)) {
+                    table.reloadData();
+                }
             }
         });
     }
@@ -374,29 +544,28 @@ export class ListView extends ListViewBase {
         this.refresh();
     }
     [itemTemplatesProperty.setNative](value) {
-        if (value) {
-            this._itemTemplatesInternal = new Array(value.length + 1);
-            this._itemTemplatesInternal[0] = this._defaultTemplate;
-            for (let i = 0; i < value.length; i++) {
-                this._itemTemplatesInternal[i + 1] = value[i];
-            }
-        }
+        const templates = value ?? [];
+        const selectedDefault = templates.find((template) => template.key === 'default') ?? this._defaultTemplate;
+        this._itemTemplatesInternal = [selectedDefault, ...templates.filter((template) => template.key !== 'default')];
         this.refresh();
     }
     [rowHeightProperty.setNative](value) {
         this._heightCache.clear();
         this._tableView?.noteHeightOfRowsWithIndexesChanged(NSIndexSet.indexSetWithIndexesInRange({ location: 0, length: this._rowCount() }));
     }
+    [separatorColorProperty.getDefault]() {
+        return this._defaultGridColor;
+    }
     [separatorColorProperty.setNative](value) {
-        const table = this._tableView;
+        const table = this._tableView ?? this.nativeViewProtected?.documentView;
         if (!table)
             {return;}
         if (value instanceof Color) {
             table.gridColor = value.macos;
             table.gridStyleMask = 1; /* NSTableViewSolidHorizontalGridLineMask */
-        }
-        else {
-            table.gridStyleMask = 0;
+        } else {
+            table.gridColor = this._defaultGridColor;
+            table.gridStyleMask = this._defaultGridStyle;
         }
     }
 }

@@ -60,7 +60,7 @@ export async function createCoreMacOSConfig(
       ...provider.plugins,
       ...ui.plugins,
       ...(devSocket ? [devSocket] : []),
-      tabItemContentRoots({ listView: false }),
+      tabItemContentRoots(),
       css('macos'),
       inlineStylesheets('nativescript'),
       boundary('macos', new Set<string>([...reusedCoreFiles, ...ui.reusedFiles])),

@@ -1,4 +1,4 @@
-import { SegmentedBar, TabView, TabViewItem, TextView, type ViewBase } from '@nativescript/core'
+import { ListView, SegmentedBar, TabView, TabViewItem, TextView, type ViewBase } from '@nativescript/core'
 import type { NativeScriptHostBoundary, NativeScriptTextNode } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 import { appKitFormattedText } from './nativescript-formatted-text.macos'
@@ -119,6 +119,16 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
         enumerable: original?.enumerable ?? true,
         configurable: original?.configurable ?? true,
       }
+    }
+    if (
+      view instanceof ListView &&
+      (data.eventName === 'itemLoading' || data.eventName === 'itemTap')
+    ) {
+      const nativeCell = Reflect.get(data, 'appKitCell')
+      if (nativeCell instanceof NSView) {
+        descriptors.view = { value: nativeCell, enumerable: true, writable: false }
+      }
+      delete descriptors.appKitCell
     }
     if (
       (view instanceof SegmentedBar || view instanceof TabView) &&

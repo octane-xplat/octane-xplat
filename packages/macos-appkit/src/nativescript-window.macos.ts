@@ -13,6 +13,7 @@ import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
 import { installWindowRootFactory } from './host-windowing'
 import { appKitHostBoundary } from './nativescript-host-boundary.macos'
+import { registerAppKitContentRoot } from './nativescript-content-ownership'
 import { installNativeScriptAutomation } from './nativescript-automation.macos'
 import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
 import {
@@ -184,12 +185,14 @@ export function createNativeScriptWindowRoot(
     return result
   }
   const unmount = root.unmount.bind(root)
+  const unregister = registerAppKitContentRoot(content, root)
   let unmounted = false
   root.unmount = () => {
     if (unmounted) {
       return
     }
     unmounted = true
+    unregister()
     const failures = new FailureCollector()
     failures.run('window root unmount', unmount)
     failures.run('window content release', mounted.dispose)

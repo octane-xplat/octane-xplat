@@ -271,7 +271,11 @@ function applyProps(node: HostNode, props: Readonly<Record<string, unknown>>): v
   }
   // A list's cell renderer must be in place before `items` reloads the cells.
   if ('renderItem' in props) {
-    setProp(node, node.view, 'renderItem', props.renderItem)
+    const appKitPortal =
+      typeof props.__onCellTarget === 'function' &&
+      viewOwners.get(node.view)?.container.hostBoundary !== undefined
+    const renderItem = appKitPortal ? null : props.renderItem
+    setProp(node, node.view, 'renderItem', renderItem)
   }
   for (const name in props) {
     if (name !== 'renderItem') {
