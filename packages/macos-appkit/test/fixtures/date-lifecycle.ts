@@ -5,6 +5,7 @@ import {
   NSDatePicker,
   NSDatePickerElementFlags,
   NSDatePickerStyle,
+  NSApplication,
 } from '@octane-xplat/platform/macos'
 
 export async function checkDateLifecycle(root: any, nativeWindow: any) {
@@ -138,7 +139,7 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
     new Date(2026, 4, 14, 19, 25).getTime() / 1000,
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(
     dateChanges.length === count + 1 &&
       dateChanges.at(-1).value.getDate() === 14 &&
@@ -147,7 +148,7 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
     'DatePicker native action normalization/event failed',
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(dateChanges.length === count + 1, 'DatePicker unchanged action emitted duplicate event')
   await advance()
 

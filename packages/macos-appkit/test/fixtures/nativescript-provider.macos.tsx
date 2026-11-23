@@ -20,6 +20,7 @@ import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
 import { checkActivityLifecycle } from './activity-lifecycle'
+import { checkDateLifecycle } from './date-lifecycle'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import './nativescript-provider.css'
 
@@ -1479,6 +1480,7 @@ setTimeout(async () => {
     await checkControlLifecycle(checkFormattedLifecycle)
     await checkFormattedLinks()
     await checkControlLifecycle(checkActivityLifecycle)
+    await checkControlLifecycle(checkDateLifecycle)
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

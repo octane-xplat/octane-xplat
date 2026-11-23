@@ -3,13 +3,17 @@
 // bridge NSDate is an object handle — check capability, not callability.
 import { DatePickerBase, dateProperty, minDateProperty, maxDateProperty, yearProperty, monthProperty, dayProperty, hourProperty, minuteProperty, secondProperty } from '@nativescript/core/ui/date-picker/date-picker-common';
 import { layout } from '@nativescript/core/utils';
+import { unsetValue } from '@nativescript/core/ui/core/properties';
+import { isEnabledProperty } from '@nativescript/core/ui/core/view';
+import { NSDatePickerElementFlags, NSDatePickerMode, NSDatePickerStyle } from '@octane-xplat/platform/macos';
 export * from '@nativescript/core/ui/date-picker/date-picker-common';
 const DatePickerTargetImpl = NSObject.extend({
     ['changed:'](sender) {
         const owner = this._weakOwner ? this._weakOwner.deref() : null;
-        if (owner) {
+        if (owner?.isEnabled && sender === owner.nativeViewProtected && sender.dateValue) {
             const value = sender.dateValue;
-            const date = value ? new Date(value.timeIntervalSince1970 * 1000) : new Date();
+            const date = calendarDate(value.timeIntervalSince1970 * 1000);
+            sender.dateValue = toNSDate(date);
             let changed = false;
             if (date.getFullYear() !== owner.year) {
                 yearProperty.nativeValueChange(owner, date.getFullYear());
@@ -44,21 +48,37 @@ const DatePickerTargetImpl = NSObject.extend({
     name: 'NSCoreMacosDatePickerTarget',
     exposedMethods: { 'changed:': { returns: interop.types.void, params: [interop.types.id] } },
 });
+function calendarDate(value) {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    if (!Number.isFinite(date.getTime())) {
+        throw new Error('AppKit datepicker requires a valid date');
+    }
+    return date;
+}
+
+const defaultDate = calendarDate(new Date());
+
 function toNSDate(date) {
-    if (date == null)
-        {return null;}
-    const ms = date instanceof Date ? date.getTime() : new Date(date).getTime();
-    if (isNaN(ms))
-        {return null;}
-    return NSDate.dateWithTimeIntervalSince1970(ms / 1000);
+    return date == null ? null : NSDate.dateWithTimeIntervalSince1970(calendarDate(date).getTime() / 1000);
 }
 export class DatePicker extends DatePickerBase {
     nativeViewProtected;
     _target;
+    get date() {
+        return dateProperty.isSet(this) ? super.date : defaultDate;
+    }
+    set date(value) {
+        super.date = value == null || value === unsetValue ? defaultDate : calendarDate(value);
+    }
     createNativeView() {
         const picker = NSDatePicker.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
-        picker.datePickerStyle = 1 /* NSDatePickerStyleTextFieldAndStepper */;
-        picker.datePickerElements = 0x00e0 /* NSDatePickerElementFlagYearMonthDay */;
+        picker.datePickerStyle = NSDatePickerStyle.TextFieldAndStepper;
+        picker.datePickerElements = NSDatePickerElementFlags.YearMonthDay;
+        picker.datePickerMode = NSDatePickerMode.Single;
+        picker.bezeled = true;
+        picker.drawsBackground = true;
+        picker.dateValue = toNSDate(defaultDate);
         return picker;
     }
     initNativeView() {
@@ -74,6 +94,10 @@ export class DatePicker extends DatePickerBase {
             nv.target = null;
             nv.action = null;
         }
+        if (this._target) {
+            this._target._weakOwner = undefined;
+            this._target = undefined;
+        }
         super.disposeNativeView();
     }
     get ios() {
@@ -82,8 +106,14 @@ export class DatePicker extends DatePickerBase {
     get macos() {
         return this.nativeViewProtected;
     }
+    [isEnabledProperty.getDefault]() {
+        return true;
+    }
+    [isEnabledProperty.setNative](value) {
+        this.nativeViewProtected.enabled = value;
+    }
     [dateProperty.getDefault]() {
-        return new Date();
+        return defaultDate;
     }
     [dateProperty.setNative](value) {
         const nv = this.nativeViewProtected;
@@ -122,18 +152,24 @@ export class DatePicker extends DatePickerBase {
     [minDateProperty.getDefault]() {
         return null;
     }
-    [minDateProperty.setNative](value) {
-        const nv = this.nativeViewProtected;
-        if (nv)
-            {nv.minDate = toNSDate(value);}
+    [minDateProperty.setNative]() {
+        this._syncBounds();
     }
     [maxDateProperty.getDefault]() {
         return null;
     }
-    [maxDateProperty.setNative](value) {
+    [maxDateProperty.setNative]() {
+        this._syncBounds();
+    }
+    _syncBounds() {
         const nv = this.nativeViewProtected;
-        if (nv)
-            {nv.maxDate = toNSDate(value);}
+        if (nv) {
+            nv.minDate = null;
+            nv.maxDate = null;
+            nv.minDate = toNSDate(this.minDate);
+            nv.maxDate = toNSDate(this.maxDate);
+            nv.dateValue = toNSDate(this.date);
+        }
     }
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
         const nv = this.nativeViewProtected;
