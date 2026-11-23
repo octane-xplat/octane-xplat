@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createAnimatedValue } from '../src/internal/platform/animated-value.ts'
+import { createAnimatedValue, type AnimationHost } from '../src/internal/platform/animated-value.ts'
 import {
   writeAnimatedProperty,
   readReducedMotion,
@@ -50,6 +50,34 @@ function fixture(initial = 0) {
     },
   }
 }
+
+test('starting another animation preserves a valid frame handle of zero', async () => {
+  let now = 0
+  let nextId = 0
+  const frames = new Map<number, () => void>()
+  const host: AnimationHost = {
+    now: () => now,
+    request(callback) {
+      const id = nextId++
+      frames.set(id, callback)
+      return id
+    },
+    cancel: (id) => frames.delete(id),
+    write() {},
+  }
+  const translate = createAnimatedValue(0, host)
+  const opacity = createAnimatedValue(0, host)
+  const moving = translate.to(100, { duration: 100 })
+  const fading = opacity.to(1, { duration: 100 })
+  now = 100
+  for (const callback of frames.values()) {
+    callback()
+  }
+  assert.equal(translate.value, 100)
+  assert.equal(opacity.value, 1)
+  assert.deepEqual(await moving, { status: 'finished' })
+  assert.deepEqual(await fading, { status: 'finished' })
+})
 
 test('tween samples elapsed time, replaces playback, and settles exactly', () => {
   const f = fixture()

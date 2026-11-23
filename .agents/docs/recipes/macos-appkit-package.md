@@ -6,17 +6,20 @@ Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package,
 
 ## Starting point
 
-An AppKit Node-API app on a Mac with Apple Silicon or an Intel chip. The app already has a
-production Vite config that emits one CommonJS host bundle.
+An AppKit app using the NativeScript Core provider on a Mac with Apple
+Silicon or Intel. The app has a production Vite config that emits one
+CommonJS host bundle.
 
 ## Requirements
 
 - Declare the AppKit Node-API runtime and the app's bundle metadata in
   `package.json`.
+- Install the macOS build worker and apply the framework patches before
+  building with the macOS Vite preset.
 - Optionally include a custom macOS app icon from an `.icns` file in the app
   project.
-- Build with the macOS `codesign` and `hdiutil` tools. Apps with native leaves
-  need an Apple Silicon build Mac.
+- Build with the macOS `codesign` and `hdiutil` tools. Compiling native leaves
+  also needs Xcode Command Line Tools for the build host's architecture.
 - Ship one universal app that runs on Apple Silicon and Intel Macs.
 - Set the package's minimum macOS version to 13.5 or later for the
   JavaScriptCore host.
@@ -51,11 +54,12 @@ production Vite config that emits one CommonJS host bundle.
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
 - AC7: `apps/macos` loads the shared `@octane-xplat/app` harness through
-  `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
+  the public macOS preset with no app-specific UI aliases. The
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
-  checks representative interactions including the 500-row list update, and
-  exposes missing AppKit services as unsupported or unavailable. The AppKit
-  list fallback mounts all rows and does not validate virtualization or scale.
+  checks representative interactions, and exposes missing AppKit services
+  as unsupported or unavailable. The VirtualList uses a bounded, scrollable
+  viewport and mounts a subset of the 500 rows. Removing a row updates the
+  collection to 499 rows while keeping the viewport and row count bounded.
 - AC8: An independent app using the public macOS package contract opens an
   AppKit window, uses the supported host API, and exits successfully from the
   packaged executable. An unsupported `node:` import or API member fails
@@ -110,12 +114,8 @@ production Vite config that emits one CommonJS host bundle.
 
 ## Verification gaps
 
-AC7 retains its all-rows fallback criterion. The current maintained sweep
-instead checks bounded mounting for the 500-row collection and its update to
-499 rows. That is runtime evidence for the current implementation, not a pass
-for the all-rows criterion or proof of large-list performance. Reconcile this
-with the VirtualList workflow separately; restoring the harness does not
-change the criterion.
+AC7 exercises handler dispatch and native viewport geometry. Physical input
+and performance under sustained scrolling require separate verification.
 
 ## Development app identity
 

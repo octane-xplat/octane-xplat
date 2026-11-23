@@ -1,8 +1,5 @@
-// `xplat devtools` launches the native macOS devtools app through the selected
-// project's @octane-xplat/devtools desktop launcher — one AppKit window per
-// live `xplat dev` server record. Go owns app selection, the worker process
-// group and startup-evidence observation; the project's @octane-xplat/cli
-// worker resolves the launcher and engine inside the app's installation.
+// Package devtools connects the released macOS app or a project-built panel
+// host to the selected app’s development hub.
 package devtools
 
 import (
@@ -25,12 +22,13 @@ import (
 // hostGOOS is a variable so tests can exercise the unsupported-host branch.
 var hostGOOS = runtime.GOOS
 
-// runWorker is a variable so tests can stub the service worker boundary.
-var runWorker = service.RunWorker
-
 func Command(ctx context.Context, values map[string]any) error {
 	backend, host := values["host-backend"].(string)
 	web, _ := values["web"].(bool)
+	buildPanels, _ := values["build-panels"].(bool)
+	if buildPanels && (web || host) {
+		return errors.New("--build-panels cannot be used with --web or --host-backend")
+	}
 	if host && web {
 		return errors.New("--web cannot be used with --host-backend")
 	}
@@ -66,6 +64,9 @@ func Command(ctx context.Context, values map[string]any) error {
 		_, err = fmt.Fprintln(os.Stdout, url)
 		return err
 	}
+	if !buildPanels {
+		return launchReleasedApp(ctx, projectPath)
+	}
 	worker, err := project.Worker(projectPath)
 	if err != nil {
 		return err
@@ -73,7 +74,7 @@ func Command(ctx context.Context, values map[string]any) error {
 	// No project-output lock: every write lands in native-owned per-run
 	// directories (the worker's resource/service dir and a unique compiler
 	// profile), so devtools must coexist with a live `xplat dev` in this app.
-	_, err = runWorker(ctx, projectPath, worker, "devtools-desktop", "macos", map[string]any{"target": "macos"}, 5*time.Minute, proc.ForegroundInput(ctx), os.Stdout, os.Stderr)
+	_, err = service.RunWorker(ctx, projectPath, worker, "devtools-desktop", "macos", map[string]any{"target": "macos"}, 5*time.Minute, proc.ForegroundInput(ctx), os.Stdout, os.Stderr)
 	return err
 }
 

@@ -1,4 +1,4 @@
-import type { BoxPaintState } from './box-paint-state'
+import type { BoxPaintNode, BoxPaintState } from './box-paint-state'
 import type { BorderCorner } from './box-geometry'
 import {
   BORDER_SIDES,
@@ -12,7 +12,7 @@ import {
 } from './box-geometry.ts'
 
 import { effectiveStyle } from './style-values.ts'
-import type { PropBag, ElementNode } from './model'
+import type { PropBag } from './model'
 import { nativeColor } from './native-colors'
 import {
   CALayer,
@@ -103,7 +103,7 @@ export function createOutlines() {
   // path; dashed/dotted stroke the centered rounded path like uniform-pattern
   // borders; double/groove/ridge/inset/outset paint the same shaded per-side
   // bands borders use, on the expanded box. `none`/`hidden` clear.
-  function syncOutline(node: ElementNode, state: BoxPaintState) {
+  function syncOutline(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view!
 
     clearOutline(node, state)
@@ -263,11 +263,11 @@ export function createOutlines() {
     resize()
   }
 
-  function syncOutlineGeometry(node: ElementNode, state: BoxPaintState) {
+  function syncOutlineGeometry(node: BoxPaintNode, state: BoxPaintState) {
     state.outlineResize?.()
   }
 
-  function clearOutline(node: ElementNode, state: BoxPaintState) {
+  function clearOutline(node: BoxPaintNode, state: BoxPaintState) {
     const host = state.outlineLayer
 
     state.outlineResize = undefined

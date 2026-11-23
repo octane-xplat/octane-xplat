@@ -3606,15 +3606,17 @@
 }
 .vx-listmarker {
 	align-self: baseline;
-	@platform web {
-		box-sizing: border-box;
-	}
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
 	width: var(--spacing-4, 16px);
-	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 6px) / 2);
+	/* Core resolves the body-size token in layout calculations. */
+	margin-top: calc((var(--text-body-size, 14px) * var(--text-body-leading, 1.4286) - 6px) / 2);
+	@platform web {
+		box-sizing: border-box;
+		margin-top: calc((1em * var(--text-body-leading, 1.4286) - 6px) / 2);
+	}
 }
 .vx-listmarker-dot {
 	width: 6px;
@@ -3663,7 +3665,10 @@
 }
 .vx-listmarker--task {
 	align-self: flex-start;
-	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 20px) / 2);
+	margin-top: calc((var(--text-body-size, 14px) * var(--text-body-leading, 1.4286) - 20px) / 2);
+	@platform web {
+		margin-top: calc((1em * var(--text-body-leading, 1.4286) - 20px) / 2);
+	}
 }
 
 /* CodeBlock diff layer (Astryx isDiff): glyph column + whole-row tints. */

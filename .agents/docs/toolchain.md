@@ -61,7 +61,11 @@ instructed agents may start it; app-control clients normally attach to an existi
 server and never implicitly launch a server/app/browser. A development tool can
 explicitly own a backend-only hub with the stdin lease described in the
 [DevTools guide](../../docs/packages/package-devtools.md#host-a-backend-from-another-development-tool).
-An explicit `xplat devtools --web` invocation builds the selected app's panel plugins
+The default macOS `xplat devtools` command downloads the universal release app
+into a per-user cache and launches it with the selected app root. Its build
+lives in `apps/devtools`. Only `--build-panels` uses the project macOS worker
+to compile contributed native panels. An explicit `xplat devtools --web`
+invocation builds the selected app's panel plugins
 with its own Vite toolchain. The running hub serves the result from its private
 per-instance directory and removes it on shutdown.
 Private discovery is
@@ -104,6 +108,10 @@ executable. macOS packaging uses the separate
 host assets in the selected project. Keep that platform cost out of the CLI
 tarball and web-only build installations. Go owns staging and final
 publication after the worker finishes.
+
+The macOS JavaScriptCore host forwards `console.info` through its native log
+channel. Keep the host shim and bundle validator aligned. NativeScript Core
+uses this method for informational trace messages.
 
 The published tarball preserves the Vite exports and the bounded `./worker`
 operation through the curated plugin closure; heavy engines are optional peers.

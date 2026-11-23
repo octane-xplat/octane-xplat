@@ -4,7 +4,7 @@
 
 /** DOM value writes never echo back as input events, so there is no
  *  synchronous echo to suppress. */
-export function isWritingText(_view: object): boolean {
+export function isWritingText(_view: unknown): boolean {
   return false
 }
 

@@ -44,6 +44,14 @@
 			"types": "./types/generated/testing.mobile.d.ts",
 			"native": "./src/testing.mobile.ts"
 		},
+		"./motion-clock": {
+			"types": "./types/generated/motion-clock.d.ts",
+			"default": "./src/motion-clock.ts"
+		},
+		"./motion/dev": {
+			"types": "./types/generated/motion-dev.d.ts",
+			"default": "./src/motion-dev.ts"
+		},
 		"./dev-actions": {
 			"types": "./types/generated/dev-actions.d.ts",
 			"default": "./src/dev-actions.ts"

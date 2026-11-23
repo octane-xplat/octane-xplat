@@ -1,4 +1,5 @@
 import '@nativescript/macos-node-api'
+import { Label } from '@nativescript/core'
 import * as renderer from '@octane-xplat/macos-appkit'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
@@ -6,13 +7,13 @@ import * as signalClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import { NSApplication, NSView } from '@octane-xplat/platform/macos'
 
-globalThis.__xplatDevModules = {
+renderer.__installDevelopmentModules({
   '@octane-xplat/macos-appkit': renderer,
   'octane/universal/native': native,
   'octane/signals': signals,
   'octane/signals/client': signalClient,
   'octane/internal/client': internal,
-}
+})
 
 const app = NSApplication.sharedApplication
 const hostView = NSView.alloc().initWithFrame({
@@ -63,9 +64,13 @@ let retainedGlassBackdrop: any
 let reloaded = false
 function reload() {
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
+  if (loaded.coreLabelConstructor !== Label) {
+    console.error('PACKED_HMR_FAIL: app bundle did not use the shell’s Core instance')
+    return
+  }
 
   if (!liveComponent) {
-    liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
+    liveComponent = native.hmrUniversalComponent(renderer.__rendererId, loaded.default ?? loaded)
     root.render(liveComponent, {})
     setTimeout(() => {
       retainedListView = debug.findId('hmr-listview')
@@ -114,7 +119,7 @@ function reload() {
           console.error('PACKED_HMR_FAIL: Progress signal did not update bar')
         }
 
-        retainedListViewLabel = retainedListViewCell.subviews.objectAtIndex(0)
+        retainedListViewLabel = debug.findId('hmr-listview-row')
         console.log('HMR_CONSUMER_READY')
       }, 60)
     }, 60)
@@ -124,87 +129,177 @@ function reload() {
       const label = debug.findId('count')
       const revision = debug.findId('revision')
 
-      if (
-        debug.findId('hmr-listview') === retainedListView &&
-        retainedListView.documentView === retainedListViewTable &&
-        retainedListViewCell.subviews.objectAtIndex(0) === retainedListViewLabel &&
-        String(retainedListViewLabel.stringValue) === 'Second revision1' &&
-        debug.findId('hmr-item') === retainedItem &&
-        retainedItem.view === null &&
-        retainedItem.props.title === 'Second revision' &&
-        debug.findId('hmr-item-bar') === retainedItemBar &&
-        String(retainedItemBar.labelForSegment(0)) === 'Second revision' &&
-        String(retainedItemBar.labelForSegment(1)) === '1' &&
-        Number(retainedItemBar.selectedSegment) === 1 &&
-        debug.findId('hmr-tabs') === retainedTabs &&
-        debug.findId('hmr-tab-item') === retainedTabItem &&
-        debug.findId('hmr-tab-content') === retainedTabContent &&
-        String(retainedTabContent.stringValue) === 'Second revision' &&
-        String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' &&
-        retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1) &&
-        debug.findId('hmr-segment') === retainedSegment &&
-        Number(retainedSegment.selectedSegment) === 1 &&
-        String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
-        debug.findId('hmr-progress') === retainedProgress &&
-        !retainedProgress.indeterminate &&
-        Number(retainedProgress.doubleValue) === 40 &&
-        Number(retainedProgress.maxValue) === 100 &&
-        debug.findId('hmr-list') === retainedList &&
-        Number(retainedList.indexOfSelectedItem) === 1 &&
-        String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
-        debug.findId('hmr-time') === retainedTime &&
-        new Date(Number(retainedTime.dateValue.timeIntervalSince1970) * 1000).getTime() ===
-          new Date(0, 0, 0, 13, 35).getTime() &&
-        debug.findId('hmr-date') === retainedDate &&
-        new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 &&
-        new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
-        debug.findId('hmr-activity') === retainedActivity &&
-        Number(retainedActivity.alphaValue) === 0 &&
-        debug.findId('hmr-html') === retainedHtml &&
-        String(retainedHtml.stringValue).trim() === 'Second revision1' &&
-        debug.findId('hmr-formatted') === retainedFormatted &&
-        retainedFormatted.view === null &&
-        debug.findId('hmr-formatted-parent') === retainedFormattedParent &&
-        String(retainedFormattedParent.stringValue) === 'Second revision1' &&
-        debug.findId('hmr-search') === retainedSearch &&
-        String(retainedSearch.stringValue) === 'Second revision' &&
-        String(retainedSearch.placeholderString) === '1' &&
-        debug.findId('hmr-root') === retainedRoot &&
-        debug.findId('root-revision') === retainedRootChild &&
-        retainedRootChild.superview === retainedRoot &&
-        String(retainedRootChild.stringValue) === 'Second revision' &&
-        debug.findId('hmr-proxy') === retainedProxy &&
-        retainedProxy.view === null &&
-        debug.findId('proxy-revision') === retainedProxyChild &&
-        String(retainedProxyChild.stringValue) === 'Second revision' &&
-        debug.findId('hmr-wrap') === retainedWrap &&
-        debug.findId('wrap-revision') === retainedWrapChild &&
-        retainedWrapChild.superview === retainedWrap &&
-        String(retainedWrapChild.stringValue) === 'Second revision' &&
-        debug.findId('hmr-dock') === retainedDock &&
-        debug.findId('dock-revision') === retainedDockChild &&
-        retainedDockChild.superview === retainedDock &&
-        String(retainedDockChild.stringValue) === 'Second revision' &&
-        debug.findId('hmr-actionbar') === retainedActionBar &&
-        retainedActionBar.subviews.objectAtIndex(0) === retainedActionBarTitle &&
-        String(retainedActionBarTitle.stringValue) === 'Second revision1' &&
-        Number(retainedActionBar.layer.shadowOpacity) === 0 &&
-        debug.findId('hmr-placeholder') === retainedPlaceholder &&
-        retainedPlaceholderContent.superview === retainedPlaceholder &&
-        String(retainedPlaceholderContent.stringValue) === 'First revision' &&
-        debug.findId('hmr-glass') === retainedGlass &&
-        debug.findId('glass-revision') === retainedGlassChild &&
-        retainedGlassChild.superview === retainedGlass &&
-        retainedGlass.subviews.objectAtIndex(0) === retainedGlassBackdrop &&
-        String(retainedGlassChild.stringValue) === 'Second revision' &&
-        label === retainedLabel &&
-        debug.findId('hmr-content') === retainedContent &&
-        revision === retainedChild &&
-        revision.superview === retainedContent &&
-        Number(retainedContent.subviews.count) === 1 &&
-        String(label.stringValue) === '1' &&
-        String(revision.stringValue) === 'Second revision'
-      ) {
+      const assertions: Array<[string, () => boolean]> = [
+        [
+          'list view',
+          () =>
+            debug.findId('hmr-listview') === retainedListView &&
+            retainedListView.documentView === retainedListViewTable &&
+            debug.findId('hmr-listview-row') === retainedListViewLabel &&
+            retainedListViewLabel.isDescendantOf(retainedListViewCell) &&
+            String(retainedListViewLabel.stringValue) === 'Second revision1',
+        ],
+        [
+          'segmented items',
+          () =>
+            debug.findId('hmr-item') === retainedItem &&
+            retainedItem.view === null &&
+            retainedItem.props.title === 'Second revision' &&
+            debug.findId('hmr-item-bar') === retainedItemBar &&
+            String(retainedItemBar.labelForSegment(0)) === 'Second revision' &&
+            String(retainedItemBar.labelForSegment(1)) === '1' &&
+            Number(retainedItemBar.selectedSegment) === 1,
+        ],
+        [
+          'tab view',
+          () =>
+            debug.findId('hmr-tabs') === retainedTabs &&
+            debug.findId('hmr-tab-item') === retainedTabItem &&
+            debug.findId('hmr-tab-content') === retainedTabContent &&
+            String(retainedTabContent.stringValue) === 'Second revision' &&
+            String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' &&
+            retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1),
+        ],
+        [
+          'segmented bar',
+          () =>
+            debug.findId('hmr-segment') === retainedSegment &&
+            Number(retainedSegment.selectedSegment) === 1 &&
+            String(retainedSegment.labelForSegment(0)) === 'Second revision',
+        ],
+        [
+          'progress',
+          () =>
+            debug.findId('hmr-progress') === retainedProgress &&
+            !retainedProgress.indeterminate &&
+            Number(retainedProgress.doubleValue) === 40 &&
+            Number(retainedProgress.maxValue) === 100,
+        ],
+        [
+          'list picker',
+          () =>
+            debug.findId('hmr-list') === retainedList &&
+            Number(retainedList.indexOfSelectedItem) === 1 &&
+            String(retainedList.itemAtIndex(0).title) === 'Second revision',
+        ],
+        [
+          'time picker',
+          () =>
+            debug.findId('hmr-time') === retainedTime &&
+            new Date(Number(retainedTime.dateValue.timeIntervalSince1970) * 1000).getTime() ===
+              new Date(0, 0, 0, 13, 35).getTime(),
+        ],
+        [
+          'date picker',
+          () =>
+            debug.findId('hmr-date') === retainedDate &&
+            new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() ===
+              13 &&
+            new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0,
+        ],
+        [
+          'activity indicator',
+          () =>
+            debug.findId('hmr-activity') === retainedActivity &&
+            Number(retainedActivity.alphaValue) === 0,
+        ],
+        [
+          'HTML view',
+          () =>
+            debug.findId('hmr-html') === retainedHtml &&
+            String(retainedHtml.stringValue).trim() === 'Second revision1',
+        ],
+        [
+          'formatted text',
+          () =>
+            debug.findId('hmr-formatted') === retainedFormatted &&
+            retainedFormatted.view === null &&
+            debug.findId('hmr-formatted-parent') === retainedFormattedParent &&
+            String(retainedFormattedParent.stringValue) === 'Second revision1',
+        ],
+        [
+          'search bar',
+          () =>
+            debug.findId('hmr-search') === retainedSearch &&
+            String(retainedSearch.stringValue) === 'Second revision' &&
+            String(retainedSearch.placeholderString) === '1',
+        ],
+        [
+          'root layout',
+          () =>
+            debug.findId('hmr-root') === retainedRoot &&
+            debug.findId('root-revision') === retainedRootChild &&
+            retainedRootChild.superview === retainedRoot &&
+            String(retainedRootChild.stringValue) === 'Second revision',
+        ],
+        [
+          'proxy container',
+          () =>
+            debug.findId('hmr-proxy') === retainedProxy &&
+            retainedProxy.view === null &&
+            debug.findId('proxy-revision') === retainedProxyChild &&
+            String(retainedProxyChild.stringValue) === 'Second revision',
+        ],
+        [
+          'wrapping layout',
+          () =>
+            debug.findId('hmr-wrap') === retainedWrap &&
+            debug.findId('wrap-revision') === retainedWrapChild &&
+            retainedWrapChild.superview === retainedWrap &&
+            String(retainedWrapChild.stringValue) === 'Second revision',
+        ],
+        [
+          'dock layout',
+          () =>
+            debug.findId('hmr-dock') === retainedDock &&
+            debug.findId('dock-revision') === retainedDockChild &&
+            retainedDockChild.superview === retainedDock &&
+            String(retainedDockChild.stringValue) === 'Second revision',
+        ],
+        [
+          'action bar',
+          () =>
+            debug.findId('hmr-actionbar') === retainedActionBar &&
+            retainedActionBar.subviews.objectAtIndex(0) === retainedActionBarTitle &&
+            String(retainedActionBarTitle.stringValue) === 'Second revision1' &&
+            Number(retainedActionBar.layer.shadowOpacity) === 0,
+        ],
+        [
+          'placeholder',
+          () =>
+            debug.findId('hmr-placeholder') === retainedPlaceholder &&
+            retainedPlaceholderContent.superview === retainedPlaceholder &&
+            String(retainedPlaceholderContent.stringValue) === 'First revision',
+        ],
+        [
+          'liquid glass',
+          () =>
+            debug.findId('hmr-glass') === retainedGlass &&
+            debug.findId('glass-revision') === retainedGlassChild &&
+            retainedGlassChild.superview === retainedGlass &&
+            retainedGlass.subviews.objectAtIndex(0) === retainedGlassBackdrop &&
+            String(retainedGlassChild.stringValue) === 'Second revision',
+        ],
+        [
+          'content view and signal',
+          () =>
+            label === retainedLabel &&
+            debug.findId('hmr-content') === retainedContent &&
+            revision === retainedChild &&
+            revision.superview === retainedContent &&
+            Number(retainedContent.subviews.count) === 1 &&
+            String(label.stringValue) === '1' &&
+            String(revision.stringValue) === 'Second revision',
+        ],
+      ]
+      const failures = assertions.flatMap(([name, verify]) => {
+        try {
+          return verify() ? [] : [name]
+        } catch (error) {
+          return [name + ' (' + String(error) + ')']
+        }
+      })
+      if (failures.length === 0) {
         if ((root as any).__macosDebug !== debug) {
           throw new Error('Retained-root HMR replaced its debug lease')
         }
@@ -318,7 +413,7 @@ function reload() {
         console.log('PACKED_LIQUIDGLASS_HMR_OK')
         console.log('PACKED_HMR_OK')
       } else {
-        console.error('PACKED_HMR_FAIL: view, state, or revised text differs')
+        console.error('PACKED_HMR_FAIL: ' + failures.join(', '))
       }
     }, 60)
   }

@@ -395,7 +395,8 @@ test('node target lock reclaims orphaned and stale-claimed locks', async () => {
 
 test('python and node wrappers mutually exclude on the same target', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
-  const marker = join(directory, 'release')
+  const pythonRelease = join(directory, 'release-python')
+  const nodeRelease = join(directory, 'release-node')
   const pyWrapper = fileURLToPath(new URL('./with-native-target-lock.py', import.meta.url))
   const nodeWrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
   const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: directory }
@@ -403,14 +404,16 @@ test('python and node wrappers mutually exclude on the same target', async () =>
 		const fs = require('node:fs');
 		console.log('ready');
 		setInterval(() => {
-			if (fs.existsSync(${JSON.stringify(marker)})) process.exit(0);
+			if (fs.existsSync(process.argv[1])) process.exit(0);
 		}, 10);
 	`
 
   // Python holds the lock; a Node caller must not acquire it.
-  const pyHolder = ownedProcess('python3', [pyWrapper, 'ios', process.execPath, '-e', child], {
-    env,
-  })
+  const pyHolder = ownedProcess(
+    'python3',
+    [pyWrapper, 'ios', process.execPath, '-e', child, pythonRelease],
+    { env },
+  )
 
   try {
     await new Promise((resolve, reject) => {
@@ -441,14 +444,14 @@ test('python and node wrappers mutually exclude on the same target', async () =>
 
     assert.equal(independent.code, 0)
   } finally {
-    await writeFile(marker, '')
+    await writeFile(pythonRelease, '')
     await pyHolder.stop()
   }
 
   // Node holds the lock; a Python caller must fail fast.
   const nodeHolder = ownedProcess(
     process.execPath,
-    [nodeWrapper, 'ios', '--', process.execPath, '-e', child],
+    [nodeWrapper, 'ios', '--', process.execPath, '-e', child, nodeRelease],
     { env },
   )
 
@@ -478,7 +481,7 @@ test('python and node wrappers mutually exclude on the same target', async () =>
 
     assert.equal(independent.code, 0)
   } finally {
-    await writeFile(marker, '')
+    await writeFile(nodeRelease, '')
     await nodeHolder.stop()
     await rm(directory, { recursive: true, force: true })
   }

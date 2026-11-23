@@ -1,4 +1,4 @@
-import { installPackedPlugin, pluginRetirements } from './packed-plugin'
+import { installPackedPlugin, pluginMounts, pluginRetirements } from './packed-plugin'
 import Hosted from './Hosted'
 
 export async function checkHostedLifecycle(root: any, nativeWindow: any) {
@@ -58,7 +58,8 @@ export async function checkHostedLifecycle(root: any, nativeWindow: any) {
   root.unmount()
   check(
     pluginRetirements.join(',') === 'acquired',
-    'plugin retirement retains acquired registration',
+    'plugin retirement retains acquired registration: ' +
+      JSON.stringify({ mounts: pluginMounts, retirements: pluginRetirements }),
   )
 
   const retired = callbacks

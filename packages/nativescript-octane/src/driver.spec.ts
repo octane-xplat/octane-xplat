@@ -288,6 +288,21 @@ describe('nativeScriptDriver', () => {
     expect(scroll.content).toBeNull()
   })
 
+  it('rejects a second content child without detaching it from its current parent', () => {
+    const { apply, host, view } = mount(new MockContentView())
+    apply(create(1, 'test-grid'), create(2, 'label'), insert(1), insert(2, 1))
+    const grid = view<MockLayoutBase>(1)
+    const label = view<MockView>(2)
+
+    expect(() => apply(move(2))).toThrow('accepts one content child')
+    expect(host.content).toBe(grid)
+    expect(grid.children).toEqual([label])
+
+    apply(remove(1), move(2))
+    expect(host.content).toBe(label)
+    expect(grid.children).toEqual([])
+  })
+
   it('hosts tab view items, each taking its child as the item view', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(
@@ -445,10 +460,37 @@ describe('nativeScriptDriver', () => {
     expect(label.formattedText).toBeNull()
   })
 
+  it('dispatches SearchBar submit through the onSubmit alias', () => {
+    const { apply, view, dispatched } = mount(new MockLayoutBase())
+    apply(create(1, 'searchbar'), insert(1), event(1, 'returnPress', listener(10)))
+    const search = view<MockView>(1)
+    const submission = { eventName: 'submit', object: search }
+    search.notify(submission)
+    expect(dispatched).toEqual([{ listener: 10, data: submission }])
+  })
+
   it('sets an ActionBar child as its titleView', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(create(1, 'actionbar'), create(2, 'label'), insert(1), insert(2, 1))
     expect(view<core.ActionBar>(1).titleView).toBe(view(2))
+  })
+
+  it('restores the current JSX ActionBar title after an imperative title is cleared', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'actionbar'), create(2, 'label'), create(3, 'label'), insert(1), insert(2, 1))
+    const bar = view<core.ActionBar>(1)
+    const title = view(2)
+    const imperativeTitle = view(3)
+
+    apply(update(1, { titleView: imperativeTitle }))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBe(title)
+
+    apply(update(1, { titleView: imperativeTitle }), remove(2, 1))
+    expect(bar.titleView).toBe(imperativeTitle)
+    apply(update(1, {}))
+    expect(bar.titleView).toBeNull()
   })
 
   it('recreate swaps a node for another type in place', () => {
@@ -609,6 +651,41 @@ describe('nativeScriptDriver', () => {
     ).toThrow(/<nope> is not a registered element/)
     expect(host.children).toEqual([])
     expect(container.nodes.size).toBe(0)
+  })
+
+  it('rejects multiple projected ContentView children before applying a batch', () => {
+    const { apply, container, host } = mount(new MockLayoutBase())
+    expect(() =>
+      apply(
+        create(1, 'contentview'),
+        create(2, 'proxyviewcontainer'),
+        create(3, 'label'),
+        create(4, 'proxyviewcontainer'),
+        create(5, 'label'),
+        insert(1),
+        insert(2, 1),
+        insert(3, 2),
+        insert(4, 2),
+        insert(5, 4),
+      ),
+    ).toThrow(/<contentview> cannot project multiple/)
+    expect(host.children).toEqual([])
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('admits one projected ContentView child alongside a collapsed sibling', () => {
+    const { apply, host } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'contentview'),
+      create(2, 'proxyviewcontainer'),
+      create(3, 'label'),
+      create(4, 'label', { style: { visibility: 'collapse' } }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 2),
+    )
+    expect(host.children).toHaveLength(1)
   })
 
   it('rejects commands against unknown hosts before any command applies', () => {

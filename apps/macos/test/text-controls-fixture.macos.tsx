@@ -122,7 +122,7 @@ export function runTextControlsFixture() {
     )
 
     check(events.includes('area submit'), 'Multiline submit missing')
-    field.target.textFieldSubmitted(field)
+    field.sendActionTo(field.action, field.target)
     check(events.includes('input submit') && !events.includes('change'), 'Submit echoed a change')
     root.render(Content, {
       input,

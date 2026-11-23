@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { __rendererId } from '@octane-xplat/macos-appkit'
 import type { UniversalRenderable } from 'octane/universal/native'
 import {
   createPortal,
@@ -38,7 +39,7 @@ export default function DirectoryRoots({ target }: { target: any }) {
 
 // Use the driver's raw ABI deliberately: JSX tab children are source-owned
 // portals, so they cannot qualify this separate retained-root path.
-const tabPlan = universalPlan('macos', {
+const tabPlan = universalPlan(__rendererId, {
   kind: 'host',
   type: 'tabview',
   props: { id: 'directory-tab-root', style: { width: 180, height: 70 } },
@@ -49,7 +50,7 @@ const tabPlan = universalPlan('macos', {
       props: {
         title: 'Retained',
         __tabContent: universalValue(
-          universalPlan('macos', {
+          universalPlan(__rendererId, {
             kind: 'host',
             type: 'label',
             props: { id: 'directory-tab-root-label', text: 'Retained' },
@@ -60,4 +61,4 @@ const tabPlan = universalPlan('macos', {
   ],
 })
 
-const RetainedTab = defineUniversalComponent('macos', () => universalValue(tabPlan))
+const RetainedTab = defineUniversalComponent(__rendererId, () => universalValue(tabPlan))

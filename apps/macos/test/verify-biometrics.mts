@@ -42,14 +42,6 @@ await build({
     emptyOutDir: false,
     lib: { entry, formats: ['cjs'], fileName: 'fixture' },
   },
-  resolve: {
-    ...config.resolve,
-    alias: {
-      ...config.resolve?.alias,
-      '@octane-xplat/macos-appkit/host':
-        resolve(appRoot, '../../packages/macos-appkit/src/host.ts'),
-    },
-  },
 })
 
 const bundle = join(directory, 'fixture.cjs')

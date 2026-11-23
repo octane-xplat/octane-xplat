@@ -7,4 +7,8 @@ export { registerFontFamily } from './fonts'
 export { registerStylesheet } from '@octane-xplat/css-engine'
 export { __tabItemProps } from './tab-view'
 export { __PortalTabItem, __PortalList } from './portal-components.macos'
+export const __rendererId = 'macos'
+export function __installDevelopmentModules(modules: Record<string, object>) {
+  Reflect.set(globalThis, '__xplatDevModules', modules)
+}
 export * from 'octane/universal/native'

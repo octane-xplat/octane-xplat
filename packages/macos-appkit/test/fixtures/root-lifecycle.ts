@@ -99,9 +99,11 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   expectRect('root-a', [185, 65, 40, 20])
   expectRect('root-moving', [100, 40, 40, 20])
+  expectRect('root-percent-child', [110, 30, 120, 40])
   await advance()
   expectRect('root-a', [0, 0, 200, 80])
   expectRect('root-moving', [80, 30, 40, 20])
+  expectRect('root-percent-child', [60, 20, 120, 40])
   await advance()
   check(
     host.subviews.objectAtIndex(0) === b &&
@@ -187,6 +189,10 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
   root.unmount()
   check(rootEvents.length === 8, 'Root cleanup repeated')
 
+  const originalSize = {
+    width: Number(nativeWindow.contentView.bounds.size.width),
+    height: Number(nativeWindow.contentView.bounds.size.height),
+  }
   const windowTree = createMacOSRoot(nativeWindow.contentView)
 
   try {
@@ -236,7 +242,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
     check(!windowRoot.superview && !windowChild.superview, 'Top-level root teardown retained views')
   } finally {
     windowTree.unmount()
-    nativeWindow.setContentSize({ width: 400, height: 200 })
+    nativeWindow.setContentSize(originalSize)
   }
 
   console.log('PACKED_ROOTLAYOUT_OK')

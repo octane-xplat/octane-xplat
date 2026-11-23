@@ -1,6 +1,6 @@
 # macOS experiment
 
-This experimental AppKit host runs the shared `@octane-xplat/app` harness: its Home
+This experimental AppKit app uses NativeScript Core to run the shared `@octane-xplat/app` harness: its Home
 shell, Apps gallery, all nine shared demos, and the Test tab with probes and
 services. The adapted sweep drives the Home counter, routes into each demo,
 checks representative state changes, and visits the Test surface.
@@ -50,8 +50,9 @@ public framework API.
 
 ## Fonts
 
-`@octane-xplat/macos-appkit` owns the AppKit driver and JSX declarations, and
-its `host` entry owns startup, windows, and host services. See the
+`@octane-xplat/macos-appkit` provides the AppKit platform for NativeScript
+Core. Its `host` entry owns startup, windows, and host services.
+`@octane-xplat/jsx` supplies JSX types. See the
 [renderer package](../../docs/packages/package-macos-appkit.md)
 for an independent consumer setup.
 
@@ -77,17 +78,16 @@ from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 is an explicit experimental AppKit surface: components without a host
 implementation use visible unsupported leaves, and platform services without
 an AppKit implementation report `unsupported` or `unavailable` rather than
-simulating success. Most shared components now have real `.macos` leaves
-ported from the self-drawn native leaves — `Popover` renders inline (no
-NSPopover anchoring yet) and `Video`/`CameraView`/`Pager` remain
-hosted-unsupported. Leaf chrome that web draws via `.vx-*` CSS is inlined
-as style props in the macOS leaves. The `__xplatAppKit` host seam provides
+simulating success. `Popover` uses an anchored window layer.
+`Video`, `CameraView`, and `Pager` have macOS implementations, with
+qualification tracked in their package guides.
+The `__xplatAppKit` host provides
 appInfo, app state, window size, clipboard, `openUrl`, NSUserDefaults-backed
 storage, system color scheme (with appearance-change KVO), deep links
 (`application:openURLs:`), imperative sheets (`openSheet` presents a
 dialog-kind window), and `openWindow` multi-window support.
-The harness loads the same stylesheets as the mobile app (`src/styles.ts`:
-UI tokens and chrome, `virtual:bamboo.css`, demo and app CSS). The renderer
+The harness loads shared UI tokens and chrome, `virtual:bamboo.css`, and
+demo and app CSS through `src/styles.ts`. The renderer
 applies them with NativeScript's selector engine; see
 [Apply stylesheets](../../docs/packages/package-macos-appkit.md#apply-stylesheets)
 for the supported cascade and its limits. This does not promise general
@@ -107,8 +107,9 @@ openUrl('https://example.com/trips')
 ```
 
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
-through `@octane-xplat/cli/macos/vite`. The preset resolves NativeScript
-compatibility shims from `@octane-xplat/macos-appkit`. The UI package includes the leaf sources and local helpers needed by
+through `@octane-xplat/cli/macos/vite`. The preset loads NativeScript Core
+and its AppKit provider from `@octane-xplat/macos-appkit`. The UI package
+includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
 
@@ -122,7 +123,7 @@ export default defineConfig(({ mode }) => macos(mode))
 
 In development, Node runs Vite's bundle watcher and launches the same
 JavaScriptCore host used for packaging. A stable CommonJS shell owns the AppKit
-window, renderer, and Octane runtime. Vite rebuilds a separate component bundle;
+window, NativeScript Core, and Octane runtime. Vite rebuilds a separate component bundle;
 after each successful build, the host evaluates it in the existing JavaScriptCore
 environment and passes it to Octane's universal HMR wrapper. Component state
 survives successful edits. A compile error leaves the last good component
@@ -217,9 +218,8 @@ checking while postinstall is still running can report stale route types.
 Published declaration verification is a separate boundary from these source
 and harness checks.
 
-The AppKit packaging recipe's AC7 still describes the earlier all-rows list
-fallback. That criterion remains unchanged and is not satisfied by the current
-windowed-list check; its reconciliation belongs to the VirtualList workflow.
+The [AppKit packaging recipe](../../.agents/docs/recipes/macos-appkit-package.md)
+covers the bounded viewport and mounted row count in this sweep.
 
 Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.ts`
 captures the web parity stage in Playwright (640x420 viewport at 2x, ~300pt

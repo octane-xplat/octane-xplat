@@ -9,6 +9,7 @@ export type { NativePressTransport } from './native-press-contract'
 interface NativeActivation {
   readonly android?: unknown
   readonly ios?: { readonly numberOfTouches: number }
+  readonly macos?: unknown
 }
 
 /** Keep native semantic activation and double/long recognition; pointer eligibility belongs to the owner. */
@@ -20,7 +21,8 @@ export function observeNativePress(
   const tap = (value: unknown) => {
     // The SDK erases the gesture payload from Observable's callback type.
     const event = value as NativeActivation
-    const source = event.android || (event.ios?.numberOfTouches ?? 0) > 0 ? 'pointer' : 'virtual'
+    const source =
+      event.android || event.macos || (event.ios?.numberOfTouches ?? 0) > 0 ? 'pointer' : 'virtual'
 
     registration.activate(source)
   }

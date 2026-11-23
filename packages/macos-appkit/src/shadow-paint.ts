@@ -1,5 +1,5 @@
 import { FailureCollector } from './failures.ts'
-import type { BoxPaintState } from './box-paint-state'
+import type { BoxPaintNode, BoxPaintState } from './box-paint-state'
 import type { BorderCorner } from './box-geometry'
 import {
   resolveBorderRadii,
@@ -9,7 +9,6 @@ import {
 } from './box-geometry.ts'
 
 import { splitStyleTokens, splitTopLevelCommas } from './css-text.ts'
-import type { ElementNode } from './model'
 import { CALayer, CAShapeLayer, CGPathCreateMutable, NSView } from '@octane-xplat/platform/macos'
 import { correctProjectionRadii, correctProjectionShadows } from './projection-paint'
 
@@ -105,7 +104,7 @@ export function createShadowPaint() {
     return superview.layer ?? null
   }
 
-  function syncBoxShadow(node: ElementNode, state: BoxPaintState) {
+  function syncBoxShadow(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view
 
     if (!view) {
@@ -298,7 +297,7 @@ export function createShadowPaint() {
     }
   }
 
-  function syncOutsetGeometry(node: ElementNode, state: BoxPaintState) {
+  function syncOutsetGeometry(node: BoxPaintNode, state: BoxPaintState) {
     const layer = node.view?.layer
 
     if (!layer) {
@@ -313,7 +312,7 @@ export function createShadowPaint() {
     }
   }
 
-  function disposeShadow(node: ElementNode, state: BoxPaintState) {
+  function disposeShadow(node: BoxPaintNode, state: BoxPaintState) {
     const failures = new FailureCollector()
     const hosts = state.outsetShadowHosts ?? []
     const inset = state.insetShadowHost

@@ -50,6 +50,7 @@ var devServerCommands = map[string]bool{
 	"session list": true, "session status": true, "diagnostics": true,
 	"inspect": true, "interact": true,
 	"evidence list": true, "evidence retain": true, "evidence delete": true,
+	"motion get-rate": true, "motion set-rate": true,
 	"actions list": true, "actions invoke": true, "actions status": true,
 }
 

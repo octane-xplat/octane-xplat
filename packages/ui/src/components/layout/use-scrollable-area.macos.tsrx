@@ -13,7 +13,11 @@ import { refList, type FlatRef } from '../../internal/accessibility/ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
 import { useDirection } from '../../internal/platform/internationalization'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
-import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
+import {
+  scrollableAreaMetrics,
+  scrollableAreaNativeView,
+  type ScrollableAreaHost,
+} from './scrollable-area-metrics.macos'
 
 /** Measures the live AppKit viewport on scroll and layout. Layout measurements
  * update state without directly invoking the caller scroll handler. */
@@ -57,9 +61,9 @@ export function useScrollableArea<TElement extends object = object>(
   }, [])
 
   const bindViewport = useCallback(
-    (view: NSScrollView | null) => {
-      viewport.current = view
-      if (view) {
+    (view: ScrollableAreaHost | null) => {
+      viewport.current = scrollableAreaNativeView(view)
+      if (viewport.current) {
         measure()
       }
     },

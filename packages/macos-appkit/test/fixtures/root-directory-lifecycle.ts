@@ -1,4 +1,4 @@
-import { createMacOSRoot, observeLayoutCommits } from '@octane-xplat/macos-appkit'
+import { __rendererId, createMacOSRoot, observeLayoutCommits } from '@octane-xplat/macos-appkit'
 import { NSView } from '@octane-xplat/platform/macos'
 import DirectoryRoots, { DirectoryLabel } from './RootDirectory'
 
@@ -66,8 +66,9 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
     const portal = debug.findId('directory-portal')
 
     check(
-      portal.superview === target && family(portal) === 'Menlo',
-      'Portal target membership/font lost',
+      portal?.isDescendantOf(target) && family(portal) === 'Menlo',
+      'Portal target membership/font lost: ' +
+        JSON.stringify({ attached: portal?.isDescendantOf(target), font: family(portal) }),
     )
 
     const hosts: any[] = []
@@ -118,26 +119,29 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
 
     check(debug.findId('directory-layer') === null, 'Layer retirement retained membership')
 
-    // Inject a boundary failure in the real runtime's per-root setup, after
-    // universal-root acquisition. This does not emulate a failing OS release.
+    // Use a native host and fail when the renderer first queries or mounts it.
     const failure = Error('native setup injection')
-    const failingHost = {
-      get window() {
+    const failingHost = NSView.new()
+    const nativeEntry = __rendererId === 'nativescript' ? 'addSubview' : 'window'
+    Object.defineProperty(failingHost, nativeEntry, {
+      configurable: true,
+      get() {
         throw failure
       },
-    }
+    })
 
     let caught: unknown
 
     try {
-      createMacOSRoot(failingHost as any, { fontFamily: 'Gone' })
+      createMacOSRoot(failingHost, { fontFamily: 'Gone' })
     } catch (error) {
       caught = error
+    } finally {
+      Reflect.deleteProperty(failingHost, nativeEntry)
     }
 
-    check(caught === failure, 'Root setup replaced its primary failure')
-    Object.defineProperty(failingHost, 'window', { value: undefined })
-    createMacOSRoot(failingHost as any).unmount()
+    check(caught === failure, 'Root setup replaced its primary failure: ' + String(caught))
+    createMacOSRoot(failingHost).unmount()
     check(
       Reflect.get(globalThis, '__xplatMacOSDebug') !== undefined,
       'Failed root setup lost live diagnostics',

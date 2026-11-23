@@ -8,6 +8,7 @@ import {
 } from '../src/stylesheets.ts'
 
 import { computeCascade } from '../src/cascade.ts'
+import { normalizeStylesheetPixels } from '../src/logical-pixels.ts'
 
 // The cascade modules are AppKit-free: nodes here are plain objects carrying
 // the ElementNode selector-adapter fields.
@@ -267,6 +268,15 @@ test('lengths: 12px/12dip/12 -> 12; 50% stays string', () => {
   assert.equal(node('masonview', { classes: ['b'] }).computedStyle.width, 12)
   assert.equal(node('masonview', { classes: ['c'] }).computedStyle.width, 12)
   assert.equal(node('masonview', { classes: ['d'] }).computedStyle.width, '50%')
+})
+
+test('NativeScript stylesheet lengths preserve selectors, queries, and quoted values', () => {
+  const css =
+    '@media (min-width: 400px) { .size-12px { --length: 12PX; width: calc(var(--length) + .5px); content: "12px"; background: url(length-12px); } }'
+  assert.equal(
+    normalizeStylesheetPixels(css),
+    '@media (min-width: 400px) { .size-12px { --length: 12dip; width: calc(var(--length) + .5dip); content: "12px"; background: url(length-12px); } }',
+  )
 })
 
 test('padding shorthand and var() expand to edges; flex-direction reaches style', () => {

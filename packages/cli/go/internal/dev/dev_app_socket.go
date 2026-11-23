@@ -124,10 +124,11 @@ type devAppHub struct {
 	pending        int
 	pendingSockets int
 	panelSeq       int
+	motionPending  map[string]devMotionPending
 }
 
 func newDevAppHub() *devAppHub {
-	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}, backends: map[devBackendKey]*devBackendPeer{}, panels: map[string]*devPanelPeer{}}
+	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}, backends: map[devBackendKey]*devBackendPeer{}, panels: map[string]*devPanelPeer{}, motionPending: map[string]devMotionPending{}}
 }
 
 func (server *devServer) appGrant(target devTarget) devAppGrant {

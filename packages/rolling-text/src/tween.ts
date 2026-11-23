@@ -1,3 +1,4 @@
+import { scheduleMotionTimer } from '@octane-xplat/platform/motion-clock'
 import { frame, writeCell } from './host'
 
 export interface RollTween {
@@ -19,7 +20,7 @@ export function playRoll(view: any, spec: RollTween): () => void {
   writeCell(view, spec.fromY, spec.fromOpacity)
 
   let raf = 0
-  let timer: ReturnType<typeof setTimeout> | null = null
+  let cancelDelay: (() => void) | undefined
   let cancelled = false
   let start = -1
 
@@ -77,16 +78,14 @@ export function playRoll(view: any, spec: RollTween): () => void {
   const delay = spec.delayMs ?? 0
 
   if (delay > 0) {
-    timer = setTimeout(begin, delay)
+    cancelDelay = scheduleMotionTimer(begin, delay)
   } else {
     begin()
   }
 
   return () => {
     cancelled = true
-    if (timer !== null) {
-      clearTimeout(timer)
-    }
+    cancelDelay?.()
 
     frame.cancel(raf)
   }

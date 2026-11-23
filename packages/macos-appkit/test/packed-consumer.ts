@@ -53,6 +53,7 @@ assert.ok(
 )
 
 const cssEngine = await pack(join(repo, 'packages/css-engine'))
+const nativeScriptOctane = await pack(join(repo, 'packages/nativescript-octane'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
@@ -127,7 +128,7 @@ for (const file of [
   'content-lifecycle.ts',
   'WindowContent.macos.tsx',
   'main.ts',
-  'dev-shell.ts',
+  'dev-shell.macos.ts',
   'types.ts',
   'style-merge.ts',
   'globals.d.ts',
@@ -139,7 +140,7 @@ if (actionBarOnly) {
   for (const [source, target] of [
     ['actionbar-main.ts', 'main.ts'],
     ['ActionBarHmr.macos.tsx', 'App.macos.tsx'],
-    ['actionbar-dev-shell.ts', 'dev-shell.ts'],
+    ['actionbar-dev-shell.ts', 'dev-shell.macos.ts'],
   ]) {
     await cp(join(fixture, source), join(app, 'src', target))
   }
@@ -149,7 +150,7 @@ if (liquidGlassOnly) {
   for (const [source, target] of [
     ['liquidglass-main.ts', 'main.ts'],
     ['LiquidGlassHmr.macos.tsx', 'App.macos.tsx'],
-    ['liquidglass-dev-shell.ts', 'dev-shell.ts'],
+    ['liquidglass-dev-shell.ts', 'dev-shell.macos.ts'],
   ]) {
     await cp(join(fixture, source), join(app, 'src', target))
   }
@@ -186,11 +187,13 @@ await writeFile(
       type: 'module',
       dependencies: {
         '@octane-xplat/macos-appkit': renderer,
+        '@octane-xplat/nativescript-octane': nativeScriptOctane,
         '@octane-xplat/css-engine': cssEngine,
         '@octane-xplat/platform': platform,
         '@octane-xplat/jsx': jsx,
         '@nativescript/macos-node-api':
           compatibility.packages['@nativescript/macos-node-api'].version,
+        '@nativescript/core': compatibility.packages['@nativescript/core'].version,
         octane: octaneVersion,
       },
       devDependencies: {
@@ -243,6 +246,7 @@ consumerConfig.overrides = {
   '@octane-xplat/platform': platform,
   '@octane-xplat/css-engine': cssEngine,
   '@octane-xplat/jsx': jsx,
+  '@octane-xplat/nativescript-octane': nativeScriptOctane,
 }
 
 consumerConfig.packageManager = 'bun@1.4.4'
@@ -425,6 +429,9 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
         verified = true
         dev.kill('SIGTERM')
       }
+      if (devOutput.includes('[macos] PACKED_HMR_FAIL:')) {
+        dev.kill('SIGTERM')
+      }
     })
   }
 
@@ -474,6 +481,11 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   }
 
   console.log('[packed renderer] HMR preserves native view identity and signal state')
+
+  if (!actionBarOnly && !liquidGlassOnly) {
+    const { verifyProviderRegressions } = await import('./provider-regressions.mts')
+    await verifyProviderRegressions(packageRoot, directory)
+  }
 }
 
 console.log(`Packed renderer consumer passed: ${directory}`)

@@ -235,6 +235,8 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
     apply: (_config: unknown, environment: { command: string; mode: string }) =>
       environment.command === 'serve' || environment.mode === 'development',
     config() {
+      const rate = process.env.XPLAT_DEV_MOTION_RATE
+
       return {
         ...(deviceRelay
           ? {
@@ -246,6 +248,9 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
             }
           : {}),
         define: {
+          ...(rate === undefined
+            ? {}
+            : { __XPLAT_MOTION_DEV_RATE__: JSON.stringify(Number(rate)) }),
           __XPLAT_DEV_BRIDGE__: JSON.stringify({
             token: bridge.token,
             socket: deviceRelay ? relayPath : bridge.socket,

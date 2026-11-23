@@ -11,13 +11,13 @@ import * as internal from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-appkit'
 import { createAppKitWindow, fitWindowToContent } from '@octane-xplat/macos-appkit/host'
 
-globalThis.__xplatDevModules = {
+renderer.__installDevelopmentModules({
   'octane/universal/native': native,
   'octane/signals': signals,
   'octane/signals/client': signalsClient,
   'octane/internal/client': internal,
   '@octane-xplat/macos-appkit': renderer,
-}
+})
 
 const appKit = createAppKitWindow({
   title: 'Octane macOS spike',

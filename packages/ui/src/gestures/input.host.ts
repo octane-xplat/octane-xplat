@@ -87,6 +87,7 @@ export function createMouseGestureAdapter(
   }
 
   return {
+    surface,
     gesture(view: object, input: GestureInput, basis: 'host' | 'parent' = 'host'): () => void {
       validate(input)
 

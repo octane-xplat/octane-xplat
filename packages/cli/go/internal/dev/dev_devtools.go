@@ -278,6 +278,9 @@ func (hub *devAppHub) deliverFromApp(peer *devAppPeer, channel, to string, data 
 		}
 		backend.writer.send(devChannelFrame(map[string]any{"type": "channel", "channel": channel, "from": "app", "session": peer.session, "data": payload}))
 	case "panels":
+		if channel == devMotionChannel {
+			hub.receiveMotionReply(peer, payload)
+		}
 		if len(hub.panels) == 0 {
 			return nil
 		}

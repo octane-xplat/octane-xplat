@@ -158,6 +158,8 @@ func (view *devTargetView) dispatch(ctx context.Context, command string, values 
 			})
 		}
 		return map[string]any{"appRoot": view.appRoot, "targets": targets}, nil
+	case "motion get-rate", "motion set-rate":
+		return apps.motionRequest(ctx, command, values)
 	case "session list", "session status", "session attach", "actions list":
 		return apps.dispatch(command, values)
 

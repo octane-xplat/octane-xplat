@@ -32,7 +32,7 @@ function ContentOutlet(props: { owner: ContentOwner }) {
     <>
       <masonview
         ref={(view: any) => {
-          props.owner.host = view
+          props.owner.host = view?.nativeViewProtected ?? view
         }}
         style={mergeStyle({ display: 'flex' }, { width: 0, height: 0 })}
       />

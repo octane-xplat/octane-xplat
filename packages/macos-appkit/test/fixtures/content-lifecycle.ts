@@ -33,11 +33,10 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
   const firstLabel = debug.findId('content-label')
   const slot = debug.findId('replacement-slot')
   const superseded = debug.findId('slot-a')
-  const current = debug.findId('slot-b')
 
   check(
-    Number(slot.subviews.count) === 1 && current.superview === slot && !superseded.superview,
-    'ContentView insertion did not replace the native slot',
+    Number(slot.subviews.count) === 1 && superseded.superview === slot,
+    'ContentView did not mount its first child',
   )
 
   const rect = (view: any) => view.alignmentRectForFrame(view.frame)
@@ -81,9 +80,10 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 
   debug.pressId('advance-content')
   await settle()
+  const current = debug.findId('slot-b')
   check(
     Number(slot.subviews.count) === 1 && current.superview === slot && !superseded.superview,
-    'Removing superseded ContentView child cleared its replacement',
+    'Replacing a ContentView child did not switch its native slot',
   )
 
   check(

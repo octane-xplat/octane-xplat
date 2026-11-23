@@ -239,7 +239,7 @@ export function runAnimation(
 ): AnimationControls {
   validateTransition(transition)
 
-  let frame = 0
+  let frame: number | undefined
   let settled = false
   let resolve!: (result: AnimationResult) => void
   const finished = new Promise<AnimationResult>((done) => {
@@ -252,7 +252,10 @@ export function runAnimation(
     }
 
     settled = true
-    clock.cancel(frame)
+    if (frame !== undefined) {
+      clock.cancel(frame)
+      frame = undefined
+    }
     resolve(result)
     if (result === 'finished') {
       complete?.()
@@ -303,6 +306,7 @@ export function runAnimation(
   let generator = makeGenerator(from, to)
   let legStart = clock.now() + (transition.delay ?? 0) * 1000
   const tick = () => {
+    frame = undefined
     if (settled) {
       return
     }

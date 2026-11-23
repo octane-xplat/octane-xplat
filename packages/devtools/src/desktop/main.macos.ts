@@ -2,21 +2,21 @@
 // @octane-xplat/devtools/panel over the Network.framework socket from
 // @octane-xplat/devtools/macos, in a single AppKit window. The Shell asks
 // which live `xplat dev` server record to target when several exist, and
-// auto-targets the app `xplat devtools` was launched from (injected as a
-// Vite define) when that record resolves. runMacOSApp owns NSApplication
-// startup and the event loop.
+// auto-targets the app selected at launch when that record resolves.
+// runMacOSApp owns NSApplication startup and the event loop.
 import '@nativescript/macos-node-api'
 import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { writeFileSync } from 'node:fs'
 import { Shell } from './Shell.macos.tsrx'
 
-// Injected by the Vite config generated in src/host/desktop.ts; absent from
-// the apps/devtools harness bundle, where it reads as undefined.
+// The project-built variant sets a Vite define for direct development launches.
 declare const __XPLAT_DEVTOOLS_PREFERRED_ROOT__: string
 
 const PREFERRED_ROOT =
-  typeof __XPLAT_DEVTOOLS_PREFERRED_ROOT__ === 'string' ? __XPLAT_DEVTOOLS_PREFERRED_ROOT__ : null
+  typeof __XPLAT_DEVTOOLS_PREFERRED_ROOT__ === 'string'
+    ? __XPLAT_DEVTOOLS_PREFERRED_ROOT__
+    : (process.env.XPLAT_DEVTOOLS_PREFERRED_ROOT ?? null)
 
 const SELFTEST = process.env.DEVTOOLS_SELFTEST === '1'
 const VIEWDUMP = process.env.DEVTOOLS_VIEWDUMP ?? '/tmp/devtools-desktop-viewtree.json'

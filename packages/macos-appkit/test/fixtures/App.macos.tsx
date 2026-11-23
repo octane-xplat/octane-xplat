@@ -3,6 +3,8 @@ import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 import { NSTextField } from '@octane-xplat/platform/macos'
 
+export { Label as coreLabelConstructor } from '@nativescript/core'
+
 export const stackRefs: any[] = []
 export const childRefs: Record<string, { current: any }> = {
   a: { current: null },
@@ -40,7 +42,9 @@ export default function App() {
       <listview
         id="hmr-listview"
         items={['First revision' + count$.get()]}
-        renderItem={(item) => <label text={String(item)} style={{ height: 24 }} />}
+        renderItem={(item) => (
+          <label id="hmr-listview-row" text={String(item)} style={{ height: 24 }} />
+        )}
         style={{ width: 200, height: 40 }}
       />
       <segmentedbar id="hmr-item-bar" selectedIndex={count$.get()}>
@@ -148,7 +152,7 @@ export default function App() {
         ref={stackRef}
         style={mergeStyle(
           { flexDirection: count$.get() === 1 ? 'row' : 'column' },
-          { display: 'flex', width: 240, height: 80, padding: 8 },
+          { display: 'flex', width: 240, height: 80, padding: 8, flexShrink: 0 },
         )}
       >
         {(count$.get() >= 2 ? [] : count$.get() === 1 ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map(

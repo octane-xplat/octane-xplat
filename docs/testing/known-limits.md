@@ -76,7 +76,9 @@ export function Help() {
 
 ## Experimental AppKit renderer
 
-macOS support is experimental. Shared dialogs, alert dialogs, bottom sheets,
+The experimental macOS target runs NativeScript Core on AppKit. On Intel,
+changing a SegmentedBar's selected-segment tint can leave the previous color
+in the native control. Shared dialogs, alert dialogs, bottom sheets,
 lightboxes, and toast stacks have dedicated presentation and cleanup, but OS input
 delivery and VoiceOver behavior remain unverified. Lightbox image
 magnification/double-click and pointer/recognized-swipe navigation now have source

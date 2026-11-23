@@ -61,11 +61,13 @@ function fixture() {
   }
 
   const requests: any[] = []
-  const code = stripTypeScriptTypes(
-    readFileSync(new URL('../src/tab-view.ts', import.meta.url), 'utf8'),
-  )
-    .replace(/^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm, '')
-    .replace(/export /g, '')
+  const code = ['tab-item-native', 'tab-view']
+    .map((file) =>
+      stripTypeScriptTypes(readFileSync(new URL(`../src/${file}.ts`, import.meta.url), 'utf8'))
+        .replace(/^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm, '')
+        .replace(/export /g, ''),
+    )
+    .join('\n')
 
   const api = runSlice(
     code +

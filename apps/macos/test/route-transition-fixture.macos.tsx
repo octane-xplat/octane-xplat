@@ -176,9 +176,12 @@ export async function qualifyAppKitRouteTransitions(
     const disposedView = pane('dispose')
 
     root.unmount()
+    const result = await exiting.finished
     check(
-      (await exiting.finished).status === 'skipped',
-      'AppKit outlet disposal settles active animation',
+      result.status === 'skipped',
+      'AppKit outlet disposal settles active animation: ' +
+        result.status +
+        (result.status === 'failed' ? ' ' + result.error : ''),
     )
 
     check(

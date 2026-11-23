@@ -10,10 +10,16 @@ import { readBounds } from './measure-bounds.macos'
 export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
   const bounds$ = useSignal$<MeasureBounds | null>(null)
   const detach = useRef<(() => void) | null>(null)
+  const pendingClear = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const disposed = useRef(false)
   const observe = options.observe ?? true
   const ref = useCallback(
     (view: any) => {
+      if (pendingClear.current !== undefined) {
+        clearTimeout(pendingClear.current)
+        pendingClear.current = undefined
+      }
+
       detach.current?.()
       detach.current = null
       // Universal roots retire hook signals before delivering null refs.
@@ -22,7 +28,15 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
       }
 
       if (!view) {
-        bounds$.set(null)
+        // Ref replacement can clear and rebind the same view in one commit.
+        // Publishing null during that commit would invalidate the bounds reader.
+        if (bounds$.get() !== null) {
+          pendingClear.current = setTimeout(() => {
+            pendingClear.current = undefined
+            bounds$.set(null)
+          }, 0)
+        }
+
         return
       }
 
@@ -39,7 +53,7 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
       }
 
       const update = () => {
-        if (disposed.current) {
+        if (released || disposed.current) {
           return
         }
 
@@ -93,6 +107,10 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
     disposed.current = false
     return () => {
       disposed.current = true
+      if (pendingClear.current !== undefined) {
+        clearTimeout(pendingClear.current)
+        pendingClear.current = undefined
+      }
       detach.current?.()
       detach.current = null
     }

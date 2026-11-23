@@ -1,3 +1,4 @@
+import { timeOfDay } from './picker-time'
 import type { Actions } from './actions'
 import type { Layout } from './layout'
 import type { CssCascade } from './css-cascade'
@@ -17,6 +18,7 @@ import {
 } from '@octane-xplat/platform/macos'
 
 import { nativeColor } from './native-colors'
+import { buildPopUpControl } from './picker-control'
 
 interface Dependencies {
   actions: Pick<
@@ -32,30 +34,8 @@ interface Dependencies {
 export type PickerElements = ReturnType<typeof createPickerElements>
 
 export function createPickerElements(deps: Dependencies) {
-  /** Native control/action allocation shared by raw indices and authentic ID pickers. */
   function makePopUpControl() {
-    const view = NSPopUpButton.alloc().initWithFramePullsDown(
-      {
-        origin: { x: 0, y: 0 },
-        size: { width: 120, height: 26 },
-      },
-      false,
-    )
-
-    view.target = deps.actions.buttonActionTarget
-    view.action = 'controlChanged:'
-    view.translatesAutoresizingMaskIntoConstraints = false
-
-    const action = deps.actions.allocate(view)
-
-    try {
-      view.tag = action.id
-    } catch (error) {
-      action.release()
-      throw error
-    }
-
-    return { view, action }
+    return buildPopUpControl(deps.actions)
   }
 
   /** A noneditable AppKit picker for the shared NativeScript item/index API. */
@@ -207,35 +187,6 @@ export function createPickerElements(deps: Dependencies) {
     )
 
     notifySegmentedBarChange(node, value)
-  }
-
-  /** Shared time-of-day values discard calendar dates, seconds and milliseconds. */
-  function timeOfDay(value: Date | string): Date {
-    if (typeof value === 'string') {
-      const match = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
-
-      if (
-        !match ||
-        match[0] !== value ||
-        Number(match[1]) > 23 ||
-        Number(match[2]) > 59 ||
-        Number(match[3] ?? 0) > 59
-      ) {
-        throw new TypeError(
-          'AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string',
-        )
-      }
-
-      return new Date(0, 0, 0, Number(match[1]), Number(match[2]))
-    }
-
-    if (!(value instanceof Date) || !Number.isFinite(value.getTime())) {
-      throw new TypeError(
-        'AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string',
-      )
-    }
-
-    return new Date(0, 0, 0, value.getHours(), value.getMinutes())
   }
 
   function makeTimePicker(node: ElementNode) {

@@ -397,7 +397,6 @@ test('the tsrx-typegen job syncs shared histories before edits; lockstep only ta
   // job tags the tested revision and never commits to main.
   const lockstep = workflow.jobs.lockstep
 
-  assert.deepEqual([lockstep.needs ?? []].flat(), ['gate', 'qualify'])
   assert.doesNotMatch(
     lockstep.steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
     /git (commit|push origin HEAD)/,

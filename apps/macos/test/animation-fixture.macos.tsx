@@ -42,18 +42,25 @@ export function runAnimationFixture() {
 
       const reduced = Boolean(NSWorkspace.sharedWorkspace.accessibilityDisplayShouldReduceMotion)
 
+      const started = Date.now()
       x.to(100, { duration: 300 })
       opacity.to(1, { duration: 300 })
       check(opacity.value === 0, 'Tween committed immediately')
       await wait(100)
-      check(opacity.value > 0 && opacity.value < 1, 'No intermediate fade sample')
+      check(
+        opacity.value > 0 && opacity.value < 1,
+        `No intermediate fade sample: ${opacity.value} at ${Date.now() - started}ms`,
+      )
       check(
         Math.abs(Number(fade.alphaValue) - opacity.value) < 0.001,
         'Opacity did not reach NSView',
       )
 
       if (!reduced) {
-        check(x.value > 0 && x.value < 100, 'No intermediate translation sample')
+        check(
+          x.value > 0 && x.value < 100,
+          `No intermediate translation sample: ${x.value} at ${Date.now() - started}ms`,
+        )
       }
 
       root.render(Content, { revision: 1 })

@@ -7,6 +7,7 @@ globalThis.console = {
     }
   },
   log: (...args) => __hostLog(...args),
+  info: (...args) => __hostLog(...args),
   warn: (...args) => __hostLog(...args),
   error: (...args) =>
     __hostLog(...args.map((value) => (value instanceof Error ? value.stack : value))),

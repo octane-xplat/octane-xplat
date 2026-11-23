@@ -1,25 +1,15 @@
 import { FailureCollector } from './failures.ts'
 import type { ElementNode, AppKitView } from './model'
 import {
-  NSAttributedString,
-  NSBundle,
-  NSColor,
-  NSFontAttributeName,
-  NSForegroundColorAttributeName,
-  NSImage,
   NSObject,
   NSTabView,
   NSTabViewDelegate,
-  NSTabViewItem,
-  NSURL,
-  NSURLSession,
   NSView,
 } from '@octane-xplat/platform/macos'
 
 import { registerGestureClass } from './gestures'
 import { defineUniversalComponent } from 'octane/universal/native'
-import { loadImage } from './image'
-import { resolveFont } from './fonts'
+import { IconTabItem, resolveTabIcon, updateTabIcon, cancelTabIcon } from './tab-item-native'
 
 /** Compiler adapter for JSX spreads: read getters once and remove the outer
  * root's children channel while preserving ordinary key/ref/prop ordering. */
@@ -71,38 +61,6 @@ class TabDelegate extends NSObject {
   }
 }
 
-/** NSTabView's ordinary tabs do not display the item's image. Include it in
- * label measurement/drawing rather than accepting an invisible iconSource. */
-class IconTabItem extends NSTabViewItem {
-  static {
-    registerGestureClass(this)
-  }
-  sizeOfLabel(minimum: boolean) {
-    const size = super.sizeOfLabel(minimum)
-
-    return this.image ? { width: size.width + 20, height: Math.max(16, size.height) } : size
-  }
-
-  drawLabelInRect(truncate: boolean, rect: any) {
-    if (!this.image) {
-      super.drawLabelInRect(truncate, rect)
-      return
-    }
-
-    this.image.drawInRectFromRectOperationFraction(
-      { origin: rect.origin, size: { width: 16, height: 16 } },
-      { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
-      2,
-      1,
-    )
-
-    super.drawLabelInRect(truncate, {
-      origin: { x: rect.origin.x + 20, y: rect.origin.y },
-      size: { width: Math.max(0, rect.size.width - 20), height: rect.size.height },
-    })
-  }
-}
-
 export function validateTabProps(type: string, props: Record<string, any>) {
   if (type === 'tabview') {
     if (
@@ -134,7 +92,7 @@ export function validateTabProps(type: string, props: Record<string, any>) {
     }
 
     if (props.iconSource != null && typeof props.iconSource === 'object') {
-      iconImage(props.iconSource)
+      resolveTabIcon(props.iconSource, {}, resolveIconColor)
     }
 
     if (
@@ -184,66 +142,6 @@ export function makeTabItem(node: ElementNode) {
       )
     },
   })
-}
-
-function iconImage(source: any, style: Record<string, any> = {}): any {
-  if (source == null || source === '') {
-    return null
-  }
-
-  if (typeof source !== 'string') {
-    // Shared ImageSource-like handles expose their platform image.
-    const image = source.macos ?? source.nativeImage ?? source
-
-    if (typeof image.drawInRectFromRectOperationFraction !== 'function') {
-      throw new TypeError('AppKit tabviewitem iconSource host object must contain an NSImage')
-    }
-
-    return image
-  }
-
-  if (source.startsWith('sys://')) {
-    return NSImage.imageWithSystemSymbolNameAccessibilityDescription(source.slice(6), null)
-  }
-
-  if (source.startsWith('font://')) {
-    const text = NSAttributedString.alloc().initWithStringAttributes(source.slice(7), {
-      [NSFontAttributeName]: resolveFont(
-        Number(style.fontSize ?? 17),
-        style.fontWeight ?? 400,
-        style.iconFontFamily ?? style.fontFamily,
-      ),
-      [NSForegroundColorAttributeName]:
-        style.color == null ? NSColor.labelColor : resolveIconColor(style.color),
-    })
-
-    const size = text.size()
-
-    if (size.width <= 0 || size.height <= 0) {
-      return null
-    }
-
-    const image = NSImage.alloc().initWithSize(size)
-
-    image.lockFocus()
-    try {
-      text.drawAtPoint({ x: 0, y: 0 })
-    } finally {
-      image.unlockFocus()
-    }
-
-    return image
-  }
-
-  if (source.startsWith('res://')) {
-    return NSImage.imageNamed(source.slice(6))
-  }
-
-  if (source.startsWith('~/')) {
-    return loadImage(NSBundle.mainBundle.resourcePath + '/' + source.slice(2))
-  }
-
-  return loadImage(source)
 }
 
 // Ownership transfers can detach and attach the same handle in one batch.
@@ -299,48 +197,12 @@ export function syncTabItem(node: ElementNode) {
   item.label = node.props.title ?? ''
 
   const style = node.computedStyle ?? node.props.style ?? {}
-  const fontInputs =
-    typeof node.props.iconSource === 'string' && node.props.iconSource.startsWith('font://')
-      ? [style.fontSize, style.fontWeight, style.fontFamily, style.iconFontFamily, style.color]
-      : []
-
-  if (
-    !Object.is(node.tabIconInput, node.props.iconSource) ||
-    fontInputs.some((value, index) => !Object.is(value, node.tabIconFontInputs?.[index]))
-  ) {
-    node.tabIconTask?.cancel()
-    node.tabIconTask = null
-
-    const generation = (node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1)
-    const source = node.props.iconSource
-
-    if (typeof source === 'string' && /^https?:\/\//i.test(source)) {
-      item.image = null
-      node.tabIconTask = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
-        NSURL.URLWithString(source),
-        (data: any, _response: any, error: any) => {
-          if (node.tabDisposed || node.tabIconGeneration !== generation) {
-            return
-          }
-
-          item.image = data && !error ? NSImage.alloc().initWithData(data) : null
-
-          const owner = owners.get(node)
-
-          if (owner) {
-            owner.view!.needsDisplay = true
-          }
-        },
-      )
-
-      node.tabIconTask.resume()
-    } else {
-      item.image = iconImage(source, style)
+  updateTabIcon(item, node.props.iconSource, style, resolveIconColor, () => {
+    const owner = owners.get(node)
+    if (owner) {
+      owner.view!.needsDisplay = true
     }
-
-    node.tabIconFontInputs = fontInputs
-    node.tabIconInput = source
-  }
+  })
 
   const owner = owners.get(node)
 
@@ -555,7 +417,6 @@ export function releaseTabItem(node: ElementNode) {
   }
 
   node.tabDisposed = true
-  node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1
 
   const failures = new FailureCollector()
 
@@ -566,12 +427,7 @@ export function releaseTabItem(node: ElementNode) {
   node.tabContentRoot = null
   failures.run('tab nested root', () => root?.unmount())
 
-  const task = node.tabIconTask
-
-  node.tabIconTask = null
-  failures.run('tab icon', () => task?.cancel())
-  node.tabIconInput = undefined
-  node.tabIconFontInputs = undefined
+  failures.run('tab icon', () => cancelTabIcon(node.tabNativeItem))
   node.props.__tabContent = undefined
   node.props.iconSource = undefined
   node.props.title = undefined

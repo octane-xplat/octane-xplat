@@ -1,0 +1,49 @@
+name: Build DevTools archive
+
+on:
+  workflow_call:
+    inputs:
+      sha:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      artifact:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.sha }}
+          submodules: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Build the universal DevTools app
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$(node -p 'require("./packages/cli/package.json").version')" != "$VERSION" ]]; then
+            node scripts/bump-versions.ts "$VERSION"
+            bun install --lockfile-only --ignore-scripts
+          fi
+          bun install --frozen-lockfile
+          bun run turbo run build:release --filter=@octane-xplat/devtools-desktop
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact }}
+          path: apps/devtools/dist/release/xplat-devtools-macos-universal.zip
+          if-no-files-found: error
+          overwrite: true

@@ -42,7 +42,8 @@ app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
 const windowStyle = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-  { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
+  // Fixed-size fixtures share a column with their action controls.
+  { origin: { x: 0, y: 0 }, size: { width: 400, height: 520 } },
   windowStyle,
   2,
   false,
@@ -82,10 +83,18 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
         }
       }
 
+      const viewTree = Reflect.get(globalThis, 'XplatViewTree')
+      check(
+        typeof viewTree?.insertViewIntoParentAtIndex === 'function' &&
+          typeof viewTree?.detachViewTree === 'function',
+        'Packed AppKit view tree helper unavailable',
+      )
+
       // masonview hosts are plain NSViews laid out by Mason, so direction,
       // padding, gap and child order are asserted through child geometry.
       const rect = (view: any) => view.alignmentRectForFrame(view.frame)
       const near = (a: number, b: number) => Math.abs(a - b) < 1
+      const nativeRef = (view: any) => view?.nativeViewProtected ?? view
       const left = (view: any) => Number(rect(view).origin.x)
       const top = (view: any) =>
         Number(stack.frame.size.height) -
@@ -133,8 +142,11 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
       checkPickerBridgeLifecycle(app, nativeWindow.contentView)
 
       nativeWindow.contentView.layoutSubtreeIfNeeded()
-      check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')
-      check(childRefs.a.current === a, 'Object ref assignment failed')
+      check(
+        stackRefs.length === 1 && nativeRef(stackRefs[0]) === stack,
+        'Stack ref assignment failed',
+      )
+      check(nativeRef(childRefs.a.current) === a, 'Object ref assignment failed')
       check(
         Number(stack.subviews.count) === 3 && [a, b, c].every((view) => view.superview === stack),
         'Children not hosted by the masonview',
@@ -152,7 +164,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
       check(
         near(stack.frame.size.width, 240) && near(stack.frame.size.height, 80),
-        'Explicit layout size failed',
+        'Explicit layout size failed: ' + JSON.stringify(stack.frame.size),
       )
 
       check(near(left(a), 100), 'Centered column child failed')
@@ -182,7 +194,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
           )
 
           check(
-            childRefs.a.current === a && childRefs.b.current === b && childRefs.c.current === c,
+            nativeRef(childRefs.a.current) === a &&
+              nativeRef(childRefs.b.current) === b &&
+              nativeRef(childRefs.c.current) === c,
             'Moved refs changed identity',
           )
 

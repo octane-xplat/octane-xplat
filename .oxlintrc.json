@@ -124,6 +124,13 @@
 	},
 	"overrides": [
 		{
+			"files": ["packages/macos-appkit/platforms/nativescript/**/*.js"],
+			"rules": {
+				"xplat/no-nativescript-import": "off",
+				"xplat/no-ns-deep-import": "off"
+			}
+		},
+		{
 			"files": [
 				"tools/tailwind-qualification/fixtures/app/**"
 			],

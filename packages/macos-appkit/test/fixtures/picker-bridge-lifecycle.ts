@@ -1,4 +1,10 @@
-import { NSDate, NSDatePicker, NSApplication, NSView } from '@octane-xplat/platform/macos'
+import {
+  NSDate,
+  NSDatePicker,
+  NSApplication,
+  NSView,
+  type NSLayoutConstraint,
+} from '@octane-xplat/platform/macos'
 
 // Qualify the composed leaf bridge, separately from raw datepicker/timepicker JSX.
 export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
@@ -27,6 +33,15 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
   })
 
   host.addSubview(anchor)
+  const pickerConstraints = (picker: NSDatePicker) => {
+    const constraints = anchor.constraints
+    const entries: NSLayoutConstraint[] = Array.isArray(constraints)
+      ? constraints
+      : Array.from({ length: Number(constraints?.count ?? 0) }, (_, index) =>
+          constraints.objectAtIndex(index),
+        )
+    return entries.filter((entry) => entry.firstItem === picker || entry.secondItem === picker)
+  }
   try {
     for (const mode of ['date', 'time', 'dateAndTime']) {
       const initial = Date.UTC(2026, 1, 10, 12, 30)
@@ -65,6 +80,7 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
 
       try {
         check(picker.superview === anchor, mode + ' missing native attachment')
+        check(pickerConstraints(picker).length === 4, mode + ' missing picker edge constraints')
         check(
           Math.round(Number(picker.dateValue.timeIntervalSince1970) * 1000) === initial,
           mode + ' lost initial selection',
@@ -106,7 +122,7 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
       handle.update({ selectionMillis: initial })
       check(picker.superview == null && picker.target == null, mode + ' retained attachment/target')
       check(String(picker.action) === '<null selector>', mode + ' retained selector')
-      check(Number(anchor.constraints.count) === 0, mode + ' retained edge constraints')
+      check(pickerConstraints(picker).length === 0, mode + ' retained picker edge constraints')
       app.sendActionToFrom('controlChanged:', target, picker)
       check(events.length === 1, mode + ' stale target dispatched after retirement')
     }

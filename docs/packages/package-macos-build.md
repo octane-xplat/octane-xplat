@@ -3,8 +3,8 @@
 > Build macOS app packages through project-installed tooling while keeping the
 > standalone native CLI download small.
 
-This project-installed tool builds macOS app packages for the experimental
-[Nim CLI](package-cli.md#native-executable). It contains the packaging
+This project-installed tool builds macOS app packages for the
+[native CLI](package-cli.md#native-executable). It contains the packaging
 and development workers and the verified JavaScriptCore host assets. Those assets stay out of the
 standalone CLI download and out of web-only build installations.
 
@@ -16,11 +16,11 @@ Octane, NativeScript macOS runtime and packaging configuration. Install the buil
 tools in the app's project, alongside its Vite configuration:
 
 ```sh
-bun add --dev @octane-xplat/macos-build @octane-xplat/build vite@^8.3.0
+bun add --dev @octane-xplat/macos-build
 ```
 
 The native CLI keeps small Vite and worker exports in its package. The macOS
-engine and host assets stay in this optional project package. Keep the macOS
+build worker and host assets live in the app's installed build package. Keep the macOS
 preset import in your app's Vite configuration:
 
 ```ts
@@ -50,7 +50,7 @@ xplat job cancel JOB_ID --json
 ```
 
 The worker constructs and signs new artifacts in a separate staging directory.
-Nim validates the result and publishes it after the worker finishes. Cancellation
+The Go CLI validates the result and publishes it after the worker finishes. Cancellation
 before publication leaves the previous app and DMG in place. Builds for one app
 are serialized; an overlapping native build reports that the target is busy.
 Check the installed native build's platform support before running it:
@@ -63,8 +63,9 @@ xplat capabilities --platform macos --json
 
 For an app with `xplat.targets.macos.dev` configured, the native CLI can start
 the installed development engine. Choose the macOS target, then poll the returned
-session id. The engine watches JavaScript and native-leaf source and restarts the
-app after a successful rebuild. A ready session confirms host startup; inspect
+session id. The engine watches JavaScript and native library sources. With a
+development shell configured, component edits update the app in place. Native
+library rebuilds restart it. A ready session confirms host startup. Inspect
 the app's output separately to verify its behavior:
 
 ```sh

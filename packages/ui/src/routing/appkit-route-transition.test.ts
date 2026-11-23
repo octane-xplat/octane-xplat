@@ -17,6 +17,11 @@ let reduced = false
 
 beforeEach(() => {
   vi.useFakeTimers()
+  // The web test runner uses Node, which has no browser frame callbacks.
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
+    setTimeout(() => callback(performance.now()), 16),
+  )
+  vi.stubGlobal('cancelAnimationFrame', clearTimeout)
   vi.stubGlobal('NSWorkspace', {
     sharedWorkspace: {
       get accessibilityDisplayShouldReduceMotion() {
@@ -75,6 +80,22 @@ it('samples the existing controller, restores its wrapper and completes independ
   })
 
   expect(vi.getTimerCount()).toBe(0)
+})
+
+it('keeps Core transition values on the view that owns native painting', async () => {
+  const pane = { nativeViewProtected: view(), opacity: 1, translateY: 0, scaleX: 1, scaleY: 1 }
+  const effect = createAppKitRouteTransitions()
+  const definition = defineAppKitTransition({
+    from: { opacity: 0.2, translateY: 20, scaleX: 0.8, scaleY: 0.9 },
+    duration: 32,
+  })
+
+  const finished = effect.run(context, 'detail', definition, pane)
+  expect(pane).toMatchObject({ opacity: 0.2, translateY: 20, scaleX: 0.8, scaleY: 0.9 })
+  expect(pane.nativeViewProtected.transforms).toEqual({})
+  await vi.advanceTimersByTimeAsync(32)
+  expect(await finished).toEqual({ status: 'completed' })
+  expect(pane).toMatchObject({ opacity: 1, translateY: 0, scaleX: 1, scaleY: 1 })
 })
 
 it('interrupts replaced effects and prevents late writes to retained views', async () => {

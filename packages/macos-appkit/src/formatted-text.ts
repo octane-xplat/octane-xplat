@@ -1,10 +1,10 @@
 /** Viewless text composition. No AppKit object is allocated for a logical node. */
-interface TextNode {
+export interface FormattedTextNode {
   computedStyle?: Record<string, any>
   type: string
   props: Record<string, any>
   text: string
-  children: TextNode[]
+  children: readonly FormattedTextNode[]
 }
 
 const TEXT_STYLE_KEYS = [
@@ -78,7 +78,7 @@ export interface TextLinkRun {
  * (or `onPress`) on a span activates every run it folds into, descendant runs
  * included — an inner span's own handler wins. */
 export function textRuns(
-  node: TextNode,
+  node: FormattedTextNode,
   inherited: Record<string, any> = {},
   link: (() => void) | null = null,
 ): Array<{ text: string; style: Record<string, any>; link: (() => void) | null }> {
@@ -118,7 +118,7 @@ export function textRuns(
  *  span carried a tap handler; those runs also get `NSLinkAttributeName` so
  *  the attributed string itself marks them as links for accessibility. */
 export function composeAttributedText(
-  children: TextNode[],
+  children: readonly FormattedTextNode[],
   view: any,
   props: Record<string, any>,
   font: (size: number, weight: number | string, family?: string) => any,

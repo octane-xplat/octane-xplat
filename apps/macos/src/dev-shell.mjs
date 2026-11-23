@@ -15,13 +15,13 @@ import { createDevBench } from './dev-bench.mjs'
 
 const { hmrUniversalComponent, UNIVERSAL_HMR } = octaneNative
 
-globalThis.__xplatDevModules = {
+renderer.__installDevelopmentModules({
   'octane/universal/native': octaneNative,
   'octane/signals': octaneSignals,
   'octane/signals/client': octaneSignalsClient,
   'octane/internal/client': octaneInternalClient,
   '@octane-xplat/macos-appkit': renderer,
-}
+})
 
 const appKit = createAppKitWindow({
   title: 'Octane macOS spike',
@@ -77,7 +77,7 @@ function reload(afterEdit = false) {
   }
 
   if (!liveComponent) {
-    liveComponent = hmrUniversalComponent('macos', component)
+    liveComponent = hmrUniversalComponent(renderer.__rendererId, component)
     root.render(liveComponent, { parentWindow: window })
     fitWindowToContent(window)
     bench.afterRender()

@@ -52,3 +52,4 @@ export {
 export { resolveClipPath, type ClipPath } from './clip-path.ts'
 
 export { normalizeInlineStyle } from './inline-style.ts'
+export { normalizeStylesheetPixels } from './logical-pixels.ts'

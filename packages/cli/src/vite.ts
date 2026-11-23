@@ -818,7 +818,7 @@ const mergeConfigFragments = (...fragments) => {
  *
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
-export function boundary(platform = buildTarget()) {
+export function boundary(platform = buildTarget(), reusedFiles: ReadonlySet<string> = new Set()) {
   const resolver = tsrx(platform)
   const base = serverBoundary()
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
@@ -876,7 +876,7 @@ export function boundary(platform = buildTarget()) {
     moduleParsed(info) {
       const tag = platformTag(info.id)
 
-      if (!tag || allowed.has(tag)) {
+      if (!tag || allowed.has(tag) || reusedFiles.has(info.id)) {
         return
       }
 

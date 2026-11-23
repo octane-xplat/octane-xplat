@@ -1,28 +1,6 @@
-import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { Application } from '@nativescript/core'
 
-const platform = globalThis as any
-
-// Same monotonic preference order as @octane-xplat/motion's clock: media time
-// on iOS, nanotime on Android, wall clock elsewhere. The fallbacks read the
-// live globals per call so test fake clocks (and NS's own __time) apply.
-const now: () => number = Application.ios
-  ? platform.CACurrentMediaTime
-    ? () => platform.CACurrentMediaTime() * 1000
-    : () => (platform.__time ? platform.__time() : Date.now())
-  : platform.java?.lang?.System
-    ? () => platform.java.lang.System.nanoTime() / 1e6
-    : () => Date.now()
-
-export const frame: {
-  now: () => number
-  request: (callback: () => void) => any
-  cancel: (id: number) => void
-} = {
-  now,
-  request: (callback: () => void) => requestAnimationFrame(callback) as any,
-  cancel: (id: number) => cancelAnimationFrame(id),
-}
+export { motionClock as frame } from '@octane-xplat/platform/motion-clock'
 
 /** Clip the roll inside the row's one-line bounds. iOS UIView clipsToBounds
  *  defaults false (DOM/NS overflow:visible is the norm); Android ViewGroups

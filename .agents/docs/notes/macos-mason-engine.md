@@ -40,7 +40,14 @@ rebuilding it.
 
 ## Text measurement
 
-Mason's native leaf callback reads AppKit intrinsic size. An unconstrained
+The Core provider measures through `platforms/nativescript/mason/index.js`.
+Mason reads AppKit's intrinsic size for simple leaves. When Mason has
+allocated a box to a Core container, the provider measures that container
+with the allocated width and height so it can lay out its own children.
+Keep placement in Core coordinates until the provider converts the
+alignment rectangle to an AppKit frame.
+
+In the legacy renderer fixtures, Mason's native leaf callback reads AppKit intrinsic size. An unconstrained
 NSTextField can report a single-line height even after receiving a narrower
 allocation. `layout.ts::pinLayoutChild` publishes a changed allocation through
 `preferredMaxLayoutWidth`, invalidates intrinsic size, and queues another
@@ -49,6 +56,10 @@ feedback when changing layout ownership; the maintained page-layout fixture
 checks that long paragraphs grow vertically inside bounded content.
 
 ## Dynamic content sizing
+
+The following ownership rules describe the retained legacy renderer fixtures.
+The public macOS target uses the Core provider's Mason measure and layout
+passes.
 
 Structural changes reconcile the containing Mason tree, not only the immediate
 parent. Otherwise a locally recomputed block can place its new children while
@@ -75,7 +86,7 @@ string slots keep their last value on `NULL` as well. Since `styleDict`
 omits absent keys, a removed style left the stale value installed — e.g.
 removing `flexDirection: 'column'` kept the column layout.
 
-Local workaround: `mason.ts::styleDict` emits the engine defaults for those
+In the legacy renderer, `mason.ts::styleDict` emits the engine defaults for those
 enum keys when the computed style lacks them, so removal restores the
 default instead of keeping the last value. Grid string removals
 (`gridRow`, `gridColumn`, `gridTemplate*`, `gridArea`, `gridAuto*`) still
@@ -108,6 +119,12 @@ then restores the short value without replacing the text host. For AppKit
 text width assertions, compare the allocated alignment rect; NSTextField's
 optical frame extends beyond it.
 
+
+The Core-backed AppKit View converts layout rectangles to native frames at
+placement. Mason, Core single-child layouts, and ActionBar therefore use the
+same optical-inset handling. Keep the cached rectangle in Core coordinates so
+repeated layout cannot expand a native frame again.
+
 Size constraints take the same path: `native-style.ts::setSizeConstraint`
 reconciles at `subtree` scope because a spec-driven height (the TextArea
 row cap is the canonical case) changes every auto-sized ancestor's
@@ -117,3 +134,27 @@ earlier ancestor pass in the same drain has already refreshed — rather than
 the live AppKit bounds. Bounding by stale bounds clamps a grown child back
 to the old allocation and deadlocks growth: the `maxRows` textarea stayed at
 its two-row height until both sides of this were fixed.
+
+## NativeScript Core flex shorthand
+
+NativeScript Core 9.1.3 expands `flex` into grow and shrink only. Its
+`flexbox-layout-common.js` leaves the basis handling commented out. In
+the Core-backed AppKit layout fixture, `flex: 1 1 0%` sized the scroll
+viewport from its 960-point content and shrank the panel's header and
+footer. The scroll viewport used 713.54 points of an expected 693.
+
+The pinned Core patch lets a provider opt in to expanding the basis
+into its registered `flexBasis` style property. macOS enables it for
+Mason. The maintained layout-placement fixture passes for both absolute
+and grid panel layouts, including repeated solves after window resize.
+Keep the opt-in until Core can forward the basis to external layout
+engines.
+
+## Keyed children on NativeScript Core
+
+The Core driver uses AppKit's in-place layout move for a keyed child that
+stays in the same container, including a child projected through a viewless
+proxy. Core's normal remove-and-insert path
+tears down that child's native view. In-place moves update the Core child list
+and AppKit stacking order, invalidate affected sibling selectors, and request
+Mason layout while keeping the existing view and subscriptions.

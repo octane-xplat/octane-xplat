@@ -260,7 +260,7 @@ with the NativeScript C/ObjC metadata bridge.
 
 ## Rebuild, package, and diagnose
 
-Using the experimental Nim executable? Follow the
+For CLI-managed sessions, follow the
 [macOS development-session workflow](../packages/package-macos-build.md#start-a-development-session).
 
 `bun run xplat dev macos` compiles native dependencies before launching.

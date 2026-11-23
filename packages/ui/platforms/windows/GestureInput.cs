@@ -123,34 +123,10 @@ public static class GestureInput
         return roots.TryGetValue(Id(root), out var input) && input.Claim();
     }
 
-    private static readonly Dictionary<long, Action> timerSubscriptions = new();
-
     public static long Schedule(double milliseconds, ContactObserver observer)
-    {
-        if (!double.IsFinite(milliseconds) || milliseconds < 0) throw new ArgumentOutOfRangeException(nameof(milliseconds));
-        var queue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread()
-            ?? throw new InvalidOperationException("Native gesture timer requires the UI thread");
-        var timer = queue.CreateTimer();
-        timer.IsRepeating = false;
-        timer.Interval = TimeSpan.FromMilliseconds(Math.Max(1, milliseconds));
-        var token = ++nextSubscription;
-        Windows.Foundation.TypedEventHandler<Microsoft.UI.Dispatching.DispatcherQueueTimer, object> tick = null;
-        tick = (_, _) => {
-            if (!timerSubscriptions.Remove(token, out var release)) return;
-            release();
-            observer("fire");
-        };
-        timer.Tick += tick;
-        timerSubscriptions.Add(token, () => { timer.Stop(); timer.Tick -= tick; });
-        try { timer.Start(); }
-        catch { CancelTimer(token); throw; }
-        return token;
-    }
+        => OctaneXplat.Platform.UiScheduler.Schedule(milliseconds, () => observer("fire"));
 
-    public static void CancelTimer(long token)
-    {
-        if (timerSubscriptions.Remove(token, out var release)) release();
-    }
+    public static void CancelTimer(long token) => OctaneXplat.Platform.UiScheduler.CancelTimer(token);
 
     private static readonly Dictionary<long, Action> actionSubscriptions = new();
 

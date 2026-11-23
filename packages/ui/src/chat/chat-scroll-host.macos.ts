@@ -3,6 +3,8 @@ import { scrollableAreaOffset } from '../components/layout/scrollable-area-offse
 import { scrollableAreaMetrics } from '../components/layout/scrollable-area-metrics.macos'
 import type { ChatHostAdapter } from './chat-scroll-host-types'
 
+// Core retains the AppKit view behind the component ref.
+const appKitView = (host: any) => host?.nativeViewProtected ?? host
 const scrollers = new WeakMap<object, any>()
 const flags = new WeakMap<object, Map<string, { count: number; previous: boolean }>>()
 const observe = (view: any, name: string, flag: string, callback: () => void) => {
@@ -55,8 +57,9 @@ const observe = (view: any, name: string, flag: string, callback: () => void) =>
 }
 
 export const chatHost: ChatHostAdapter = {
-  scroll(host: any) {
-    if (!host) {
+  scroll(ref: any) {
+    const host = appKitView(ref)
+    if (!host?.contentView) {
       return null
     }
 
@@ -113,8 +116,9 @@ export const chatHost: ChatHostAdapter = {
 
     return port
   },
-  height: (host) => Number(host?.bounds?.size?.height ?? 0),
-  children(host: any) {
+  height: (host) => Number(appKitView(host)?.bounds?.size?.height ?? 0),
+  children(ref: any) {
+    const host = appKitView(ref)
     const children = host?.arrangedSubviews ?? host?.subviews
 
     if (Array.isArray(children)) {
@@ -124,14 +128,15 @@ export const chatHost: ChatHostAdapter = {
     return Array.from({ length: children?.count ?? 0 }, (_, index) => children.objectAtIndex(index))
   },
   position(host, viewport) {
-    const box = readBounds(host),
-      root = readBounds(viewport.contentView)
+    const box = readBounds(appKitView(host)),
+      root = readBounds(appKitView(viewport)?.contentView)
 
     return box && root ? { y: box.y - root.y, height: box.height } : null
   },
   contains(parent, child) {
-    for (let view = child; view; view = view.superview) {
-      if (view === parent) {
+    const parentView = appKitView(parent)
+    for (let view = appKitView(child); view; view = view.superview) {
+      if (view === parentView) {
         return true
       }
     }
@@ -143,7 +148,7 @@ export const chatHost: ChatHostAdapter = {
       timer: ReturnType<typeof setTimeout> | undefined
 
     const off = observe(
-      host,
+      appKitView(host),
       'NSViewFrameDidChangeNotification',
       'postsFrameChangedNotifications',
       () => {

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { motionClock } from '@octane-xplat/platform/motion-clock'
 import { useEffect, useRef } from 'octane'
-import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { createAnimatedValue, type OwnedAnimatedValue } from './animated-value'
 import type { AnimatedValue } from '../../props'
 
@@ -16,9 +16,7 @@ export function useAnimation(initial = 0, prop = 'translateX'): AnimatedValue {
 
   if (!value.current) {
     value.current = createAnimatedValue(initial, {
-      now: Date.now,
-      request: requestAnimationFrame,
-      cancel: cancelAnimationFrame,
+      ...motionClock,
       write: (view, next) => {
         view[prop] = next
       },

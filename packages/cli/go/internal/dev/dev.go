@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -281,6 +282,19 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	if len(chosen) == 0 {
 		return errors.New("no development targets found")
 	}
+	manifest, err := project.Manifest(projectRoot)
+	if err != nil {
+		return err
+	}
+	motionRate := 1.0
+	if configured, exists := cli.Object(cli.Object(manifest["xplat"])["dev"])["motionRate"]; exists {
+		var valid bool
+		motionRate, valid = configured.(float64)
+		if !valid || !(motionRate > 0 && motionRate <= 1) {
+			return errors.New("xplat.dev.motionRate must be greater than 0 and at most 1")
+		}
+	}
+
 	engines, err := prepareDevEngines(ctx, projectRoot, chosen)
 	if err != nil {
 		return err
@@ -372,7 +386,6 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	} else {
 		defer store.Close()
 	}
-	manifest, _ := project.Manifest(projectRoot)
 	appID := cli.StringValue(manifest["name"])
 	if appID == "" {
 		appID = filepath.Base(projectRoot)
@@ -391,6 +404,9 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 			// XPLAT_DEV_BACKEND reaches only the Node engine process; the Vite
 			// plugin surface must never define it into served app code.
 			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge, "XPLAT_DEV_BACKEND="+backendGrants[engine.Target.ID])
+			if engine.Target.Kind != "linux" {
+				observation.Environment = append(observation.Environment, "XPLAT_DEV_MOTION_RATE="+strconv.FormatFloat(motionRate, 'g', -1, 64))
+			}
 		}
 		if retain {
 			observation.Environment = append(append([]string{}, observation.Environment...), "XPLAT_TARGET="+engine.Target.Kind)

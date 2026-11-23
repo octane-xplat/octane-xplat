@@ -25,6 +25,24 @@
 						"./types/generated/testing.mobile.d.ts"
 					]
 				},
+				"./motion-clock": {
+					"source": "src/motion-clock.ts",
+					"runtime": [
+						"./src/motion-clock.ts"
+					],
+					"types": [
+						"./types/generated/motion-clock.d.ts"
+					]
+				},
+				"./motion/dev": {
+					"source": "src/motion-dev.ts",
+					"runtime": [
+						"./src/motion-dev.ts"
+					],
+					"types": [
+						"./types/generated/motion-dev.d.ts"
+					]
+				},
 				"./dev-actions": {
 					"source": "src/dev-actions.ts",
 					"runtime": [
