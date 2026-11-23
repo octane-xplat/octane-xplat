@@ -337,6 +337,48 @@ async function checkProjectedGrid() {
   }
 }
 
+function PercentRootLayout(props: { width: number }) {
+  return (
+    <masonview style={{ display: 'flex' }}>
+      <rootlayout id="percent-root" style={{ width: props.width, height: 80, padding: 10 }}>
+        <contentview id="percent-root-child" style={{ width: '50%', height: '50%' }} />
+      </rootlayout>
+      <rootlayout id="natural-root">
+        <contentview style={{ width: 52, height: 18 }} />
+        <contentview style={{ width: 32, height: 24 }} />
+      </rootlayout>
+    </masonview>
+  )
+}
+
+async function checkRootLayoutPercentages() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 310, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    const debug = Reflect.get(root, '__macosDebug')
+    for (const width of [200, 240]) {
+      root.render(PercentRootLayout, { width })
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      const child = debug.findId('percent-root-child')
+      const { origin, size } = child.alignmentRectForFrame(child.frame)
+      if (origin.x !== width / 4 || origin.y !== 20 || size.width !== width / 2 || size.height !== 40) {
+        throw new Error(
+          `RootLayout percentage placement at ${width}: ${origin.x},${origin.y},${size.width},${size.height}`,
+        )
+      }
+      const natural = debug.findId('natural-root').intrinsicContentSize
+      if (natural.width !== 52 || natural.height !== 24) {
+        throw new Error(`RootLayout natural size: ${natural.width} x ${natural.height}`)
+      }
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function AbsoluteLeaf(props: { bottom: boolean }) {
   return (
     <masonview style={{ width: 120, height: 100, position: 'relative' }}>
@@ -1275,6 +1317,7 @@ setTimeout(async () => {
     await checkInsetReset()
     await checkProjectedLeaves()
     await checkProjectedGrid()
+    await checkRootLayoutPercentages()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

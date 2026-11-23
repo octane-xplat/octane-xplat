@@ -7,8 +7,19 @@
 import { Color } from '@nativescript/core/color';
 import { RootLayoutBase, defaultShadeCoverOptions, defaultTransitionAnimation } from '@nativescript/core/ui/layouts/root-layout/root-layout-common';
 import { Animation } from '@nativescript/core/ui/animation';
+import { layout } from '@nativescript/core/utils';
 export * from '@nativescript/core/ui/layouts/root-layout/root-layout-common';
 export class RootLayout extends RootLayoutBase {
+    getMasonIntrinsicSize() {
+        // Measure the shared overlay grid before Mason enters its native
+        // pass. The AppKit host reads this cache without measuring again.
+        this.measure(layout.UNSPECIFIED, layout.UNSPECIFIED);
+        this._intrinsicSize = NSMakeSize(
+            layout.toDeviceIndependentPixels(this.getMeasuredWidth()),
+            layout.toDeviceIndependentPixels(this.getMeasuredHeight()),
+        );
+        return this._intrinsicSize;
+    }
     disposeNativeView() {
         this._cleanupPlatformShadeCover();
         super.disposeNativeView();

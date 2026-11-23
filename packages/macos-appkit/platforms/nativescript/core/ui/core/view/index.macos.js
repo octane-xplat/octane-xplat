@@ -173,7 +173,8 @@ export class View extends ViewCommon {
     }
     measure(widthMeasureSpec, heightMeasureSpec) {
         const forceLayout = (this._privateFlags & PFLAG_FORCE_LAYOUT) === PFLAG_FORCE_LAYOUT;
-        const specsChanged = this._oldWidthMeasureSpec !== widthMeasureSpec || this._oldHeightMeasureSpec !== heightMeasureSpec;
+        // Core resolves child percentages against the parent's current specs.
+        const specsChanged = this._setCurrentMeasureSpecs(widthMeasureSpec, heightMeasureSpec);
         if (forceLayout || specsChanged) {
             this._privateFlags &= ~PFLAG_MEASURED_DIMENSION_SET;
             this.onMeasure(widthMeasureSpec, heightMeasureSpec);
