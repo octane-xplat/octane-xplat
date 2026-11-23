@@ -1,21 +1,17 @@
-import { defineRoute, defineRoutes, RouteResourceNotFound } from '@octane-xplat/ui/routing/core'
+import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
 import { DOCS } from './docs'
-import { DocRouteScreen } from './DocPage.tsrx'
+import { DocNotFound, DocRouteScreen } from './DocPage.tsrx'
 
 export const docRoutes = defineRoutes([
   defineRoute({
     path: '/:slug?',
-    loader: ({ params }) => {
-      const doc = DOCS.find((page) => page.slug === (params.slug ?? 'README'))
-
-      if (!doc) {
-        throw new RouteResourceNotFound()
-      }
-
-      return doc
-    },
+    loader: ({ params }) => DOCS.find((page) => page.slug === (params.slug ?? 'README')),
     head: ({ data }) => ({
-      title: data.title === 'Xplat' ? 'Xplat docs' : data.title + ' — Xplat',
+      title: data ? data.title + ' — Xplat' : 'Page not found — Xplat',
     }),
   }).screen(DocRouteScreen),
+  defineRoute({
+    path: '/*',
+    head: () => ({ title: 'Page not found — Xplat' }),
+  }).screen(DocNotFound),
 ])

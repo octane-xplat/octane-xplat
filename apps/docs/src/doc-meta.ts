@@ -280,7 +280,7 @@ export function slugFor(dir: string, base: string): string {
 export function docSlugFor(href: string, dir: string): string | null {
   const clean = href.split('#', 1)[0].split('?', 1)[0]
 
-  if (!clean.endsWith('.md')) {
+  if (!clean.endsWith('.md') || /^[a-z][\w+.-]*:|^\/\//i.test(clean)) {
     return null
   }
 

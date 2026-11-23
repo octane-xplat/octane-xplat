@@ -4,6 +4,7 @@ import {
   View,
   Image,
   Link,
+  NavLink,
   Theme,
   IconRegistryProvider,
   useMediaQuery$,
@@ -17,6 +18,7 @@ import {
   BottomSheet,
   CommandPalette,
   type CommandPaletteItem,
+  type NavigationActivationEvent,
   type SearchSource,
 } from '@octane-xplat/ui'
 
@@ -27,7 +29,15 @@ import { DocNavigationProvider } from './DocPage.tsrx'
 import { searchDocs, type SearchHit } from './search'
 import { resetDocScroll } from './scroll'
 import { readThemePreference, saveThemePreference } from './docs-preferences'
-import { useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host.tsrx'
+import {
+  DocsMain,
+  DocsNav,
+  useDocsKeyboard,
+  restoreMenu,
+  focusMenuTrigger,
+  animateMenuDismiss,
+} from './docs-host.tsrx'
+
 import { ConstellationMark, DocTopSentinel } from './ConstellationMark.tsrx'
 
 import logoMark from './assets/logo-mark.svg'
@@ -82,6 +92,8 @@ export function App() @{
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [leaving, setLeaving] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const searchAfterMenu = useRef(false)
+  const searchFromMenu = useRef(false)
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scheme = useColorScheme()
@@ -94,7 +106,9 @@ export function App() @{
 
   const openPalette = () => {
     if (menuOpen) {
+      searchAfterMenu.current = true
       closeMenu()
+      return
     }
 
     setPaletteOpen(true)
@@ -128,7 +142,27 @@ export function App() @{
   }
 
   const route = useRouterState().route
-  const doc = route?.contract === 'declared' && route.to === '/:slug?' ? route.data : DOCS[0]
+
+  useEffect(() => {
+    if (!menuOpen && searchAfterMenu.current) {
+      searchAfterMenu.current = false
+      searchFromMenu.current = true
+      setPaletteOpen(true)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (!paletteOpen && searchFromMenu.current) {
+      searchFromMenu.current = false
+      focusMenuTrigger()
+    }
+  }, [paletteOpen])
+
+  useEffect(() => {
+    if (!compact) {
+      setMenuOpen(false)
+    }
+  }, [compact])
 
   const open = (s: string, anchor?: string) => {
     if (menuOpen) {
@@ -151,7 +185,7 @@ export function App() @{
       closeMenu()
     }
 
-    if (s === doc.slug) {
+    if (route?.contract === 'declared' && route.to === '/:slug?' && s === route.data?.slug) {
       open(s, anchor)
       return
     }
@@ -165,6 +199,22 @@ export function App() @{
       navigationTimer.current = null
       open(s, anchor)
     }, 200)
+  }
+
+  const followDoc = (event: NavigationActivationEvent, slug: string) => {
+    if (
+      event.defaultPrevented ||
+      (event.button ?? 0) !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    selectDoc(slug)
   }
 
   // Includes same-page section links activated through NavLink.
@@ -189,24 +239,30 @@ export function App() @{
   useDocsKeyboard({ isOpen: paletteOpen, open: openPalette })
 
   const renderDoc = (d: DocPage) => (
-    <Pressable
+    <NavLink
       key={d.slug}
-      className={d.slug === doc.slug ? 'side-item active' : 'side-item'}
-      onPress={() => selectDoc(d.slug)}
+      {...routeForDoc(d)}
+      className="side-item"
+      activeClassName="active"
+      onPress={(event) => followDoc(event, d.slug)}
     >
       <Text className="side-text">{d.title}</Text>
-    </Pressable>
+    </NavLink>
   )
 
   // The sidebar and the mobile sheet render the same nav tree.
   const navTree = () => (
-    <View className="nav-tree">
+    <DocsNav>
       <View className="side-header">
         <HStack className="brand-row">
-          <View className="logo-cluster">
+          <NavLink
+            {...routeForDoc(DOCS[0])}
+            className="logo-cluster"
+            onPress={(event) => followDoc(event, DOCS[0].slug)}
+          >
             <Image className="logo-mark" src={logoMark} alt="" />
             <Image className="wordmark" src={wordmark} alt="Octane Xplat" />
-          </View>
+          </NavLink>
           <Pressable
             className="mode-toggle"
             onPress={() => {
@@ -216,6 +272,7 @@ export function App() @{
               setOverride(next)
             }}
             accessibilityLabel="Toggle dark mode"
+            accessibilityState={{ pressed: dark }}
           >
             <View className="mode-icon" />
           </Pressable>
@@ -234,10 +291,14 @@ export function App() @{
             <View className="nav-icon ic-github" />
             <Text className="nav-label">Github</Text>
           </Link>
-          <Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
+          <NavLink
+            {...routeForDoc(DOCS[0])}
+            className="nav-row"
+            onPress={(event) => followDoc(event, DOCS[0].slug)}
+          >
             <View className="nav-icon ic-start" />
             <Text className="nav-label">Get Started</Text>
-          </Pressable>
+          </NavLink>
           <Link className="nav-row" href="/workshop/">
             <Text className="nav-label">Component workshop</Text>
           </Link>
@@ -256,41 +317,46 @@ export function App() @{
           </View>
         ))}
       </View>
-    </View>
+    </DocsNav>
   )
 
   <Theme theme={compact ? compactDocsTheme : docsTheme} mode={dark ? 'dark' : 'light'}>
     <IconRegistryProvider value={docsIcons}>
       <View className={['shell', dark ? 'dark' : 'light']}>
         <HStack className="mobile-header">
-          <Pressable
+          <NavLink
+            {...routeForDoc(DOCS[0])}
             className="logo-cluster mh-brand"
-            accessibilityLabel="Go to the introduction"
-            onPress={() => open(DOCS[0].slug)}
+            onPress={(event) => followDoc(event, DOCS[0].slug)}
           >
             <Image className="logo-mark" src={logoMark} alt="" />
             <Image className="wordmark" src={wordmark} alt="Octane Xplat" />
-          </Pressable>
+          </NavLink>
           <HStack className="mh-actions">
             <Pressable className="icon-btn" accessibilityLabel="Search docs" onPress={openPalette}>
               <View className="nav-icon ic-search" />
             </Pressable>
-            <Pressable className="icon-btn" accessibilityLabel="Open menu" onPress={openMenu}>
+            <Pressable
+              id="docs-menu-trigger"
+              className="icon-btn"
+              accessibilityLabel="Open menu"
+              onPress={openMenu}
+            >
               <View className="nav-icon ic-menu" />
             </Pressable>
           </HStack>
         </HStack>
         <HStack className="body">
           <View className="side">{navTree()}</View>
-          <View className="card">
+          <DocsMain>
             <ConstellationMark />
             <ScrollableArea id="doc-content" className="content">
               <DocTopSentinel />
-              <DocNavigationProvider value={{ leaving, selectDoc }}>
+              <DocNavigationProvider value={{ leaving, followDoc }}>
                 <RouteOutlet />
               </DocNavigationProvider>
             </ScrollableArea>
-          </View>
+          </DocsMain>
         </HStack>
         {/* Mobile nav sheet — portals to document.body, so it doesn't
 		    inherit .dark from .shell; pass the scheme via className. */}

@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import {
   cpSync,
   existsSync,
@@ -5,12 +6,13 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
 
-import { basename, dirname, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, parse, relative, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript-classic'
@@ -127,12 +129,14 @@ export async function packageMarkdown(manifestPath) {
           }
         }
 
-        if (/\.(?:[cm]?ts|tsx)$/.test(value) && !/\.d\.[cm]?ts$/.test(value)) {
+        if (/\.(?:[cm]?ts|tsx|tsrx)$/.test(value) && !/\.d\.[cm]?ts$/.test(value)) {
           for (const file of globSync(value, { cwd: source })) {
             sources.add(resolve(source, file))
           }
 
-          return value.replace(/\.(?:([cm]?)ts|tsx)$/, '.d.$1ts')
+          return value.endsWith('.tsrx')
+            ? value + '.d.ts'
+            : value.replace(/\.(?:([cm]?)ts|tsx)$/, '.d.$1ts')
         }
 
         return value
@@ -200,56 +204,66 @@ export async function packageMarkdown(manifestPath) {
         ts.findConfigFile(source, ts.sys.fileExists) ??
         (existsSync(workspaceBase) ? workspaceBase : join(staging, 'tsconfig.json'))
 
-      const config = ts.readConfigFile(configPath, ts.sys.readFile)
+      const emitDir = join(staging, '.emit')
+      const emitConfig = join(staging, 'tsconfig.emit.json')
+      // Imports can cross into sibling workspace packages. A root covering
+      // the entire volume keeps all emitted files under the temporary outDir.
+      const rootDir = parse(source).root
+      const packageOutput = join(emitDir, relative(rootDir, source))
 
-      if (config.error) {
-        throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'))
-      }
+      writeFileSync(
+        emitConfig,
+        JSON.stringify({
+          extends: configPath,
+          contentMappers: [
+            {
+              package: dirname(
+                fileURLToPath(import.meta.resolve('@tsrx/content-mapper/package.json')),
+              ),
+              extensions: ['.tsrx'],
+            },
+          ],
+          compilerOptions: {
+            declaration: true,
+            emitDeclarationOnly: true,
+            noCheck: true,
+            noEmit: false,
+            noEmitOnError: false,
+            declarationMap: false,
+            removeComments: false,
+            isolatedDeclarations: false,
+            rootDir,
+            outDir: emitDir,
+            declarationDir: emitDir,
+          },
+          files: [...sources],
+          include: [],
+          exclude: [],
+        }),
+      )
 
-      const { options } = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath))
-      const program = ts.createProgram([...sources], {
-        ...options,
-        declaration: true,
-        emitDeclarationOnly: true,
-        noEmit: false,
-        noEmitOnError: false,
-        declarationMap: false,
-        removeComments: false,
-        isolatedDeclarations: false,
-        rootDir: undefined,
-        outDir: join(staging, '.emit'),
+      const compilerManifest = fileURLToPath(import.meta.resolve('typescript/package.json'))
+      const compiler = JSON.parse(readFileSync(compilerManifest, 'utf8'))
+      const tsc = join(dirname(compilerManifest), compiler.bin.tsc)
+
+      execFileSync(process.execPath, [tsc, '--runExternalCode', '-p', emitConfig], {
+        stdio: ['ignore', 2, 2],
       })
 
-      const emitted = program.emit(undefined, (file, contents, _bom, _error, sourceFiles) => {
-        const original = sourceFiles?.[0]?.fileName
-
-        if (!original) {
-          return
-        }
-
-        const rel = relative(source, original)
-
-        if (rel.startsWith('..')) {
-          return
-        }
-
-        const destination = join(staging, rel.replace(/\.(?:([cm]?)ts|tsx)$/, '.d.$1ts'))
+      for (const file of globSync('**/*.d.{ts,mts,cts,tsrx.ts}', { cwd: packageOutput })) {
+        // exports-md reads ordinary declarations, including the re-export from
+        // a TypeScript barrel into a mapped TSRX component.
+        const mapped = file.endsWith('.d.tsrx.ts')
+        const name = mapped ? file.replace(/\.d\.tsrx\.ts$/, '.tsrx.d.ts') : file
+        const destination = join(staging, name)
+        const sourceName = mapped ? name.slice(0, -5) : name.replace(/\.d\.([cm]?)ts$/, '.$1ts')
 
         mkdirSync(dirname(destination), { recursive: true })
-        writeFileSync(destination, contents)
-
-        // Let relative re-exports resolve to declarations instead of recompiling source.
-        const copiedSource = join(staging, rel)
-
-        if (copiedSource !== destination) {
-          rmSync(copiedSource, { force: true })
+        renameSync(join(packageOutput, file), destination)
+        rmSync(join(staging, sourceName), { force: true })
+        if (!mapped && sourceName.endsWith('.ts')) {
+          rmSync(join(staging, sourceName + 'x'), { force: true })
         }
-      })
-
-      if (emitted.emitSkipped) {
-        throw new Error(
-          `Could not emit API declarations for ${manifest.name}: ${ts.formatDiagnosticsWithColorAndContext(emitted.diagnostics, { getCanonicalFileName: (file) => file, getCurrentDirectory: () => source, getNewLine: () => '\n' })}`,
-        )
       }
     }
 

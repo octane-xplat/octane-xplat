@@ -237,7 +237,9 @@ export function searchDocs(query: string): SearchHit[] {
   for (const d of index()) {
     const { doc } = d
 
-    for (const s of d.symbols) {
+    // Punctuation can match page content, but an empty normalized key
+    // would match the prefix of every API symbol.
+    for (const s of nq ? d.symbols : []) {
       const sc =
         s.key === nq
           ? 1

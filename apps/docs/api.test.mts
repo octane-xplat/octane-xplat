@@ -138,6 +138,34 @@ test('source-only tooling exports retain inferred signatures and list JavaScript
   assert.match(markdown, /JavaScript-only entry points[^\n]+source-widget\/bin/)
 })
 
+test('API rendering follows re-exports into source-backed TSRX declarations', async (t) => {
+  const { packageMarkdown } = await import('./scripts/api-package.mjs')
+  const root = mkdtempSync(join(tmpdir(), 'xplat-api-tsrx-'))
+
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const widget = join(root, 'widget')
+
+  mkdirSync(widget)
+  writeFileSync(join(root, 'label.ts'), "export const label = 'Widget'\n")
+  writeFileSync(
+    join(widget, 'package.json'),
+    JSON.stringify({ name: 'tsrx-widget', exports: { '.': { types: './index.ts' } } }),
+  )
+
+  writeFileSync(join(widget, 'index.ts'), "export { Widget } from './Widget.tsrx'\n")
+  writeFileSync(
+    join(widget, 'Widget.tsrx'),
+    "import { label } from '../label.ts'\n/** The widget entry point. */\nexport function Widget(): unknown @{ <>{label}</> }\n",
+  )
+
+  const markdown = await packageMarkdown(join(widget, 'package.json'))
+
+  assert.match(markdown, /The widget entry point/)
+  assert.match(markdown, /function Widget\(\): unknown/)
+  assert.equal(existsSync(join(root, 'label.d.ts')), false)
+})
+
 test('missing explicit declarations fail instead of dropping the entry point', async (t) => {
   const { packageMarkdown } = await import('./scripts/api-package.mjs')
   const root = mkdtempSync(join(tmpdir(), 'xplat-api-missing-'))

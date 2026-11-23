@@ -8,6 +8,7 @@ export type Span = {
   strike?: boolean
   highlight?: boolean
   href?: string
+  linkStart?: boolean
 }
 
 export type Block =
@@ -63,9 +64,9 @@ export function inlineSpans(text: string): Span[] {
     } else {
       const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!
 
-      for (const s of inlineSpans(lm[1])) {
-        spans.push({ ...s, href: lm[2] })
-      }
+      spans.push(
+        ...inlineSpans(lm[1]).map((s, index) => ({ ...s, href: lm[2], linkStart: index === 0 })),
+      )
     }
 
     last = m.index + m[0].length
@@ -90,7 +91,7 @@ const METAPARA = /^\*\*(Owns|Status):\*\*/
 // block nothing consumes. The collector below still forces progress on any
 // residual mismatch, but keeping this exact avoids bogus paragraph breaks.
 const BLOCKSTART =
-  /^#{1,4}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\|.*\|\s*$|^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/
+  /^#{1,6}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\|.*\|\s*$|^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/
 
 export function parseMd(md: string): Block[] {
   const blocks: Block[] = []
@@ -115,7 +116,7 @@ export function parseMd(md: string): Block[] {
       continue
     }
 
-    if (/^#{1,4}\s/.test(line)) {
+    if (/^#{1,6}\s/.test(line)) {
       const m = line.match(/^(#+)\s+(.*)/)!
       // `## Title {#custom-id}` pins the anchor — generated pages (the
       // changelog) use it to keep release links stable across wording.
@@ -232,7 +233,6 @@ export function parseMd(md: string): Block[] {
       }
 
       seenQuote = true
-      i++
       continue
     }
 

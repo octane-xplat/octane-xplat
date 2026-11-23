@@ -3,6 +3,7 @@ import { readdirSync } from 'node:fs'
 import { basename, dirname, join, relative } from 'node:path'
 import { test } from 'node:test'
 import { GROUPS, docPath, docSlugFor, repoPathFor, slugFor } from './src/doc-meta.ts'
+import { parseMd } from './src/md.ts'
 
 test('guide pages use flat public URLs', () => {
   assert.equal(docPath(slugFor('', 'README')), '/')
@@ -13,6 +14,8 @@ test('Markdown links resolve from the page directory and preserve repository bou
   assert.equal(docSlugFor('../app/styling.md#fonts', 'platform'), 'styling')
   assert.equal(docSlugFor('../README.md', 'app'), 'README')
   assert.equal(docSlugFor('../../.agents/design/README.md', 'app'), null)
+  assert.equal(docSlugFor('https://example.org/styling.md', 'app'), null)
+  assert.equal(docSlugFor('//example.org/styling.md', 'app'), null)
   assert.equal(repoPathFor('../../packages/ui/src/props.ts#L10', 'app'), 'packages/ui/src/props.ts')
   assert.equal(
     repoPathFor('../../tools/platform-qualification/evidence/lists/list.json', 'app'),
@@ -20,6 +23,15 @@ test('Markdown links resolve from the page directory and preserve repository bou
   )
 
   assert.equal(repoPathFor('../../.agents/', 'app'), '.agents/')
+})
+
+test('a heading directly after a quote keeps its content and section anchor', () => {
+  const blocks = parseMd('> Quoted text\n##### Section\n###### Detail\nText')
+
+  assert.deepEqual(blocks.slice(1, 3), [
+    { kind: 'h', level: 5, text: 'Section', id: 'section' },
+    { kind: 'h', level: 6, text: 'Detail', id: 'detail' },
+  ])
 })
 
 test('every docs-site page belongs to a public sidebar section', () => {

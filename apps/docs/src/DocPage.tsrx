@@ -1,6 +1,14 @@
 import { createContext, useContext } from 'octane'
-import { View, Text, Pressable, Image } from '@octane-xplat/ui'
-import { DOCS, type DocPage } from './docs'
+import {
+  View,
+  Text,
+  Heading,
+  NavLink,
+  Image,
+  type NavigationActivationEvent,
+} from '@octane-xplat/ui'
+
+import { DOCS, routeForDoc, type DocPage } from './docs'
 import { MdDoc } from './MdDoc.tsrx'
 import orbitUser from './assets/orbit-user.webp'
 import orbitSafari from './assets/orbit-safari.webp'
@@ -23,11 +31,15 @@ const ORBIT_BADGES = [
   orbitMacos,
 ]
 
-export const DocNavigation = createContext({ leaving: false, selectDoc: (_slug: string) => {} })
+export const DocNavigation = createContext({
+  leaving: false,
+  followDoc: (_event: NavigationActivationEvent, _slug: string) => {},
+})
+
 export const DocNavigationProvider: any = DocNavigation
 export function DocPageContent(props: { doc: DocPage }) @{
   const doc = props.doc
-  const { leaving, selectDoc } = useContext(DocNavigation)
+  const { leaving, followDoc } = useContext(DocNavigation)
   const nextDoc = DOCS[DOCS.findIndex((candidate) => candidate.slug === doc.slug) + 1]
 
   <View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
@@ -59,18 +71,39 @@ export function DocPageContent(props: { doc: DocPage }) @{
           : undefined
       }
     />
-    {nextDoc && (
-      <Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>
+    @if (nextDoc) {
+      <NavLink
+        {...routeForDoc(nextDoc)}
+        className="doc-next"
+        onPress={(event) => followDoc(event, nextDoc.slug)}
+      >
         <View className="doc-next-copy">
           <Text className="doc-next-label">Next page</Text>
           <Text className="doc-next-title">{nextDoc.title}</Text>
         </View>
         <Text className="doc-next-arrow">→</Text>
-      </Pressable>
-    )}
+      </NavLink>
+    }
   </View>
 }
 
-export function DocRouteScreen(props: { data: DocPage }) {
-  return <DocPageContent doc={props.data} />
+export function DocNotFound() @{
+  <View className="doc-page">
+    <View className="doc">
+      <Heading level={1} className="h1" color="inherit">
+        Page not found
+      </Heading>
+      <NavLink {...routeForDoc(DOCS[0])} className="link">
+        Go to the docs homepage
+      </NavLink>
+    </View>
+  </View>
+}
+
+export function DocRouteScreen(props: { data: DocPage | undefined }) @{
+  @if (props.data) {
+    <DocPageContent doc={props.data} />
+  } @else {
+    <DocNotFound />
+  }
 }

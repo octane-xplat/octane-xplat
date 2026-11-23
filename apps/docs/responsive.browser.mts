@@ -4,6 +4,9 @@ import { chromium, firefox, webkit } from 'playwright'
 import { createServer } from 'vite'
 import { fileURLToPath } from 'node:url'
 
+// Transformed rectangles can report a fractional rounding error.
+const minimumTouchTarget = 44 - 0.01
+
 const server = await createServer({
   root: fileURLToPath(new URL('.', import.meta.url)),
   server: { host: '127.0.0.1', port: 0, strictPort: true },
@@ -116,7 +119,7 @@ try {
 
           for (const target of targets) {
             assert.ok(
-              target.width >= 44 && target.height >= 44,
+              target.width >= minimumTouchTarget && target.height >= minimumTouchTarget,
               `${engine.name()} ${path} at ${width}px: ${target.label} is only ${target.width}×${target.height}`,
             )
           }
@@ -141,7 +144,7 @@ try {
       // the mono face or a tab collapses to ~7px instead of two glyph widths.
       for (const width of [390, 1440]) {
         await page.setViewportSize({ width, height: 812 })
-        await page.goto(base)
+        await page.goto(`${base}/component-workshop`)
         await page.locator('.doc .h1').waitFor()
         await page.evaluate(() => document.fonts.ready)
 
@@ -276,8 +279,10 @@ try {
 
         assert.ok(
           navTargets.length > 0 &&
-            navTargets.every((rect) => rect.width >= 44 && rect.height >= 44),
-          `${engine.name()} at ${width}px: undersized menu targets ${JSON.stringify(navTargets.filter((rect) => rect.width < 44 || rect.height < 44))}`,
+            navTargets.every(
+              (rect) => rect.width >= minimumTouchTarget && rect.height >= minimumTouchTarget,
+            ),
+          `${engine.name()} at ${width}px: undersized menu targets ${JSON.stringify(navTargets.filter((rect) => rect.width < minimumTouchTarget || rect.height < minimumTouchTarget))}`,
         )
 
         // Pointer activation also checks that the sheet is inside the viewport.
@@ -320,6 +325,63 @@ try {
         await page.keyboard.press('Escape')
         await page.locator('#palette-query').waitFor({ state: 'detached' })
       }
+
+      await page.setViewportSize({ width: 1440, height: 900 })
+      for (const path of ['/missing-guide', '/missing/nested/guide']) {
+        await page.goto(`${base}${path}`)
+
+        const article = page.getByRole('main')
+
+        await article.getByRole('heading', { name: 'Page not found', level: 1 }).waitFor()
+        await article.getByRole('link', { name: 'Go to the docs homepage' }).click()
+        await article.getByRole('heading', { name: 'Octane Xplat', level: 1 }).waitFor()
+      }
+
+      await page.goto(`${base}/navigation#open-your-first-route`)
+
+      const nav = page.getByRole('navigation', { name: 'Documentation' })
+      const current = nav.getByRole('link', { name: 'Move between screens', exact: true })
+
+      assert.equal(await current.getAttribute('href'), '/navigation')
+      assert.equal(await current.getAttribute('aria-current'), 'page')
+      await page.waitForFunction(() => {
+        const viewport = document.getElementById('doc-content')
+        const section = document.getElementById('open-your-first-route')
+
+        return (
+          viewport &&
+          section &&
+          viewport.scrollTop > 0 &&
+          Math.abs(section.getBoundingClientRect().top - viewport.getBoundingClientRect().top) < 120
+        )
+      })
+
+      await page.goto(`${base}/known-limits`)
+
+      const mixedLink = page.getByRole('link', {
+        name: '@octane-xplat/secure-storage native leaf',
+        exact: true,
+      })
+
+      assert.equal(await mixedLink.getAttribute('href'), '/package-secure-storage#macos-appkit')
+      await mixedLink.click()
+      await page.waitForURL('**/package-secure-storage#macos-appkit')
+
+      await page.setViewportSize({ width: 390, height: 812 })
+      await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+      await page
+        .getByRole('dialog', { name: 'Documentation menu' })
+        .getByText('Search', { exact: true })
+        .click()
+
+      await page.waitForFunction(() => document.activeElement?.id === 'palette-query')
+      await page.getByRole('combobox', { name: 'Search docs' }).fill('!!!')
+      await page.getByText('No matches', { exact: true }).waitFor()
+      assert.equal(await page.getByRole('option').count(), 0)
+      await page.keyboard.press('Escape')
+      await page.waitForFunction(
+        () => document.activeElement?.getAttribute('aria-label') === 'Open menu',
+      )
 
       assert.deepEqual(errors, [])
       console.log(

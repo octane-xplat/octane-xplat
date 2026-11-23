@@ -32,7 +32,8 @@ copy the same setup into three places.
 `exports-md` 0.2.20 requires the classic TypeScript JavaScript compiler API;
 TypeScript 7's native compiler does not expose it. The API renderer supplies a
 temporary compiler context linked to `typescript-classic`, while package
-declaration generation keeps its own compiler and dependency links. Retain this
+declaration generation uses native TypeScript and the TSRX content mapper for
+source-backed exports, including re-exports into TSRX components. Retain this
 boundary until exports-md supports the native compiler; a package typecheck does
 not verify API-page rendering. `apps/docs/api.test.mts` covers the renderer.
 

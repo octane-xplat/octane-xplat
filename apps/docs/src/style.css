@@ -22,7 +22,7 @@
 	--doc-navy: #0050cf;
 	--doc-teal: #aee5e0;
 	--doc-green: #51df00;
-	--doc-link: #3386ff;
+	--doc-link: #0050cf;
 	--doc-grad: linear-gradient(to right, var(--doc-blue), var(--doc-teal) 59%, var(--doc-green));
 	--doc-h1-grad: radial-gradient(circle 14.95em at 0% 50% in oklab, #0060ee 0%, #000000 100%);
 	--doc-lede-bg: #000000;
@@ -34,7 +34,7 @@
 	--doc-tag-warn-bg: #ffe0d4;
 	--doc-tag-warn-ink: #8a2500;
 	--doc-highlight-bg: #e9ffdd;
-	--doc-highlight-ink: #41b200;
+	--doc-highlight-ink: #2e6100;
 }
 
 .dark {
@@ -528,6 +528,9 @@ body {
 }
 
 .side-item {
+	display: block;
+	color: inherit;
+	text-decoration: none;
 	flex-shrink: 0;
 	padding: 6px;
 	border-radius: 14px;
@@ -1085,6 +1088,8 @@ body {
 	corner-shape: squircle;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 	cursor: pointer;
+	color: inherit;
+	text-decoration: none;
 	transition:
 		border-color 140ms ease,
 		box-shadow 140ms ease,
@@ -1216,6 +1221,7 @@ body {
 
 .doc-copy-toggle {
 	width: 44px;
+	height: 100%;
 	padding: 0 12px 0 10px;
 	clip-path: polygon(0 0, 29px 0, 100% 15px, 100% 100%, 0 100%);
 }
@@ -1255,7 +1261,7 @@ body {
 
 .doc-actions-menu {
 	width: 360px;
-	max-width: calc(100vw - 32px);
+	max-width: calc(100vw - 48px);
 	padding: 8px;
 	border: 0;
 	outline: 0.5px solid rgba(127, 127, 127, 0.3);
@@ -1536,6 +1542,8 @@ body {
 
 .doc .link {
 	font-weight: 375;
+	text-decoration: underline;
+	text-underline-offset: 0.14em;
 }
 
 /* Sketch 29E3CD0E: square green highlight, 3px sides and 1px top/bottom.
@@ -1950,10 +1958,6 @@ body {
 
 	.doc-copy {
 		width: 146px;
-	}
-
-	.doc-actions-menu {
-		max-width: 100%;
 	}
 
 	.doc-copy-toggle::before {

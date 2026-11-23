@@ -134,7 +134,7 @@ function docFor(href: string, dir: string) {
 }
 
 function extUrl(href: string, dir: string): string {
-  if (/^[a-z][\w+.-]*:/i.test(href)) {
+  if (/^[a-z][\w+.-]*:|^\/\//i.test(href)) {
     return href
   }
 
@@ -144,47 +144,63 @@ function extUrl(href: string, dir: string): string {
   return `${REPO}/${path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'}/main/${path}${hash}`
 }
 
-function SpanText(props: { s: Span; dir: string }) @{
+function SpanText(props: { s: Span }) @{
   const s = props.s
-  const cls = [
-    s.mono && 'mono',
-    s.bold && 'bold',
-    s.italic && 'italic',
-    s.strike && 'strike',
-    s.href && 'link',
-  ]
+  const cls = [s.mono && 'mono', s.bold && 'bold', s.italic && 'italic', s.strike && 'strike']
     .filter(Boolean)
     .join(' ')
 
-  if (s.href) {
-    const doc = docFor(s.href, props.dir)
+  <Text className={cls}>{s.text}</Text>
+}
 
-    if (doc) {
-      const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : ''
+function InlineRun(props: { spans: Span[]; dir: string }) @{
+  const groups: Span[][] = []
 
-      return (
-        <NavLink {...routeForDoc(doc)} hash={hash.slice(1)} className={cls}>
-          {s.text}
-        </NavLink>
-      )
+  for (const span of props.spans) {
+    const last = groups.at(-1)
+
+    if (span.href && !span.linkStart && last?.[0].href === span.href) {
+      last.push(span)
+    } else {
+      groups.push([span])
     }
+  }
 
-    if (s.href.startsWith('#')) {
-      return (
-        <Link className={cls} href={s.href}>
-          {s.text}
-        </Link>
-      )
+  @for (const group of groups; index groupIndex; key groupIndex) {
+    @if (group[0].href) {
+      <LinkedSpans spans={group} href={group[0].href} dir={props.dir} />
+    } @else {
+      <SpanText s={group[0]} />
     }
+  }
+}
+
+function LinkedSpans(props: { spans: Span[]; href: string; dir: string }) @{
+  const { href, dir } = props
+  const doc = docFor(href, dir)
+  const text = props.spans.map((s, index) => <SpanText key={index} s={s} />)
+
+  if (doc) {
+    const hash = href.includes('#') ? href.slice(href.indexOf('#') + 1) : ''
 
     return (
-      <Link className={cls} href={extUrl(s.href, props.dir)} target="_blank">
-        {s.text}
+      <NavLink {...routeForDoc(doc)} hash={hash} className="link">
+        {text}
+      </NavLink>
+    )
+  }
+
+  if (href.startsWith('#')) {
+    return (
+      <Link className="link" href={href}>
+        {text}
       </Link>
     )
   }
 
-  return <Text className={cls}>{s.text}</Text>
+  <Link className="link" href={extUrl(href, dir)} target="_blank">
+    {text}
+  </Link>
 }
 
 function Spans(props: { spans: Span[]; dir: string }) @{
@@ -205,16 +221,10 @@ function Spans(props: { spans: Span[]; dir: string }) @{
     @for (const run of runs; index runIndex; key runIndex) {
       @if (run[0].highlight) {
         <Text className="highlight">
-          @for (const s of run; index spanIndex; key spanIndex) {
-            <SpanText s={s} dir={props.dir} />
-          }
+          <InlineRun spans={run} dir={props.dir} />
         </Text>
       } @else {
-        <>
-          @for (const s of run; index spanIndex; key spanIndex) {
-            <SpanText s={s} dir={props.dir} />
-          }
-        </>
+        <InlineRun spans={run} dir={props.dir} />
       }
     }
   </>
@@ -230,7 +240,12 @@ function BlockView(props: {
 
   if (b.kind === 'h') {
     return (
-      <Heading level={b.level as 1 | 2 | 3 | 4} id={b.id} className={`h${b.level}`} color="inherit">
+      <Heading
+        level={b.level as 1 | 2 | 3 | 4 | 5 | 6}
+        id={b.id}
+        className={`h${b.level}`}
+        color="inherit"
+      >
         {b.text}
       </Heading>
     )
@@ -347,7 +362,7 @@ export function MdDoc(props: {
             hasChevron={false}
             label="Page actions"
             alignment="end"
-            menuWidth={360}
+            menuWidth="min(360px, calc(100vw - 48px))"
             menuClassName="doc-actions-menu"
           >
             <DropdownMenuItem

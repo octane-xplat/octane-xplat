@@ -1,9 +1,21 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useState, useRef } from 'octane'
 import { openUrl } from '@octane-xplat/platform'
-import type { ScrollableAreaHandle, WebViewMessageEvent } from '@octane-xplat/ui'
+import type { Renderable, ScrollableAreaHandle, WebViewMessageEvent } from '@octane-xplat/ui'
+import type { JSX } from 'octane/jsx-runtime'
 
 // The docs currently have a browser host. These integrations have no shared
 // UI equivalent; keep them out of the presentation components.
+
+export function DocsMain(props: { children?: Renderable }): JSX.Element @{
+  <main className="card">{props.children}</main>
+}
+
+export function DocsNav(props: { children?: Renderable }): JSX.Element @{
+  <nav className="nav-tree" aria-label="Documentation">
+    {props.children}
+  </nav>
+}
 
 export function useDocsKeyboard(options: { isOpen: boolean; open(): void }) {
   useEffect(() => {
@@ -42,7 +54,7 @@ export function useDocsKeyboard(options: { isOpen: boolean; open(): void }) {
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [options.isOpen])
+  }, [options.isOpen, options.open])
 }
 
 export function useTableScrollEdges(
@@ -109,6 +121,13 @@ export function usePageActions(markdown: string) {
   }
 
   return { viewMarkdown, openCodex, askAI }
+}
+
+export function focusMenuTrigger() {
+  // The search launcher belonged to a drawer that has already unmounted.
+  requestAnimationFrame(() => {
+    document.getElementById('docs-menu-trigger')?.focus({ preventScroll: true })
+  })
 }
 
 export function restoreMenu() {
