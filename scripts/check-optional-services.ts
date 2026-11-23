@@ -47,7 +47,10 @@ try {
     await writeFile(
       config,
       JSON.stringify({
-        extends: join(root, `apps/${target}/tsconfig.json`),
+        extends: join(
+          root,
+          target === 'web' ? 'tools/web-verification/tsconfig.json' : 'apps/harness/tsconfig.json',
+        ),
         include: [],
         files: files.map((file) => join(root, file)),
         ...(target === 'web' ? { compilerOptions: { types: [] } } : {}),
