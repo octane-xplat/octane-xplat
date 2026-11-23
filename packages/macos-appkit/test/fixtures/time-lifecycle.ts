@@ -1,4 +1,4 @@
-import { NSDate, NSDatePicker, NSDatePickerElementFlags } from '@octane-xplat/platform/macos'
+import { NSDate, NSDatePicker, NSDatePickerElementFlags, NSApplication } from '@octane-xplat/platform/macos'
 
 import TimePicker, { timeRef, timeRefEvents, timeChanges } from './Time'
 
@@ -45,7 +45,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
 
   check(
     timeRef.current === first && minutes(value(first)) === 625 && normalized(value(first)),
-    'TimePicker initial time/ref failed',
+    'TimePicker initial time/ref failed: ' + JSON.stringify({ sameRef: timeRef.current === first, time: value(first) }),
   )
 
   check(
@@ -147,7 +147,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
     new Date(0, 0, 0, 14, 25, 42).getTime() / 1000,
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(
     timeChanges.length === count + 1 &&
       minutes(timeChanges.at(-1).value) === 865 &&
@@ -156,7 +156,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
     'TimePicker native action normalization/event failed',
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(timeChanges.length === count + 1, 'TimePicker unchanged action emitted duplicate event')
   await advance()
 
