@@ -1,9 +1,10 @@
 // Renders the production bundle in jsdom — catches boot hangs, empty
 // render loops, and missing content without a browser. Run after build.
-// `pnpm smoke:keys` builds with development diagnostics enabled too.
+import { execFileSync } from 'node:child_process'
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
 import { join, relative, dirname, basename } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { docPath, titleOf, slugFor, GROUPS } from './src/doc-meta.ts'
 import { inlineSpans, parseMd } from './src/md.ts'
 
@@ -117,6 +118,64 @@ const assert = (name, ok) => {
   if (!ok) {
     fail++
   }
+}
+
+const pagesPerProcess = 20
+const guidePaths = [...walkDocs('../../docs')]
+const batchOffset = process.argv[2]
+
+if (batchOffset !== undefined) {
+  const offset = Number(batchOffset)
+
+  if (!Number.isInteger(offset) || offset < 0 || offset >= guidePaths.length) {
+    throw new Error('Invalid guide batch offset')
+  }
+
+  for (const path of guidePaths.slice(offset, offset + pagesPerProcess)) {
+    await verifyGuide(path)
+  }
+
+  process.exit(fail ? 1 : 0)
+}
+
+async function verifyGuide(path) {
+  const rel = relative('../../docs', path)
+  const dir = dirname(rel) === '.' ? '' : dirname(rel)
+  const slug = slugFor(dir, basename(rel, '.md'))
+  const markdown = readFileSync(path, 'utf8')
+  const title = titleOf(slug, markdown)
+
+  const link = [...root.querySelectorAll('.side-item')].find((item) => item.textContent === title)
+
+  link?.click()
+  await waitFor(
+    'page ' + slug,
+    () =>
+      window.location.pathname === docPath(slug) &&
+      root.querySelector('.doc .h1')?.textContent === title,
+  )
+
+  assert(
+    `page ${slug}`,
+    window.location.pathname === docPath(slug) &&
+      root.querySelector('.doc .h1')?.textContent === title,
+  )
+
+  const headings = parseMd(markdown).filter((block) => block.kind === 'h')
+
+  assert(
+    `page ${slug} uses semantic headings with section anchors`,
+    headings.length > 0 &&
+      headings.every((heading) => {
+        const element = window.document.getElementById(heading.id)
+
+        return (
+          element?.tagName === `H${heading.level}` &&
+          root.querySelector('.doc')?.contains(element) &&
+          element.textContent === heading.text
+        )
+      }),
+  )
 }
 
 const promptCard = root.querySelector('.agent-prompt')
@@ -290,9 +349,6 @@ function* walkDocs(dir) {
   }
 }
 
-const sideItem = (title) =>
-  [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
-
 assert(
   'sidebar groups guides by task',
   GROUPS.every((g) =>
@@ -300,55 +356,12 @@ assert(
   ),
 )
 
-for (const path of walkDocs('../../docs')) {
-  const previous = window.location.pathname
-  const previousTitle = root.querySelector('.doc .h1')?.textContent
-  const rel = relative('../../docs', path)
-  const dir = dirname(rel) === '.' ? '' : dirname(rel)
-  const slug = slugFor(dir, basename(rel, '.md'))
-  const title = titleOf(slug, readFileSync(path, 'utf8'))
+// Start a fresh jsdom process for each batch. The full generated API corpus
+// exceeds the default Node heap when one runtime keeps every navigation.
+const runner = fileURLToPath(import.meta.url)
 
-  sideItem(title)?.click()
-  await waitFor(
-    'page ' + slug,
-    () =>
-      window.location.pathname === docPath(slug) &&
-      root.querySelector('.doc .h1')?.textContent === title,
-  )
-
-  assert(
-    `page ${slug}`,
-    window.location.pathname === docPath(slug) &&
-      root.querySelector('.doc .h1')?.textContent === title,
-  )
-
-  const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
-
-  assert(
-    `page ${slug} uses semantic headings with section anchors`,
-    headings.length > 0 &&
-      headings.every((heading) => {
-        const element = window.document.getElementById(heading.id)
-
-        return (
-          element?.tagName === `H${heading.level}` &&
-          root.querySelector('.doc')?.contains(element) &&
-          element.textContent === heading.text
-        )
-      }),
-  )
-
-  // Visit each guide from the same history entry so the corpus walk does
-  // not retain a browser-history entry for every generated reference page.
-  if (previous !== window.location.pathname) {
-    window.history.back()
-    await waitFor(
-      'return from ' + slug,
-      () =>
-        window.location.pathname === previous &&
-        root.querySelector('.doc .h1')?.textContent === previousTitle,
-    )
-  }
+for (let offset = 0; offset < guidePaths.length; offset += pagesPerProcess) {
+  execFileSync(process.execPath, [runner, String(offset)], { stdio: 'inherit' })
 }
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,
