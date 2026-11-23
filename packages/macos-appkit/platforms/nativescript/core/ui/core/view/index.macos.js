@@ -42,9 +42,10 @@ const PFLAG_LAYOUT_REQUIRED = 1 << 2;
 // visibleRect → a JS isFlipped override, which must allocate and crashes
 // inside Heap::sweepSynchronously. Detach every descendant eagerly so
 // GC-time dealloc finds nothing to invalidate.
-function detachNativeViewTree(native) {
-    if (!native || typeof native.removeFromSuperview !== 'function')
+function detachNativeViewTree(native, visited = new WeakSet()) {
+    if (!native || typeof native.removeFromSuperview !== 'function' || visited.has(native))
         {return;}
+    visited.add(native);
     if (native instanceof NSScrollView) {
         // Clip view/scrollers are AppKit-owned (removeFromSuperview throws on
         // contentView); detach the wrapped document subtree and let the
@@ -52,14 +53,19 @@ function detachNativeViewTree(native) {
         // clip teardown never consults our JS isFlipped.
         const document = native.documentView;
         native.documentView = null;
-        detachNativeViewTree(document);
+        detachNativeViewTree(document, visited);
         native.removeFromSuperview();
         return;
     }
     const subviews = native.subviews;
     if (subviews && subviews.count > 0) {
         for (let i = subviews.count - 1; i >= 0; i--) {
-            detachNativeViewTree(subviews.objectAtIndex(i));
+            const child = subviews.objectAtIndex(i);
+            // Native collection wrappers can expose stale entries during
+            // teardown. Only follow children still owned by this view.
+            if (child?.superview === native) {
+                detachNativeViewTree(child, visited);
+            }
         }
     }
     native.removeFromSuperview();
