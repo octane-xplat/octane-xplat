@@ -10,8 +10,13 @@ MasonKit layout engine.
 
 `create-octane-xplat` does not currently offer Windows as a selectable target.
 The CLI can detect a manually configured NativeScript Windows app. A separate
-package installation is used to check Windows bundling and development-server
-module resolution. General downstream app setup remains experimental.
+package installation is used to check Windows bundling, development-server
+module resolution, and a WinUI launch on x64. General downstream app setup
+remains experimental.
+
+In the installed-app check, a text-only hot edit kept the app page and the
+component count. It recreated the WinUI button behind the Core Button. Focus
+retention during hot reload remains unverified.
 
 For current app target availability and limits, see
 [Choose your targets](../start/spec.md#choose-your-targets). The examples below

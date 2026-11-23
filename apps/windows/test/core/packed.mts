@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
@@ -122,7 +123,7 @@ writeFileSync(
     cli: { packageManager: 'bun' },
   }\n`,
 )
-for (const file of ['index.ts', 'Control.windows.tsrx']) {
+for (const file of ['index.ts', 'Control.tsrx', 'Control.windows.tsrx']) {
   cpSync(join(import.meta.dirname, file), join(consumer, 'src', file))
 }
 cpSync(join(import.meta.dirname, 'vite.config.mts'), join(consumer, 'vite.config.mts'))
@@ -136,8 +137,17 @@ if (native) {
   const ns = require.resolve('nativescript/bin/ns')
   try {
     run(process.execPath, [ns, 'build', 'windows'])
-    await exercise(ns, false)
-    await exercise(ns, true)
+    const failures: unknown[] = []
+    for (const hot of [false, true]) {
+      try {
+        await exercise(ns, hot)
+      } catch (error) {
+        failures.push(error)
+      }
+    }
+    if (failures.length > 0) {
+      throw new AggregateError(failures, 'Installed Windows Core launch checks failed')
+    }
   } finally {
     run('powershell.exe', [
       '-NoProfile',
@@ -207,6 +217,10 @@ async function verifyDevServer(vite: string) {
     assert.ok(entry.includes(origin + '/ns/core/ui/button'))
     const component = await fetchModule('/ns/m/src/Control.windows.tsrx')
     assert.ok(component.includes('hmrUniversalComponent') && component.includes('.accept('))
+    const sharedComponent = realpathSync(join(consumer, 'src/Control.tsrx')).replaceAll('\\', '/')
+    const fsPrefix = sharedComponent.startsWith('/') ? '/@fs' : '/@fs/'
+    const shared = await fetchModule('/ns/m' + fsPrefix + sharedComponent + '?import')
+    assert.match(shared, /export const initialInput = ['"]Editable['"]/)
     const button = await fetchModule('/ns/core/ui/button')
     assert.ok(button.includes('export const Button'))
     const strategy = await fetchModule(
@@ -215,6 +229,13 @@ async function verifyDevServer(vite: string) {
     assert.ok(
       strategy.includes(origin + '/ns/m/node_modules/@nativescript/vite/hmr/client/framework.js'),
     )
+    const octaneRuntime = await fetchModule('/ns/m/node_modules/octane/dist/runtime.js')
+    assert.ok(
+      octaneRuntime.includes(
+        '/ns/m/node_modules/octane/dist/signals/action-capability-elsewhere.js',
+      ),
+    )
+    assert.ok(!octaneRuntime.includes('#octane/dist/signal-actions/renderer'))
 
     const source = join(consumer, 'src/Control.windows.tsrx')
     writeFileSync(source, readFileSync(source, 'utf8').replace('initial:', 'updated:'))
@@ -249,7 +270,12 @@ async function exercise(ns: string, hot: boolean) {
   const deadline = Date.now() + 5 * 60_000
   async function waitFor(marker: string) {
     while (!output.includes(marker) && child.exitCode === null && Date.now() < deadline) {
-      assert.ok(!output.includes('WINDOWS_CORE_FAIL'), output)
+      assert.ok(
+        !output.includes('WINDOWS_CORE_FAIL') &&
+          !output.includes('Uncaught error evaluating module') &&
+          !output.includes('deterministic dev session bootstrap failed'),
+        output,
+      )
       await delay(200)
     }
     assert.ok(output.includes(marker), `Missing ${marker}`)
