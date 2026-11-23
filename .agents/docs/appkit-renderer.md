@@ -76,6 +76,9 @@ replacement. Core font changes use the shared AppKit font resolver.
 Text controls support logical start/end alignment and update it when the
 inherited direction changes. The Core view maps its resolved background
 into the AppKit painter for colors, borders, gradients, images and shadows.
+On Mac, the Core style registry keeps percentage corner radii until the
+painter can resolve them against the layer. The same registry exposes border
+styles and outlines to the AppKit painter.
 Core transform and opacity properties update the same AppKit layers. The
 painter owns its frame observers and layer disposal. Keep CSS parser
 coverage separate from paint coverage. Core CSS still needs explicit

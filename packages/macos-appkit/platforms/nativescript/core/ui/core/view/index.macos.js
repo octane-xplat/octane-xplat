@@ -20,7 +20,7 @@ import {
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
-import { paintNativeScriptBackground, paintNativeScriptTransform, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
+import { coreBoxPaintProperties, paintNativeScriptBackground, paintNativeScriptTransform, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
 import { notifyNativeScriptLayout } from '../../../../../../src/nativescript-roots.macos';
 import { createNativeScriptActionView, releaseNativeScriptActionView, setNativeScriptActionRole } from '../../../../../../src/nativescript-actions.macos';
 import { evalMediaQuery } from '@octane-xplat/css-engine';
@@ -515,11 +515,16 @@ export class View extends ViewCommon {
         this._redrawNativeBackground(background);
     }
     _redrawNativeBackground(background) {
-        paintNativeScriptBackground(this.nativeViewProtected, background);
+        paintNativeScriptBackground(this.nativeViewProtected, background, this.style);
     }
     _childIndexToNativeChildIndex(index) {
         return index;
     }
+}
+for (const property of coreBoxPaintProperties) {
+    View.prototype[property.setNative] = function () {
+        this._redrawNativeBackground(this.style.backgroundInternal);
+    };
 }
 export class ContainerView extends View {
     constructor() {

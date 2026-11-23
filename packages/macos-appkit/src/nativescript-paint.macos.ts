@@ -1,10 +1,21 @@
-import type { Color, Style } from '@nativescript/core'
+import type { Color } from '@nativescript/core/color'
+import type { CoreTypes } from '@nativescript/core/core-types'
+import { CssProperty, ShorthandProperty } from '@nativescript/core/ui/core/properties'
+import { Style } from '@nativescript/core/ui/styling/style'
+import {
+  borderBottomLeftRadiusProperty,
+  borderBottomRightRadiusProperty,
+  borderTopLeftRadiusProperty,
+  borderTopRightRadiusProperty,
+} from '@nativescript/core/ui/styling/style-properties'
+import { PercentLength } from '@nativescript/core/ui/styling/length-shared'
 import type { Background } from '@nativescript/core/ui/styling/background-common'
 import { layout } from '@nativescript/core/utils'
 import { CATransaction, type CALayer } from '@octane-xplat/platform/macos'
 import { createBoxPaint } from './box-paint'
 import type { BoxPaintNode } from './box-paint-state'
 import type { AppKitView, PropBag } from './model'
+import { splitStyleTokens } from './css-text'
 import { nativeColor } from './native-colors'
 import { setProjectionScale, type ProjectionScale } from './projection-paint'
 
@@ -23,11 +34,81 @@ interface CoreBoxPaint {
 const paint = createBoxPaint()
 const views = new WeakMap<AppKitView, CoreBoxPaint>()
 
+const additionalPaintProperties = [
+  ['borderStyle', 'border-style'],
+  ['borderTopStyle', 'border-top-style'],
+  ['borderRightStyle', 'border-right-style'],
+  ['borderBottomStyle', 'border-bottom-style'],
+  ['borderLeftStyle', 'border-left-style'],
+  ['outline', 'outline'],
+  ['outlineColor', 'outline-color'],
+  ['outlineOffset', 'outline-offset'],
+  ['outlineStyle', 'outline-style'],
+  ['outlineWidth', 'outline-width'],
+].map(([name, cssName]) => {
+  const property = new CssProperty<Style, unknown>({ name, cssName })
+  property.register(Style)
+  return property
+})
+
+const coreRadiusProperties = [
+  borderTopLeftRadiusProperty,
+  borderTopRightRadiusProperty,
+  borderBottomRightRadiusProperty,
+  borderBottomLeftRadiusProperty,
+] as readonly CssProperty<Style, CoreTypes.PercentLengthType>[]
+
+const updateBackgroundRadius = [
+  (background: Background, value: number) => background.withBorderTopLeftRadius(value),
+  (background: Background, value: number) => background.withBorderTopRightRadius(value),
+  (background: Background, value: number) => background.withBorderBottomRightRadius(value),
+  (background: Background, value: number) => background.withBorderBottomLeftRadius(value),
+]
+
+// Core's default radius declarations use fixed lengths. On AppKit, keep
+// percentages in the resolved style so painting can use the live layer size.
+coreRadiusProperties.forEach((property, index) => {
+  property.overrideHandlers({
+    name: property.name,
+    cssName: property.cssLocalName,
+    valueConverter: PercentLength.parse,
+    valueChanged(style, _old, radius) {
+      const pixels = PercentLength.toDevicePixels(radius, 0, 0)
+      if (!Number.isFinite(pixels) || pixels < 0) {
+        throw new Error(`Invalid ${property.cssLocalName}: ${String(radius)}`)
+      }
+      style.backgroundInternal = updateBackgroundRadius[index](style.backgroundInternal, pixels)
+    },
+  })
+})
+
+new ShorthandProperty<Style, CoreTypes.PercentLengthType | symbol>({
+  name: 'borderRadius',
+  cssName: 'border-radius',
+  getter() {
+    const [first, ...rest] = coreRadiusProperties.map((property) => radiusValue(this, property.name))
+    return rest.every((radius) => PercentLength.equals(first, radius))
+      ? first
+      : [first, ...rest].map(PercentLength.convertToString).join(' ')
+  },
+  converter(value) {
+    const parts = typeof value === 'string' ? splitStyleTokens(value) : [value]
+    const [top, right = top, bottom = top, left = right] = parts
+    return coreRadiusProperties.map((property, index) => [property, [top, right, bottom, left][index]])
+  },
+}).register(Style)
+
+export const coreBoxPaintProperties = [...coreRadiusProperties, ...additionalPaintProperties]
+
+function radiusValue(style: Style, name: string): CoreTypes.PercentLengthType {
+  return Reflect.get(style, name)
+}
+
 function colorCss(color: Color) {
   return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a / 255})`
 }
 
-function boxStyle(background: Background): PropBag {
+function boxStyle(background: Background, resolvedStyle: Style): PropBag {
   const style: PropBag = {}
   const image = background.image
   if (image) {
@@ -54,9 +135,20 @@ function boxStyle(background: Background): PropBag {
     }
   }
   for (const corner of ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'] as const) {
-    const radius = background[`border${corner}Radius`]
-    if (radius) {
-      style[`border${corner}Radius`] = layout.toDeviceIndependentPixels(radius)
+    const key = `border${corner}Radius` as const
+    const radius = radiusValue(resolvedStyle, key)
+    if (typeof radius === 'object' && radius.unit === '%') {
+      // Core's background snapshot converts percentages against size zero.
+      // Pass the resolved style to the painter so it can use the live layer.
+      style[key] = `${radius.value * 100}%`
+    } else if (background[key]) {
+      style[key] = layout.toDeviceIndependentPixels(background[key])
+    }
+  }
+  for (const property of additionalPaintProperties) {
+    const value = Reflect.get(resolvedStyle, property.name)
+    if (value != null) {
+      style[property.name] = value
     }
   }
   if (background.boxShadows?.length) {
@@ -89,15 +181,23 @@ function applyStyle(state: CoreBoxPaint) {
 }
 
 /** Apply resolved Core box properties through the AppKit paint coordinator. */
-export function paintNativeScriptBackground(view: AppKitView | null, background: Background) {
+export function paintNativeScriptBackground(
+  view: AppKitView | null,
+  background: Background,
+  resolvedStyle: Style,
+) {
   if (!view) {
     return
   }
   const existing = views.get(view)
-  if (existing?.background === background) {
+  const style = boxStyle(background, resolvedStyle)
+  if (
+    existing?.background === background &&
+    Object.keys(existing.backgroundStyle).length === Object.keys(style).length &&
+    Object.keys(style).every((key) => Object.is(style[key], existing.backgroundStyle[key]))
+  ) {
     return
   }
-  const style = boxStyle(background)
   if (!existing && !background.color && !Object.keys(style).length) {
     return
   }
