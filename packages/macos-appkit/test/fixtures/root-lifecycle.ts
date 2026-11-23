@@ -187,6 +187,10 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
   root.unmount()
   check(rootEvents.length === 8, 'Root cleanup repeated')
 
+  const originalSize = {
+    width: Number(nativeWindow.contentView.bounds.size.width),
+    height: Number(nativeWindow.contentView.bounds.size.height),
+  }
   const windowTree = createMacOSRoot(nativeWindow.contentView)
 
   try {
@@ -236,7 +240,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
     check(!windowRoot.superview && !windowChild.superview, 'Top-level root teardown retained views')
   } finally {
     windowTree.unmount()
-    nativeWindow.setContentSize({ width: 400, height: 200 })
+    nativeWindow.setContentSize(originalSize)
   }
 
   console.log('PACKED_ROOTLAYOUT_OK')
