@@ -339,17 +339,9 @@ function masonOnLayout(view) {
                     nv.hidden = child.style?.visibility === 'hidden';
                 }
             }
-            // The mason box is the alignment rect — controls whose NSView frame
-            // is padded (NSTextField labels carry ±2pt focus-ring insets) get
-            // the expanded frame, matching xplat-macos constraint pinning.
-            const frame = nv?.frameForAlignmentRect
-                ? nv.frameForAlignmentRect(CGRectMake(box.x, box.y, box.w, box.h))
-                : { origin: { x: box.x, y: box.y }, size: { width: box.w, height: box.h } };
-            const fx = Number(frame.origin.x);
-            const fy = Number(frame.origin.y);
-            // child.layout directly — layoutChild re-derives position from
-            // measured size + Core alignment/margins, which mason already owns.
-            child.layout(px(fx), px(fy), px(fx + Number(frame.size.width)), px(fy + Number(frame.size.height)));
+            // Mason supplied the final alignment rectangle and already
+            // resolved Core alignment and margins.
+            child.layout(px(box.x), px(box.y), px(box.x + box.w), px(box.y + box.h));
         }
     }
 }

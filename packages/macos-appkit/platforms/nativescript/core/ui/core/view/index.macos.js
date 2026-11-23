@@ -245,19 +245,23 @@ export class View extends ViewCommon {
         // bottom-left. Invert against the superview's current bounds height.
         const superview = nativeView.superview;
         const parentHeight = superview ? Number(superview.bounds.size.height) : 0;
-        nativeView.frame = CGRectMake(frame.origin.x, parentHeight - frame.origin.y - frame.size.height, frame.size.width, frame.size.height);
+        // Core lays out the alignment rectangle. AppKit controls add their
+        // optical insets in the native frame, including outside Mason.
+        const rect = CGRectMake(frame.origin.x, parentHeight - frame.origin.y - frame.size.height, frame.size.width, frame.size.height);
+        const nativeFrame = nativeView.frameForAlignmentRect(rect);
+        nativeView.frame = nativeFrame;
         // Keep the view anchored to the superview's top (its max-Y margin fixed)
         // so a parent resize before the next layout pass doesn't drag it down.
         nativeView.autoresizingMask = 8; // NSViewMinYMargin
         const boundsOrigin = nativeView.bounds.origin;
-        nativeView.bounds = CGRectMake(boundsOrigin.x, boundsOrigin.y, frame.size.width, frame.size.height);
+        nativeView.bounds = CGRectMake(boundsOrigin.x, boundsOrigin.y, nativeFrame.size.width, nativeFrame.size.height);
         if (typeof nativeView.layoutSubtreeIfNeeded === 'function') {
             nativeView.layoutSubtreeIfNeeded();
         }
     }
     _setNativeViewFrame(nativeView, frame) {
-        const oldFrame = this._cachedFrame || nativeView.frame;
-        if (!CGRectEqualToRect(oldFrame, frame)) {
+        const oldFrame = this._cachedFrame;
+        if (!oldFrame || !CGRectEqualToRect(oldFrame, frame)) {
             if (Trace.isEnabled()) {
                 Trace.write(this + ' :_setNativeViewFrame: ' + JSON.stringify(MacOSHelper.getPositionFromFrame(frame)), Trace.categories.Layout);
             }
@@ -288,7 +292,8 @@ export class View extends ViewCommon {
     }
     _layoutParent() {
         if (this.nativeViewProtected) {
-            const frame = this.nativeViewProtected.frame;
+            const native = this.nativeViewProtected;
+            const frame = native.alignmentRectForFrame(native.frame);
             const origin = frame.origin;
             const size = frame.size;
             const left = layout.toDevicePixels(origin.x);

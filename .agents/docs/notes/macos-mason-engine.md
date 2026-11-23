@@ -108,6 +108,12 @@ then restores the short value without replacing the text host. For AppKit
 text width assertions, compare the allocated alignment rect; NSTextField's
 optical frame extends beyond it.
 
+
+The Core-backed AppKit View converts layout rectangles to native frames at
+placement. Mason, Core single-child layouts, and ActionBar therefore use the
+same optical-inset handling. Keep the cached rectangle in Core coordinates so
+repeated layout cannot expand a native frame again.
+
 Size constraints take the same path: `native-style.ts::setSizeConstraint`
 reconciles at `subtree` scope because a spec-driven height (the TextArea
 row cap is the canonical case) changes every auto-sized ancestor's

@@ -157,21 +157,7 @@ export class ActionBar extends ActionBarBase {
         const width = right - left;
         const height = bottom - top;
         if (this.titleView) {
-            const title = this.titleView;
-            View.layoutChild(this, title, 0, 0, width, height);
-            const native = title.nativeViewProtected;
-            const placement = title._cachedFrame;
-            if (native && placement) {
-                // Use Core's logical placement so repeated layouts never
-                // expand an already adjusted AppKit frame.
-                const { origin, size } = placement;
-                const parentHeight = this.nativeViewProtected.bounds.size.height;
-                const rect = CGRectMake(origin.x, parentHeight - origin.y - size.height, size.width, size.height);
-                const frame = native.frameForAlignmentRect(rect);
-                if (!CGRectEqualToRect(native.frame, frame)) {
-                    native.frame = frame;
-                }
-            }
+            View.layoutChild(this, this.titleView, 0, 0, width, height);
         }
         else if (this._label) {
             const bounds = this.nativeViewProtected.bounds.size;
