@@ -42,6 +42,9 @@ renderer. Its UI entry keeps the desktop keyboard wrapper.
 The Node-API bridge resolves global class handles on each lookup. Core's
 layout helper retains the `NSScreen` class handle and reads the current
 screen for each conversion, so display-scale changes still take effect.
+In the installed Intel fixture the bridge sometimes reported that the
+screen wrapper had no native counterpart. The layout helper keeps the last
+valid scale for that conversion and reacquires the class on the next read.
 
 The candidate uses the AppKit menu action store, keyboard dispatcher and
 secondary-window lifecycle. Native pickers and context menus unwrap Core

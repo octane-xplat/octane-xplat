@@ -1,11 +1,25 @@
 // Borrowed from NativeScript/NativeScript PR #11089: packages/core/utils/layout-helper/index.macos.ts
 import * as layoutCommon from '@nativescript/core/utils/layout-helper/layout-helper-common';
 let screenClass;
+let lastScreenScale = 1;
 function getMainScreenScale() {
     // Global class reads enter the bridge on every lookup. Keep the class
     // handle and read the current screen and scale for each conversion.
-    screenClass ??= NSScreen;
-    return screenClass.mainScreen?.backingScaleFactor || 1;
+    try {
+        screenClass ??= NSScreen;
+        const scale = screenClass.mainScreen?.backingScaleFactor;
+        if (Number.isFinite(scale) && scale > 0) {
+            lastScreenScale = scale;
+        }
+    } catch (error) {
+        // The Intel bridge can temporarily return a stale native screen handle.
+        // Retry discovery on the next conversion and keep the last known density.
+        if (!String(error).includes('no native counterpart to the JavaScript object')) {
+            throw error;
+        }
+        screenClass = undefined;
+    }
+    return lastScreenScale;
 }
 export const layout = {
     MODE_SHIFT: 30,
