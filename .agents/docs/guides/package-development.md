@@ -219,9 +219,10 @@ tsrx-typegen release, and lockstep publication. Stable qualification runs on
 the bot-maintained `release/lockstep` pull request in `Stable CI`; its
 tree-keyed evidence lets a clean merge publish without rerunning the heavy
 lanes. Nightlies publish on a daily schedule when publishable files changed.
-The PR `checks` job does not install browser engines or run device
-emulation. Browser journeys run locally and are not implied by either release
-track. The PR-only recipe/link hygiene job is separate from release eligibility.
+CI runs package and build checks, including native compilation in Stable CI.
+Invoke [E2E and device-runtime checks](../testing.md#manual-end-to-end-checks)
+explicitly on a developer machine or reserved test host. The PR-only recipe
+and link hygiene job is separate from release eligibility.
 The [release reference](../releases.md) owns the current gate list,
 evidence requirements, trusted publishing, and new-package bootstrap procedure.
 

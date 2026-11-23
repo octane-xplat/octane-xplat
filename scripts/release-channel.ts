@@ -9,7 +9,7 @@ export const RELEASE_TRACKS = {
   stable: {
     workflow: 'stable.yml',
     event: 'pull_request',
-    jobs: ['stable-checks', 'native-ios', 'native-ios-tests', 'native-android'],
+    jobs: ['stable-checks', 'native-ios', 'native-android'],
   },
 }
 

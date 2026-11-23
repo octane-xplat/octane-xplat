@@ -661,9 +661,9 @@ the Turbo package graph. CSS blocks this job; recipe/link hygiene has a separate
 PR-only job. The local Silo decision check stays outside CI.
 
 Browser coverage runs locally through each package's `test:e2e`/`test:browser`
-turbo task (`bun run turbo run test:e2e test:browser`); CI excludes the visual
-browser package, browser downloads, and device emulation from the fast gate.
-Stable CI adds non-browser packed consumers and native qualification. The
+turbo task (`bun run turbo run test:e2e test:browser`). CI excludes the visual
+browser package, browser downloads, and device execution.
+Stable CI adds non-browser packed consumers and native compilation. The
 [release guide](../releases.md) owns the current gate list. Repository and
 consumer lint share `packages/lint`; `xplat/no-dom-globals` replaces the retired
 standalone DOM regex sweep.
@@ -674,7 +674,8 @@ library starters through the PACKED `create-octane-xplat` bin, rewrites the
 consumer's `@octane-xplat/*` specifiers (dependencies, devDependencies, and
 root override policy) to `file:` tarballs, `bun install`s outside the
 workspace, and runs the consumer's own lint/typecheck/build/doctor. Flags:
-`--quick`, `--no-build`, `--smoke web`, `--native ios,android`, `--smoke-ios`,
+`--quick`, `--no-build`, `--smoke web`, `--native ios,android`,
+`--native-build-only`, `--smoke-ios`,
 `--test-ios`, `--test-android`, `--keep`, `--package-manager bun|pnpm`;
 env: `VERIFY_CONSUMER_DIR`, `VERIFY_ANDROID_DEVICE`, `VERIFY_IOS_DEVICE`,
 `XPLAT_WEB_BROWSERS`, `PLAYWRIGHT_REQUIRED`. A `--native` target additionally
@@ -696,14 +697,16 @@ prepared package outputs without rerunning prepack in either mode; run package
 preparation and `check:pack` before it:
 
 ```sh
+bun run turbo run build:go --filter=@octane-xplat/cli
 bun run build:packages
 bun run check:pack
 bun run turbo run test:packed --filter=@octane-xplat/updates
 bun run check:consumer --no-build --quick
 ```
 
-Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (macos-latest) and
-`native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in
+The `native-ios` (macos-latest) and `native-android` (ubuntu-latest with Temurin
+JDK 21) jobs in `stable.yml` pass `--native-build-only` to skip the full starter
+workflow and compile the selected target. Both wrap their run in
 `scripts/with-target-lock.ts <target>` — a per-target advisory lock under
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
@@ -718,8 +721,8 @@ Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
 `ci-evidence-ci-<sha>` for the `ci` track or `ci-evidence-stable-<tree>` for
 `stable`. Required jobs live in
 `scripts/release-channel.ts`: `ci` requires fast `checks`; `stable` requires
-the exhaustive packed consumers and all native lanes on the `release/lockstep`
-pull request. Stable evidence records the tested SHA and its tree so a merge
+the non-browser packed consumers and both native build jobs on the
+`release/lockstep` pull request. Stable evidence records the tested SHA and its tree so a merge
 commit with an identical tree reuses the PR's qualification.
 
 `release-pr.yml` rebuilds the draft release PR on every `main` push; merging

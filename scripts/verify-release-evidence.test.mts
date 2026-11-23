@@ -476,19 +476,45 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
   assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
 
-  const stableSteps = stable.jobs['stable-checks'].steps
-  const browserInstall = stableSteps.findIndex((step) =>
-    step.run?.includes('playwright install --with-deps chromium'),
+  assert.deepEqual(
+    Object.keys(stable.jobs).sort(),
+    [...RELEASE_TRACKS.stable.jobs, 'evidence'].sort(),
   )
 
-  const packedSuites = stableSteps.findIndex((step) => step.run?.includes('turbo run test:packed'))
+  const stableCommands = stable.jobs['stable-checks'].steps.map((step) => step.run ?? '')
+  const packedSuites = stableCommands.find((command) => command.includes('turbo run test:packed'))
 
-  assert.ok(browserInstall >= 0 && packedSuites > browserInstall)
-  assert.equal(stableSteps[browserInstall]['working-directory'], 'tools/web-verification')
-  assert.ok(!stableSteps[packedSuites].run.includes('!@octane-xplat/web-host'))
-  assert.ok(!ci.jobs.checks.steps.some((step) => step.run?.includes('playwright install')))
+  assert.ok(packedSuites)
+  assert.match(packedSuites, /--filter='!@octane-xplat\/web-host'/)
+  assert.match(packedSuites, /--filter='!@octane-xplat\/workshop'/)
+  assert.ok(stableCommands.includes('bun run check:consumer --no-build --quick'))
+
+  for (const platform of ['ios', 'android']) {
+    const commands = stable.jobs[`native-${platform}`].steps.map((step) => step.run ?? '')
+    assert.deepEqual(
+      commands.filter((command) => command.includes('scripts/verify-consumer.ts')),
+      [
+        `node scripts/with-target-lock.ts ${platform} -- node scripts/verify-consumer.ts --no-build --native-build-only --native ${platform}`,
+      ],
+    )
+  }
+
+  for (const workflow of [ci, stable, release]) {
+    for (const job of Object.values(workflow.jobs)) {
+      for (const step of job.steps ?? []) {
+        assert.doesNotMatch(
+          step.run ?? '',
+          /playwright install|simctl|\b(?:test:e2e|test:maestro|test:ios|test:android)\b|--smoke(?:-ios|\s+web)/,
+        )
+      }
+    }
+  }
 
   const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
+  const unitTests = commands.find((command) => command.includes('turbo run test test:native'))
+
+  assert.ok(unitTests)
+  assert.match(unitTests, /--filter='!@octane-xplat\/visual'/)
 
   assert.ok(
     commands.some(

@@ -40,4 +40,4 @@ The app owner can compile and deploy separate server and browser entries.
 
 - AC6: [Generate static pages](../../../docs/platform/web-rendering.md#generate-static-pages), maintained `examples/web-rendering/build.mjs` and `examples/web-rendering/serve.mjs`, `test/host.test.mts` and `test/prerender.test.mts`.
 
-- AC7: [Hashed manifest assets](../../../docs/platform/web-rendering.md#try-the-maintained-example), [show a not-found page](../../../docs/platform/web-rendering.md#show-a-not-found-page), maintained `example/`, `test/assets.test.mts` and `test/packed-consumer.web.mts` via `test:packed`.
+- AC7: [Hashed manifest assets](../../../docs/platform/web-rendering.md#try-the-maintained-example), [show a not-found page](../../../docs/platform/web-rendering.md#show-a-not-found-page), maintained `example/`, `test/assets.test.mts` and `test/packed-consumer.web.mts` via the [manual browser checks](../testing.md#manual-end-to-end-checks).

@@ -276,11 +276,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   Keep agent-facing distinctions in the relevant skill reference and repository
   concepts in `.agents/docs/`; do not maintain a standalone glossary. Prefer
   familiar words in release notes.
-- PR CI stays lightweight: the `checks` job must not install browser engines
-  (Playwright/Chromium) or run device emulation. Browser-driven tests
-  (`@octane-xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,
-  `optional-services` browsers) are excluded or flagged there — keep them
-  out of the PR gate and run them locally.
+- Invoke E2E and device-runtime checks explicitly on a developer machine or
+  reserved test host. Keep browser engines, device emulation, and app launches
+  out of all CI workflows, including stable release qualification. CI runs
+  unit/component tests, package checks, and build-only native checks. See
+  [manual test commands](.agents/docs/testing.md#manual-end-to-end-checks).
 
 <!-- graft:start -->
 

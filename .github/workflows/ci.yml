@@ -12,8 +12,8 @@ concurrency:
 
 jobs:
   # Release readiness: deterministic regressions, package integrity, and one
-  # isolated packed web starter. Exhaustive consumers and devices qualify
-  # stable on the release pull request in stable.yml.
+  # isolated packed web starter. Stable CI adds packed consumers and native
+  # compilation on the release pull request.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -76,8 +76,7 @@ jobs:
       - name: Typecheck mobile
         run: bun run turbo run typecheck --filter=@octane-xplat/mobile
 
-      # @octane-xplat/visual runs browser-mode vitest (Playwright) — excluded here;
-      # it runs locally via the same `bun run test` script.
+      # Invoke the visual workspace's browser suite explicitly on a test host.
       - name: Test
         run: >-
           bun run turbo run test test:native --concurrency=2 --filter='!@octane-xplat/visual' &&
@@ -111,8 +110,8 @@ jobs:
         run: bun run check:optional-services --types-only
 
       # Real tarballs, isolated install, plain TypeScript declarations, and
-      # starter web compilation. Full app/library journeys gate stable.
-      - name: Packed web consumer smoke
+      # starter web compilation.
+      - name: Verify packed web starter install and compilation
         run: bun run check:consumer --no-build --quick
 
   repo-hygiene:

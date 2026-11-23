@@ -18,7 +18,7 @@
 		"submodules": "node scripts/ensure-submodules.ts",
 		"check:css": "node scripts/check-css.ts",
 		"gen:css-registry": "node scripts/gen-css-registry.ts",
-		"test": "turbo run test test:native && node --test examples/auth/server-verification.test.mts && bun run test:scripts",
+		"test": "turbo run test test:native --filter='!@octane-xplat/visual' && node --test examples/auth/server-verification.test.mts && bun run test:scripts",
 		"typegen": "turbo run typegen",
 		"typegen:watch": "turbo watch typegen --continue always",
 		"postinstall": "bun run typegen && turbo run gen --filter=@octane-xplat/app --filter=tweaks-playground",

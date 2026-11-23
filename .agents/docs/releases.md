@@ -9,7 +9,7 @@ Releases are automated through `.github/workflows/release.yml`,
 | Track  | Evidence workflow                                                | Required coverage                                                                                                                                                                                            | Result                                                                                                                                       |
 | ------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | CI     | `CI` (`ci.yml`), on `main` pushes                                | Correctness lint, repository integrity, web/mobile types, unit/object-driver and tooling tests, web/package builds, packed exports, adapter types, and one isolated packed web starter                       | A successful `main` run gates the docs deploy, the tsrx-typegen release, and lockstep stable publication for that exact revision.            |
-| Stable | `Stable CI` (`stable.yml`), on the `release/lockstep` pull request | Declared `test:packed` suites, including Web Host's Chromium suite but excluding Workshop's browser suite, the full app/library starter journey, iOS build/simulator smoke, iOS on-device tests, and Android build                                          | Passing lanes record tree-keyed evidence that qualifies the release PR's exact tree for publication under npm's `latest` tag.                 |
+| Stable | `Stable CI` (`stable.yml`), on the `release/lockstep` pull request | `test:packed` suites except the Web Host and Workshop browser suites, packed web starter install and compilation, and packed iOS and Android builds                                          | Passing lanes record tree-keyed evidence that qualifies the release PR's exact tree for publication under npm's `latest` tag.                 |
 | Nightly | `release.yml`, daily schedule                                   | The newest successful `main` CI run, plus publishable changes (below) since the published nightly                                                                                                             | Publishes `0.0.0-nightly.g<sha7>` under npm's `nightly` tag and moves the `nightly` git tag and GitHub prerelease to the tested revision. |
 
 The stable release flows through a bot-maintained pull request.
@@ -64,20 +64,29 @@ files. See
 [GitHub's additional-permissions guidance](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#granting-additional-permissions).
 This credential is separate from npm's OIDC trusted publishing below.
 
-To reproduce the two consumer gates locally, prepare packages first. The quick
-gate installs real tarballs outside the workspace, checks their declarations
-with plain TypeScript, and compiles the starter through Vite's development and
-production paths. `--no-build` reuses prepared package outputs without
-running prepack hooks in either mode; run `check:pack` first. The full gate also enables
-iOS/Android and validates the app and library workflows:
+Prepare packages to reproduce the consumer gates locally. The quick gate
+installs real tarballs outside the workspace, checks their declarations with
+plain TypeScript, and compiles the starter through Vite's development and
+production paths. The native build-only gate enables the native platforms,
+typechecks the starter, and compiles the selected target. `--no-build` reuses
+prepared package outputs without running prepack hooks, so run `check:pack`
+first:
 
 ```sh
+bun run turbo run build:go --filter=@octane-xplat/cli
 bun run build:packages
 bun run check:pack
 bun run turbo run test:packed --filter=@octane-xplat/updates
 bun run check:consumer --no-build --quick
-bun run check:consumer --no-build
+# Run each native build on a host with the matching SDK.
+bun run check:consumer --no-build --native-build-only --native ios
+bun run check:consumer --no-build --native-build-only --native android
 ```
+
+The [manual test commands](testing.md#manual-end-to-end-checks) cover the
+full app and library starter workflow, browser journeys, and device runtime.
+For a stable release, the release owner records the commit, target, and
+result of any manual checks in the release PR.
 
 The Updates consumer check validates its bootstrap payload and six target
 conditions. Its Node hook is outside the generic checker's paired
@@ -116,8 +125,9 @@ New records also bind the run attempt. An expired, invalid, or failing newest
 record cannot fall back to an older success. Verifying `stable` by tree searches the
 release PR's completed runs; absent evidence resolves `channel=none` rather
 than failing, which queues the inline `qualify` job. A failed or missing
-required gate cannot promote to that track. Browser journeys remain local and
-are not implied by either release track.
+required gate cannot promote to that track. Both tracks record automated
+build, test, and packaging results. Browser and device runtime checks have
+separate manual results.
 
 For stable releases, `scripts/release-version.ts` infers the next version from
 Conventional Commits. Separately, `scripts/release-notes.ts` assembles selected
