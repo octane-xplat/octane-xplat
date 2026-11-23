@@ -67,7 +67,10 @@ export const dependencySections = [
 /** Select Windows preview pins, rejecting a package that also needs mobile pins. */
 export function projectProfile(pkg: Record<string, any>): string {
   const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
-  const windows = deps['@nativescript/windows'] || pkg.xplat?.targets?.windows
+  const windowsTarget = pkg.xplat?.targets?.windows
+  const toolchain = windowsTarget?.toolchain
+  const separateWindows = typeof toolchain === 'string' && toolchain.trim() !== ''
+  const windows = deps['@nativescript/windows'] || (windowsTarget && !separateWindows)
 
   if (windows && (deps['@nativescript/ios'] || deps['@nativescript/android'])) {
     throw new Error(
