@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { initialInput } from './Control.tsrx'
 

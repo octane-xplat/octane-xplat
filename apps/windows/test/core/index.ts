@@ -1,4 +1,5 @@
 import { Application, Button, GridLayout, Label, Page, TextField } from '@nativescript/core'
+// oxlint-disable-next-line xplat/no-ns-deep-import -- Exercise the root/subpath constructor identity regression in this fixture.
 import { Button as DeepButton } from '@nativescript/core/ui/button'
 import { View as MasonView } from '@octane-xplat/nativescript-masonkit'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
