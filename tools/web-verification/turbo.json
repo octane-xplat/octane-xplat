@@ -24,16 +24,16 @@
 		// files must exist before these tasks run.
 		"typecheck": {
 			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
-			"inputs": ["$TURBO_DEFAULT$", "../../apps/mobile/web/**", "../../apps/mobile/vite.web.config.mts", "../../apps/mobile/package.json"],
+			"inputs": ["$TURBO_DEFAULT$", "../../apps/harness/web/**", "../../apps/harness/vite.web.config.mts", "../../apps/harness/package.json"],
 			"outputs": []
 		},
 		"build": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../apps/mobile/web/**",
-				"../../apps/mobile/vite.web.config.mts",
-				"../../apps/mobile/package.json",
+				"../../apps/harness/web/**",
+				"../../apps/harness/vite.web.config.mts",
+				"../../apps/harness/package.json",
 				"../../packages/tsrx-typegen/src/**",
 				"../../scripts/check-native-dist.mjs",
 				"../../packages/ui/scripts/sync-ui-barrels.ts"

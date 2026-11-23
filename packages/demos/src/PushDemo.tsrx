@@ -6,7 +6,7 @@ import type { PushMessage } from '@octane-xplat/push'
 
 // The probe is credential-free: paste a Firebase web config + VAPID key here
 // (web), or drop google-services.json / GoogleService-Info.plist into
-// apps/mobile/App_Resources (native). Without them configure() surfaces the
+// apps/harness/App_Resources (native). Without them configure() surfaces the
 // setup error below instead of failing silently.
 const CONFIG: { firebaseConfig: Record<string, string>; vapidKey: string } | null = null
 // {

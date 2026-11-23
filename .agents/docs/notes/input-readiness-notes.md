@@ -124,7 +124,7 @@ pinned the serial, passed, and restored the previous foreground app.
 - Current Motion evidence includes the 2026-09-30 iOS simulator rerun. This
   pass makes no motion-engine changes and does not replace that evidence.
 
-The maintained native [probe](../../../apps/mobile/test/input-readiness.mobile.tsrx)
+The maintained native [probe](../../../apps/harness/test/input-readiness.mobile.tsrx)
 exposes Focus, Select middle, Controlled write, Blur, Reset and Inspect actions.
 Its Baseline write deliberately assigns native.text directly to reproduce the
 old echo path; applications should use controlled value instead. It was mounted

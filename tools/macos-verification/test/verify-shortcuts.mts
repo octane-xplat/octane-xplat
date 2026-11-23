@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { createMacOSConfig } from '../../../apps/mobile/macos/vite.shared.mjs'
+import { createMacOSConfig } from '../../../apps/harness/macos/vite.shared.mjs'
 import { hostBundle, hostRoot } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const host = process.env.SHORTCUTS_MACOS_HOST

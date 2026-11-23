@@ -14,7 +14,7 @@ The task builds only the selected packages and their dependencies, with two
 build tasks at a time.
 
 ```sh
-export PATH="$PWD/apps/mobile/node_modules/.bin:$PATH"
+export PATH="$PWD/apps/harness/node_modules/.bin:$PATH"
 bun run turbo run check:native-readiness --filter=@octane-xplat/native-readiness -- --target ios --device OWNED_UDID
 bun run turbo run check:native-readiness --filter=@octane-xplat/native-readiness -- --target android --device OWNED_SERIAL
 ```

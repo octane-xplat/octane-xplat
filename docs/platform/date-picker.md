@@ -380,7 +380,7 @@ The Android adapter carries the same build requirements as the picker: the
 leaf's `platforms/android/include.gradle` enables Compose and applies the
 Material 3 BOM, and the app must apply the Compose compiler plugin to the
 generated `date-picker` AAR project from `before-plugins.gradle` (see
-[`apps/mobile/App_Resources/Android/before-plugins.gradle`](../../apps/mobile/App_Resources/Android/before-plugins.gradle))
+[`apps/harness/App_Resources/Android/before-plugins.gradle`](../../apps/harness/App_Resources/Android/before-plugins.gradle))
 and keep the plugin classpath in `buildscript.gradle` aligned to the Kotlin
 Gradle plugin version.
 

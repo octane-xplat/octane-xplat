@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { createMacOSConfig } from '../../../apps/mobile/macos/vite.shared.mjs'
+import { createMacOSConfig } from '../../../apps/harness/macos/vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
   macOSHostArch,
@@ -36,7 +36,7 @@ for (const custom of [false, true]) {
       `import 'virtual:bamboo.css'`,
       `import { runFontFixture } from ${JSON.stringify(join(appRoot, 'test/font-fixture.macos.tsx'))}`,
       ...(custom
-        ? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, '../../apps/mobile/macos/src/fonts.ts'))}`]
+        ? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, '../../apps/harness/macos/src/fonts.ts'))}`]
         : []),
       `NSApplication.sharedApplication`,
       `runFontFixture(${custom ? 'harnessFontOptions, true' : ''})`,

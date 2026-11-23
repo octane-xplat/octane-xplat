@@ -138,8 +138,8 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
     for (const filename of [
       'App.web.tsrx',
       'Panel.linux.tsrx',
-      'apps/mobile/web/src/main.tsrx',
-      'apps/mobile/linux/src/main.tsrx',
+      'apps/harness/web/src/main.tsrx',
+      'apps/harness/linux/src/main.tsrx',
     ]) {
       const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
       const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
@@ -268,18 +268,18 @@ test('platform TSRX source requires a default contract, including declaration-on
 
 test('shared app browser entry directories use browser rules without hiding native leaves', () => {
   for (const file of [
-    'apps/mobile/web/src/main.tsrx',
-    'apps/mobile/linux/src/main.tsrx',
-    'apps\\mobile\\web\\src\\main.tsrx',
+    'apps/harness/web/src/main.tsrx',
+    'apps/harness/linux/src/main.tsrx',
+    'apps\\harness\\web\\src\\main.tsrx',
   ]) {
     assert.equal(isWebFile(file), true, file)
     assert.equal(isNativeFile(file), false, file)
   }
 
   for (const file of [
-    'apps/mobile/src/index.tsrx',
-    'apps/mobile/web/src/Example.ios.tsrx',
-    'apps/mobile/linux/src/Example.gtk.tsrx',
+    'apps/harness/src/index.tsrx',
+    'apps/harness/web/src/Example.ios.tsrx',
+    'apps/harness/linux/src/Example.gtk.tsrx',
   ]) {
     assert.equal(isWebFile(file), false, file)
     assert.equal(isNativeFile(file), true, file)

@@ -31,7 +31,7 @@ const makePkg = (dir, manifest, files = {}) => {
 // deps live in <ws>/node_modules.
 const makeHoistedApp = () => {
   const ws = tmp('xplat-pkgroot-ws-')
-  const app = join(ws, 'apps/mobile')
+  const app = join(ws, 'apps/harness')
 
   mkdirSync(app, { recursive: true })
   writeFileSync(

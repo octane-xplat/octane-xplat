@@ -13,7 +13,7 @@ assert.ok(device, 'Select a task-owned booted simulator with XPLAT_IOS_DEVICE')
 
 // Allow the task-owned source copy to use the installed host dependencies.
 for (const [name, source] of [
-  ['@nativescript/core', join(repoRoot, 'apps/mobile/node_modules/@nativescript/core')],
+  ['@nativescript/core', join(repoRoot, 'apps/harness/node_modules/@nativescript/core')],
   ['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repoRoot, 'packages/lib')],
 ]) {
   const destination = join(packageRoot, 'node_modules', name)

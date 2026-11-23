@@ -27,7 +27,7 @@ const outDir = join(repoDir, 'parity-report', 'shots', 'macos')
 const STEP = 300
 
 const host = spawn(xplatCli, ['dev', 'macos'], {
-  cwd: resolve(appDir, '../../apps/mobile'),
+  cwd: resolve(appDir, '../../apps/harness'),
   env: {
     ...process.env,
     OCTANE_MACOS_AUTOMATION: '1',

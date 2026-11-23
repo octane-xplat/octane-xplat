@@ -44,7 +44,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   void import('@octane-xplat/app/platform/paritysweep')
 }
 
-// Per-file css module imports — same shape as apps/mobile/web/src/main.tsrx. Each
+// Per-file css module imports — same shape as apps/harness/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
 // the slider's web-only translate() leaked onto native views.

@@ -30,7 +30,7 @@ if (SKIP) {
 }
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
-// apps/mobile/src/index.ts so the harness probe timeline stays untouched.
+// apps/harness/src/index.ts so the harness probe timeline stays untouched.
 // The catalog is a parallel stack: the Demos tab hosts its own Frame, so
 // pushes/pop happen inside the tab and never move Frame.topmost() — all
 // reads scope to getStack('demos').currentPage.

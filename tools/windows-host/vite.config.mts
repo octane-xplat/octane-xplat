@@ -28,7 +28,7 @@ const qualificationSource = qualificationEnabled
 const entryOverride = process.env.XPLAT_WINDOWS_ENTRY
   ? fileURLToPath(new URL(process.env.XPLAT_WINDOWS_ENTRY, new URL('./', import.meta.url)))
   : qualificationEnabled
-    ? fileURLToPath(new URL('../../apps/mobile/windows/qualification/index.ts', import.meta.url))
+    ? fileURLToPath(new URL('../../apps/harness/windows/qualification/index.ts', import.meta.url))
     : null
 
 // The shared preset owns the renderer rules, octane→universal/native alias,

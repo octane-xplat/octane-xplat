@@ -186,7 +186,7 @@ test('explicit app selection and workspace package resolution never execute opti
 
   install(project)
 
-  const app = join(project, 'apps/mobile')
+  const app = join(project, 'apps/harness')
 
   put(app, 'package.json', { name: 'app' })
   success(run(scratch, ['init', '--dir', app]))

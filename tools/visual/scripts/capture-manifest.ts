@@ -13,11 +13,11 @@ export function sourceIdentity() {
   for (const path of [
     'tools/visual/src/scenario.ts',
     'tools/visual/src/Switch.stories.web.tsrx',
-    'apps/mobile/src/tests/visual/Switch.stories.ios.tsrx',
+    'apps/harness/src/tests/visual/Switch.stories.ios.tsrx',
     'packages/ui/src/components/forms/Switch.tsrx',
     'packages/ui/src/components/forms/Switch.web.tsrx',
     'tools/visual/src/stage.web.css',
-    'apps/mobile/src/tests/visual/stage.ios.css',
+    'apps/harness/src/tests/visual/stage.ios.css',
     'packages/ui/src/theme/tokens.css',
     'packages/ui/src/theme/chrome.css',
   ]) {

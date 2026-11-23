@@ -22,7 +22,7 @@
 			{
 				"exclude": [
 					"tools/web-verification/",
-					"apps/mobile/web/",
+					"apps/harness/web/",
 					"apps/docs/",
 					"tools/macos-verification/",
 					"packages/cli/test/fixtures/",
@@ -35,7 +35,7 @@
 			{
 				"exclude": [
 					"tools/web-verification/",
-					"apps/mobile/web/",
+					"apps/harness/web/",
 					"apps/docs/"
 				]
 			}
@@ -45,9 +45,9 @@
 			{
 				"exclude": [
 					"tools/web-verification/",
-					"apps/mobile/web/",
+					"apps/harness/web/",
 					"apps/docs/",
-					"apps/mobile/",
+					"apps/harness/",
 					"tools/windows-host/",
 					"packages/typegen-fixture/"
 				]
@@ -57,7 +57,7 @@
 			"error",
 			{
 				"exclude": [
-					"apps/mobile/",
+					"apps/harness/",
 					"packages/nativescript-octane/",
 					"packages/vite-octane/",
 					"tools/windows-host/",
@@ -82,7 +82,7 @@
 			{
 				"exclude": [
 					"tools/web-verification/",
-					"apps/mobile/web/",
+					"apps/harness/web/",
 					"apps/docs/"
 				]
 			}

@@ -174,7 +174,7 @@ Discovery is not replay readiness, and Chromium DOM IDs take precedence.
 
 ## On-device unit tests (`ns test`, Vitest)
 
-`apps/mobile` runs `@nativescript/unit-test-runner` — Vitest orchestrates on
+`apps/harness` runs `@nativescript/unit-test-runner` — Vitest orchestrates on
 the host and a WebSocket bridge executes specs inside the real app runtime
 (V8/JSC + native bridge + UI layer). `ns test <platform>` runs
 `vitest run` with `NS_PLATFORM`/`NS_DEVICE`; the plugin launches
@@ -190,7 +190,7 @@ NODE_OPTIONS=--max-old-space-size=6144 node scripts/with-target-lock.ts ios -- b
 node scripts/with-target-lock.ts android -- bun run turbo run test:android --filter=@octane-xplat/mobile --env-mode=loose -- --device DEVICE_SERIAL
 ```
 
-- Specs live in `apps/mobile/src/**/*.spec.{ts,tsx,tsrx}`; the test entry
+- Specs live in `apps/harness/src/**/*.spec.{ts,tsx,tsrx}`; the test entry
   `src/test.ts` bundles them via `import.meta.glob` into the device registry.
   Keep the glob and `vitest.config.mts` `include` in sync — a spec the glob
   misses cannot load on device (the host reports "was not bundled").
@@ -286,7 +286,7 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 
 ## Public Text visibility regression
 
-`apps/mobile/src/tests/text-visibility.spec.tsrx` drives public signal-backed
+`apps/harness/src/tests/text-visibility.spec.tsrx` drives public signal-backed
 inline/class visibility and compiler-owned conditional blocks in simple and
 layered Screen/Grid layouts. It checks hidden slot retention, collapsed slot
 removal, changed hidden text, fresh remount identity, parent resize, heartbeat

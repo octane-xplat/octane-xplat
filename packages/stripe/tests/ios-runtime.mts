@@ -60,7 +60,7 @@ await visit(sdk)
 assert.ok(count, 'Official SDK frameworks are required')
 for (const [name, source] of [
   ['@octane-xplat/stripe-sdk-fixture', plugin],
-  ['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
+  ['@nativescript/core', join(repo, 'apps/harness/node_modules/@nativescript/core')],
   ['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')],
 ]) {
   const destination = join(packageRoot, 'node_modules', name)
@@ -77,7 +77,7 @@ for (const [name, source] of [
 
 const resources = join(runtime, 'App_Resources')
 
-await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
+await cp(join(repo, 'apps/harness/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
 })

@@ -446,7 +446,7 @@ test('real framework checkout docs remain native and version-labelled', () => {
       'search',
       'dictation',
       '--app',
-      'apps/mobile',
+      'apps/harness',
       '--package',
       '@octane-xplat/ui',
       '--mode',
@@ -461,7 +461,7 @@ test('real framework checkout docs remain native and version-labelled', () => {
     true,
   )
 
-  const page = data(root, ['docs', 'read', '--app', 'apps/mobile', '--ref', result.results[0].ref], {
+  const page = data(root, ['docs', 'read', '--app', 'apps/harness', '--ref', result.results[0].ref], {
     XPLAT_MCP_CACHE: join(scratch, 'real-cache'),
   })
 

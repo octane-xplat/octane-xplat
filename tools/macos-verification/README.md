@@ -9,7 +9,7 @@ packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
 ```js
-// In apps/mobile/macos/src/dev-shell.mjs, through the packaged AppKit host.
+// In apps/harness/macos/src/dev-shell.mjs, through the packaged AppKit host.
 import { createAppKitWindow } from '@octane-xplat/macos-appkit/host'
 
 const host = createAppKitWindow({ terminateAfterLastWindowClosed: true })
@@ -27,7 +27,7 @@ router's admission/cancellation policy; it does not bypass guards or retry block
 links automatically. See [incoming-link ownership](../../docs/app/navigation.md#handle-incoming-links).
 
 ```tsx
-// apps/mobile/macos/src/App.tsx owns the binding for this harness.
+// apps/harness/macos/src/App.tsx owns the binding for this harness.
 import { useEffect } from 'octane'
 import { App } from '@octane-xplat/app'
 import { bindAppKitRouteLinks } from '@octane-xplat/app/appkit-route-links.macos'
@@ -58,7 +58,7 @@ for an independent consumer setup.
 
 The renderer defaults to Apple's system font. This harness explicitly registers
 Geist and selects it on each root to keep its demo typography consistent.
-`apps/mobile/macos/src/fonts.ts` owns the font assets, license, and registration; the packaged
+`apps/harness/macos/src/fonts.ts` owns the font assets, license, and registration; the packaged
 host embeds the font bytes and license. See [AppKit fonts](../../docs/app/styling.md#appkit-fonts)
 for application font ownership and fallback behavior.
 
@@ -72,7 +72,7 @@ const root = createMacOSRoot(host.contentView, harnessFontOptions)
 
 ## Native AppKit harness
 
-`apps/mobile/macos` imports `App` from `@octane-xplat/app`, and the app imports UI components
+`apps/harness/macos` imports `App` from `@octane-xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 `macos` condition selects `src/index.macos.ts` and matching declarations. This
 is an explicit experimental AppKit surface: components without a host
@@ -148,7 +148,7 @@ Packaged apps are universal binaries for Apple Silicon and Intel Macs. Packaging
 and system JavaScriptCore; it does not download or bundle Node.
 
 ```sh
-# Run from apps/mobile.
+# Run from apps/harness.
 xplat doctor
 xplat dev macos
 xplat build --targets macos
@@ -337,7 +337,7 @@ metadata (`metadata.macos.arm64.nsmd`, `metadata.macos.x86_64.nsmd`) and the
 JavaScript host shim live in `Contents/Resources`. No Node executable or
 JavaScript engine binary is bundled. The bundle targets macOS 13.5 or later.
 Artifacts are written under
-`apps/mobile/artifacts/macos-universal/` so dev builds do not clean them.
+`apps/harness/artifacts/macos-universal/` so dev builds do not clean them.
 
 The host accepts one bundled CommonJS entry. Vite must bundle ordinary
 dependencies. Set `build.rollupOptions.external` to
@@ -449,7 +449,7 @@ export MACOS_NOTARY_PROFILE=octane-notary
 bun run xplat build --targets macos
 ```
 
-Run the build from `apps/mobile`; the CLI signs and verifies the app and disk
+Run the build from `apps/harness`; the CLI signs and verifies the app and disk
 image, submits the image, staples the ticket, and validates it. See
 [Apple's notarytool credential guidance](https://developer.apple.com/documentation/technotes/tn3147-migrating-to-the-latest-notarization-tool).
 

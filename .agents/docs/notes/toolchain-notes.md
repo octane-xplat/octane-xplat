@@ -1,6 +1,6 @@
 # Toolchain notes
 
-> **Filename update (2026-09-28):** the app shell now lives in `apps/mobile`; current module suffix rules are in [module resolution](../../../docs/platform/module-resolution.md). Historical build notes below may use the former `.native` suffix.
+> **Filename update (2026-09-28):** the app shell now lives in `apps/harness`; current module suffix rules are in [module resolution](../../../docs/platform/module-resolution.md). Historical build notes below may use the former `.native` suffix.
 
 > Detailed build and release record. Two builds, one tree. The dev loop should feel like one project even though
 > it is two pipelines.
@@ -26,7 +26,7 @@
 
 - `vite dev` (web) + `ns run ios` / `ns run android` run concurrently against
   the same tree — **verified** (lab-experiment, iOS sim): three vite
-  processes coexist — web on `:5200` (pinned in `apps/mobile/vite.web.config.mts`)
+  processes coexist — web on `:5200` (pinned in `apps/harness/vite.web.config.mts`)
   plus, per native target, `vite serve` (the device-facing dev server) and a
   `vite build --watch` bundle emitter. The ns server prefers `:5173` and
   auto-bumps on collision (the device discovers the actual port from synced
@@ -42,7 +42,7 @@
   tsconfig `compilerOptions.paths`. A workspace package that is imported but
   absent from `paths` builds and serves fine, but edits to it never reach
   `handleHotUpdate` — the save is dropped _silently_, no log line. Harness
-  fix: `apps/mobile/tsconfig.json` maps `@octane-xplat/app`, `@octane-xplat/demos`,
+  fix: `apps/harness/tsconfig.json` maps `@octane-xplat/app`, `@octane-xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
 - **Patch installs of source-served deps** (pnpm/bun `patchedDependencies`)
@@ -451,7 +451,7 @@ bun run turbo run typecheck --filter=@octane-xplat/mobile
 ## Native app plumbing
 
 - `nativescript.config.ts`, `App_Resources/` (icons, splash, fonts, strings,
-  entitlements), `platforms/` generated — live in `apps/mobile`.
+  entitlements), `platforms/` generated — live in `apps/harness`.
 - Xcode + Android SDK toolchains; CocoaPods via NS CLI. Signing/profiles per
   usual native workflow — CI needs macOS runners for iOS builds.
 - Distribution: no EAS equivalent — `ns build ios --release` + fastlane or
@@ -711,7 +711,7 @@ workflow and compile the selected target. Both wrap their run in
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
 host. `scripts/with-native-target-lock.py` (fail-fast) and
-`apps/mobile/scripts/check-navigation.py` contend on the same
+`apps/harness/scripts/check-navigation.py` contend on the same
 `<target>.lock` directory protocol through `scripts/native_target_lock.py`,
 so Python and Node callers mutually exclude on a target.
 `XPLAT_NATIVE_LOCK_DIR` redirects the lock root for all of them. Android

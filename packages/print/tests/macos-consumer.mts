@@ -74,7 +74,7 @@ setTimeout(async () => {
 `,
 )
 
-const require = createRequire(join(repo, 'apps/mobile/package.json'))
+const require = createRequire(join(repo, 'apps/harness/package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
 
 await build({

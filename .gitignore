@@ -4,11 +4,11 @@ node_modules/
 dist/
 dist-app/
 tools/macos-verification/artifacts/
-apps/mobile/artifacts/
+apps/harness/artifacts/
 dist-democheck/
 .ns-vite-build/
 parity-report/
-apps/mobile/platforms/
+apps/harness/platforms/
 .DS_Store
 TASK.md
 
@@ -24,10 +24,10 @@ packages/app/src/styled-system/
 **/routes.gen.manifest.json
 
 # Generated release navigation reports and build logs.
-apps/mobile/navigation-results/
-apps/mobile/navigation-project/platforms/
-apps/mobile/navigation-project/package-lock.json
-apps/mobile/navigation-project/src/default-routes.gen.*
+apps/harness/navigation-results/
+apps/harness/navigation-project/platforms/
+apps/harness/navigation-project/package-lock.json
+apps/harness/navigation-project/src/default-routes.gen.*
 tools/macos-verification/test/default-routes.gen.*
 
 # Native Maestro smoke app build outputs.

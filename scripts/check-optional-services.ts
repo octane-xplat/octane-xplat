@@ -26,8 +26,8 @@ try {
     const files =
       target === 'mobile'
         ? [
-            'apps/mobile/references.d.ts',
-            'apps/mobile/types/globals.d.ts',
+            'apps/harness/references.d.ts',
+            'apps/harness/types/globals.d.ts',
             'packages/platform/src/auth-session.ts',
             'packages/media/src/media.ts',
             'packages/recorder/src/index.ts',

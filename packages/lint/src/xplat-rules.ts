@@ -6,7 +6,7 @@
 //
 // Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
 // files and the shared app's web/Linux webview sources own DOM code;
-// `.mobile/.ios/.android.*`, the remaining `apps/mobile` sources, and
+// `.mobile/.ios/.android.*`, the remaining `apps/harness` sources, and
 // unsuffixed files with a `.web.*` sibling own NativeScript. Other unsuffixed
 // files are shared. The `exclude` option covers trees that break that default.
 
@@ -26,7 +26,7 @@ export const isWebFile = (f) => {
   return (
     /\.(web|linux)\./.test(file) ||
     (!/\.(mobile|ios|android|macos|windows|gtk)\./.test(file) &&
-      /(^|\/)apps\/mobile\/(web|linux)\/src\//.test(file))
+      /(^|\/)apps\/harness\/(web|linux)\/src\//.test(file))
   )
 }
 
@@ -53,7 +53,7 @@ const isNativeDefaultFile = (f) => {
 export const isNativeFile = (f) =>
   !isWebFile(f) &&
   (/\.(mobile|ios|android|macos|windows|gtk)\./.test(norm(f)) ||
-    /(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
+    /(^|\/)apps\/(harness|windows)\//.test(norm(f)) ||
     /(^|\/)src\/native\//.test(norm(f)) ||
     isNativeDefaultFile(f))
 

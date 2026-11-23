@@ -9,6 +9,6 @@ export default defineConfig((env) => ({
   build: {
     outDir: fileURLToPath(new URL('./dist-democheck/', import.meta.url)),
     emptyOutDir: true,
-    rollupOptions: { input: fileURLToPath(new URL('../../apps/mobile/web/democheck.html', import.meta.url)) },
+    rollupOptions: { input: fileURLToPath(new URL('../../apps/harness/web/democheck.html', import.meta.url)) },
   },
 }))

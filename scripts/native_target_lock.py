@@ -4,7 +4,7 @@ simulator/device use across worktrees and agent sessions on this host.
 scripts/with-target-lock.ts implements the same protocol for Node callers:
 every wrapper contends on one lock dir, so Python and Node callers mutually
 exclude on a target. Used by with-native-target-lock.py (fail-fast CLI) and
-apps/mobile/scripts/check-navigation.py (inline, optional wait).
+apps/harness/scripts/check-navigation.py (inline, optional wait).
 
 The lock lives under the system temp dir shared by every worktree;
 XPLAT_NATIVE_LOCK_DIR redirects the lock root and XPLAT_NATIVE_LOCK_POLL_MS

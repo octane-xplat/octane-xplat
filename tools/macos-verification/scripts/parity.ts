@@ -15,7 +15,7 @@ const xplatCli = join(
 const repoDir = resolve(appDir, '../..')
 const outputFile = join(repoDir, 'parity-report', 'macos.json')
 const host = spawn(xplatCli, ['dev', 'macos'], {
-  cwd: resolve(appDir, '../../apps/mobile'),
+  cwd: resolve(appDir, '../../apps/harness'),
   env: {
     ...process.env,
     OCTANE_MACOS_AUTOMATION: '1',

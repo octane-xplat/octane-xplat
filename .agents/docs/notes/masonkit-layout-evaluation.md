@@ -63,7 +63,7 @@ regression's read-only diagnostic contains one documented owner assertion at
 that boundary; it does not imply the Label has Mason container methods.
 
 The maintained public regression and raw-label comparison live in
-`apps/mobile/src/tests/text-visibility.spec.tsrx`; see
+`apps/harness/src/tests/text-visibility.spec.tsrx`; see
 [the focused command and evidence limits](../testing.md#public-text-visibility-regression).
 UIView/layer flags and sibling geometry isolate suppression-state behavior;
 they do not establish inspected pixels or OS hit-testing.
@@ -134,7 +134,7 @@ It then invalidates the foreign leaf's cached engine measurement. Inner roots
 skip this warmup while they have a Mason ancestor; measurement callbacks must
 not re-enter the shared Rust compute. No native frame or style height is pinned.
 Remove the patch only when the unmodified maintained
-`apps/mobile/src/tests/foreign-screen-height.spec.tsrx` resize sequence passes
+`apps/harness/src/tests/foreign-screen-height.spec.tsrx` resize sequence passes
 against the replacement engine, including the final 200×500 to 107×300 shrink.
 This height correction does not establish nested iOS width parity.
 

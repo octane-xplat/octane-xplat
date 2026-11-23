@@ -1,7 +1,7 @@
 {
-	"extends": "../../apps/mobile/tsconfig.web.json",
+	"extends": "../../apps/harness/tsconfig.web.json",
 	"include": [
-		"../../apps/mobile/web/src/**/*",
+		"../../apps/harness/web/src/**/*",
 		"tests/fixtures/query-cache/main.tsrx",
 		"../../packages/*/src/**/*.d.ts",
 		"../../packages/ui/type-support/**/*.d.ts"

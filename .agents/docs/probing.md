@@ -175,7 +175,7 @@ exercise a locally built package for an isolated experiment. The
 and target limits.
 
 Use `--resources /absolute/path/to/App_Resources` for a case's native resources.
-The default comes from `apps/mobile/App_Resources`; Google Services credentials
+The default comes from `apps/harness/App_Resources`; Google Services credentials
 are excluded. Plugins requiring credentials or custom application/build
 configuration need that setup separately; a simple case cannot establish their
 integration just by importing them. Dependency changes may require reinstalling

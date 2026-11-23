@@ -611,7 +611,7 @@ Owning upstream source:
 [font.ios.ts at 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/styling/font.ios.ts).
 The CLI's `test:fonts` lane executes the installed patched module against a
 CoreText boundary model. Actual platform behavior is owned by
-`apps/mobile/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
+`apps/harness/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
 Geist spec; run `test:ios:fonts` on the selected, prebooted simulator. Host
 checks alone do not qualify UIKit behavior or root font-family inheritance.
 

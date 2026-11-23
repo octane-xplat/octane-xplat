@@ -140,14 +140,14 @@ bun run --cwd tools/web-verification test
 ```
 
 For a fresh browser runtime pass, start this worktree's server with
-`bun run --cwd apps/mobile web --host 127.0.0.1 --port 4327 --strictPort`, then run
+`bun run --cwd apps/harness web --host 127.0.0.1 --port 4327 --strictPort`, then run
 `pnpm exec node tools/web-verification/scripts/data-smoke.ts http://127.0.0.1:4327`.
 The dedicated HTML entry avoids changing the navigation harness. The intentional
 throw is one expected browser `pageerror`; universal native roots instead
 report it to `onUncaughtError` without a dropped-event warning.
 
 For native builds, prepare a fresh directory for each target with
-`node apps/mobile/scripts/prepare-data-probe.ts research/data-probe-ios`
+`node apps/harness/scripts/prepare-data-probe.ts research/data-probe-ios`
 (use another directory for Android). It uses this worktree's installed modules
 and app resources, declares only data-probe dependencies, and refuses to overwrite
 an existing directory. From the repository root, build with

@@ -17,7 +17,7 @@ const timeoutMs = Number(process.env.XPLAT_MACOS_SMOKE_TIMEOUT_MS ?? 240000)
 assert.ok(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'Invalid AppKit smoke timeout')
 
 const host = spawn(xplatCli, ['dev', 'macos'], {
-  cwd: fileURLToPath(new URL('../../../apps/mobile/', import.meta.url)),
+  cwd: fileURLToPath(new URL('../../../apps/harness/', import.meta.url)),
   env: {
     ...process.env,
     OCTANE_MACOS_AUTOMATION: '1',

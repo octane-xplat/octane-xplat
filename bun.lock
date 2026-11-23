@@ -156,7 +156,7 @@
         "vite": "catalog:",
       },
     },
-    "apps/mobile": {
+    "apps/harness": {
       "name": "@octane-xplat/mobile",
       "version": "0.0.0",
       "dependencies": {
@@ -4609,7 +4609,7 @@
 
     "@octane-xplat/media-library": ["@octane-xplat/media-library@workspace:packages/media-library"],
 
-    "@octane-xplat/mobile": ["@octane-xplat/mobile@workspace:apps/mobile"],
+    "@octane-xplat/mobile": ["@octane-xplat/mobile@workspace:apps/harness"],
 
     "@octane-xplat/motion": ["@octane-xplat/motion@workspace:packages/motion"],
 

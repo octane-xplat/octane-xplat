@@ -29,5 +29,5 @@ see the [incoming-link guide](../../../docs/app/navigation.md#handle-incoming-li
 and [codec regressions](../../../packages/lib/tests/route-pattern.test.mts).
 
 - AC1: [Route files](../../../docs/app/navigation.md#open-your-first-route) and [incoming links](../../../docs/app/navigation.md#handle-incoming-links).
-- AC2: [Listener wiring](../../../docs/app/navigation.md#handle-incoming-links), [scheme registration](../../../docs/app/navigation.md#register-a-custom-scheme), and [cold/warm reproduction](../../../docs/app/navigation.md#reproduce-launch-and-fallback-behavior). Maintained release harness: `apps/mobile/src/navigation-entry.mobile.ts`.
+- AC2: [Listener wiring](../../../docs/app/navigation.md#handle-incoming-links), [scheme registration](../../../docs/app/navigation.md#register-a-custom-scheme), and [cold/warm reproduction](../../../docs/app/navigation.md#reproduce-launch-and-fallback-behavior). Maintained release harness: `apps/harness/src/navigation-entry.mobile.ts`.
 - AC3: [Fallback reproduction](../../../docs/app/navigation.md#reproduce-launch-and-fallback-behavior) and [guard boundary](../../../docs/app/navigation.md#guard-a-route-and-supply-context). Runtime status is recorded separately in Silo; blocked native runs do not count as verification.

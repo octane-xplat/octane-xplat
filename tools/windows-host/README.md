@@ -72,7 +72,7 @@ been verified in an arm64 VM),
 
 ```sh
 bun install          # in the repo root
-bun run --cwd apps/mobile windows
+bun run --cwd apps/harness windows
 ```
 
 `bun run --cwd tools/windows-host xplat doctor` checks the win32 host, exact

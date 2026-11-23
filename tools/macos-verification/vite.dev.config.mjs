@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { createMacOSConfig } from '../../apps/mobile/macos/vite.shared.mjs'
+import { createMacOSConfig } from '../../apps/harness/macos/vite.shared.mjs'
 
 const config = createMacOSConfig({ hmr: true })
 

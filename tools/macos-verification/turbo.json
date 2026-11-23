@@ -11,7 +11,7 @@
 			],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../apps/mobile/macos/src/**"
+				"../../apps/harness/macos/src/**"
 			],
 			"outputs": []
 		},
@@ -78,8 +78,8 @@
 			],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../apps/mobile/macos/src/**",
-				"../../apps/mobile/macos/vite.shared.mjs",
+				"../../apps/harness/macos/src/**",
+				"../../apps/harness/macos/vite.shared.mjs",
 				"../../packages/tsrx-typegen/src/**",
 				"../../scripts/check-native-dist.mjs",
 				"../../packages/ui/scripts/sync-ui-barrels.ts"

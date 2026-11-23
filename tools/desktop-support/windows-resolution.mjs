@@ -42,13 +42,13 @@ try {
   const results = []
 
   for (const [s, i] of [
-    ['@octane-xplat/ui', 'apps/mobile/windows/index.ts'],
-    ['@octane-xplat/gif', 'apps/mobile/windows/index.ts'],
+    ['@octane-xplat/ui', 'apps/harness/windows/index.ts'],
+    ['@octane-xplat/gif', 'apps/harness/windows/index.ts'],
     ['./AnimatedImage.tsrx', 'packages/gif/src/index.ts'],
-    ['@octane-xplat/maps', 'apps/mobile/windows/index.ts'],
+    ['@octane-xplat/maps', 'apps/harness/windows/index.ts'],
     ['./MapView.tsrx', 'packages/maps/src/index.ts'],
-    ['@octane-xplat/sentry', 'apps/mobile/windows/index.ts'],
-    ['@octane-xplat/platform/environment', 'apps/mobile/windows/index.ts'],
+    ['@octane-xplat/sentry', 'apps/harness/windows/index.ts'],
+    ['@octane-xplat/platform/environment', 'apps/harness/windows/index.ts'],
     ['./index.shared', 'packages/ui/src/index.mobile.ts'],
   ]) {
     try {

@@ -16,7 +16,7 @@
 			"@octane-xplat/platform/*": ["../../packages/platform/src/*"]
 		}
 	},
-	"include": ["../../apps/mobile/macos/src/**/*", "../../packages/*/src/**/*.d.ts"],
+	"include": ["../../apps/harness/macos/src/**/*", "../../packages/*/src/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "artifacts"],
 	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
 }

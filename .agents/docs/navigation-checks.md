@@ -39,8 +39,8 @@ drivers, browser input, native callbacks and OS input establish different things
    ```sh
    xcrun simctl list devices available
    adb devices -l
-   python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-   python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+   python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+   python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
    ```
 
    Android needs JDK 21; the runner resolves it with
@@ -58,8 +58,8 @@ To wait for it, use the explicit setting below. `build-only` checks compilation
 and performs no runtime qualification.
 
 ```sh
-XPLAT_NAVIGATION_WAIT_FOR_LOCK=1 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android build-only
+XPLAT_NAVIGATION_WAIT_FOR_LOCK=1 python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android build-only
 ```
 
 The runner refuses to overwrite a running fixture. It stops only its own app
@@ -69,8 +69,8 @@ signing. Shut down any simulator or emulator you started before releasing its
 resource reservation.
 
 ```text
-apps/mobile/navigation-results/ios/result.json
-apps/mobile/navigation-results/android/result.json
+apps/harness/navigation-results/ios/result.json
+apps/harness/navigation-results/android/result.json
 ```
 
 On iOS, the runner uses `simctl install/openurl`. Some simulator versions ask
@@ -79,7 +79,7 @@ metadata and accepts only this fixture's confirmation button. No image analysis
 or shared desktop input is needed.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 ```
 
 ## Guarded browser history and native event contracts
@@ -107,8 +107,8 @@ The remaining native retained-history integration is explicit in the
 No fresh AppKit/Linux runtime was run for this refinement; Windows has no VM.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 A temporary probe copied the harness's URL schemes into its distinct app ID and
@@ -140,8 +140,8 @@ object checks do not establish OS hit-testing or gesture behavior. The owned
 simulator and emulator were shut down after qualification.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 ## Guarded Frame Back
@@ -157,7 +157,7 @@ the declaration graph pass.
 
 ```sh
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/render-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 The original runs qualified programmatic iOS Back. Later checks below cover
@@ -169,7 +169,7 @@ emulator. Both were shut down after qualification. Linux/Windows evidence is
 source/types for this increment, and Windows has no VM.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 ```
 
@@ -401,8 +401,8 @@ reset, Back and owner cleanup. Modal checks cover multiple screens, nested
 surfaces, dismissal, retained state and failed root takeover.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 Shared Tabs checks preserve inactive pane state and bind navigation to the
@@ -548,8 +548,8 @@ These checks inspect native objects and data; they do not inspect visual
 animation snapshots or establish OS hit-testing.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 ```
 
@@ -576,8 +576,8 @@ runtime remains unavailable.
 ```sh
 bun run --filter @octane-xplat/web build
 node tools/web-verification/scripts/navigation.ts
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 ```
 
@@ -674,7 +674,7 @@ the target's results directory. Timeouts, occupied resources, unavailable SDKs
 and missing devices are unsuccessful runs, never runtime passes.
 
 ```sh
-cat apps/mobile/navigation-results/android/result.json
+cat apps/harness/navigation-results/android/result.json
 ```
 
 Windows has no VM in this task and is checked through source/types only. The
@@ -712,8 +712,8 @@ These checks predate the [iOS Frame edge qualification](#qualify-ios-frame-edge-
 and do not establish native modal-dismissal gesture interception.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 The dependent type gate passed **50 tasks**, including platform programs, and
@@ -766,7 +766,7 @@ Back transition after release and admission; it provides no interactive preview.
 
 ```sh
 # Requires an owned iOS 26+ simulator and idb. No images are captured.
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 ```
 
 The runner sends each requested OS swipe once and acknowledges it through the
@@ -802,8 +802,8 @@ refreshes the presenter once and closes normally. Forced native closure remains
 a cleanup reconciliation path, not guarded user navigation.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 NativeScript 9.1.3 uses the cancellation option for iOS presentation blocking and
@@ -834,8 +834,8 @@ These checks do not establish native confirmation-button hit-testing, OS RTL,
 predictive animation, interactive modal dismissal, document unload or process exit.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 ```
 
@@ -1185,8 +1185,8 @@ released refs. The shared protocol is
 `packages/ui/tests/route-retention-example.tsrx`.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_UDID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_UDID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx

@@ -50,8 +50,8 @@ import { MaterialDropdown } from '@octane-xplat/picker/android'
 
 Android apps also need the Compose compiler plugin configured for the generated
 `picker` project. Follow the maintained harness setup in
-[`buildscript.gradle`](../../apps/mobile/App_Resources/Android/buildscript.gradle)
-and [`before-plugins.gradle`](../../apps/mobile/App_Resources/Android/before-plugins.gradle),
+[`buildscript.gradle`](../../apps/harness/App_Resources/Android/buildscript.gradle)
+and [`before-plugins.gradle`](../../apps/harness/App_Resources/Android/before-plugins.gradle),
 matching the compiler plugin version to NativeScript's Kotlin Gradle plugin.
 
 ## Platform APIs

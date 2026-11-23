@@ -252,7 +252,7 @@ test('pnpm versions, nullish fallbacks and malformed-lock policy preserve warnin
 
 test('real repository importer and installed framework metadata are usable without Node execution', () => {
   for (const operation of ['root', 'versions', 'binding']) {
-    compare({ operation, directory: join(root, 'apps/mobile'), root }, { emptyPath: true })
+    compare({ operation, directory: join(root, 'apps/harness'), root }, { emptyPath: true })
   }
 })
 

@@ -105,7 +105,7 @@ From the repo root, install with `bun install --frozen-lockfile`, then:
    The JSON separates sampled row geometry, rAF callback intervals, live-list
    collected heap, and collected heap after route disposal. rAF alone does not
    prove compositor presentation timing.
-4. From `apps/mobile`, run
+4. From `apps/harness`, run
    `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts ios variable`,
    or replace `ios` with `android` and supply an ADB serial. Android requires
    Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control and

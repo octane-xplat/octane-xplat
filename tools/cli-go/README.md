@@ -615,7 +615,7 @@ requests the SDK's `source-map-js` module and app entry, then closes the server.
 Its explicit exit status is independent of project exception handlers.
 
 ```sh
-XPLAT_GO_ANDROID_HTTP_APP="$PWD/apps/mobile" bun run turbo run test:go-dev-android-http --filter=@octane-xplat/cli
+XPLAT_GO_ANDROID_HTTP_APP="$PWD/apps/harness" bun run turbo run test:go-dev-android-http --filter=@octane-xplat/cli
 ```
 
 The opt-in iOS relay gate builds the same small disposable app for the iOS

@@ -14,7 +14,7 @@ await linkDependencies(root, repo)
 
 const resources = join(root, 'tests/.runtime/App_Resources')
 
-await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
+await cp(join(repo, 'apps/harness/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
 })

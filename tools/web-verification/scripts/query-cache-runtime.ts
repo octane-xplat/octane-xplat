@@ -11,7 +11,7 @@ import type { QueryInspectionSnapshot } from '@octane-xplat/ui/data/dev'
 
 const execute = promisify(execFile)
 const root = fileURLToPath(new URL('../tests/fixtures/query-cache/', import.meta.url))
-const appRoot = fileURLToPath(new URL('../../../apps/mobile/', import.meta.url))
+const appRoot = fileURLToPath(new URL('../../../apps/harness/', import.meta.url))
 const workspace = fileURLToPath(new URL('../../../', import.meta.url))
 const cli = fileURLToPath(new URL('../../../packages/cli/dist/cli.js', import.meta.url))
 const platform =
@@ -58,7 +58,7 @@ async function until<T>(
 async function command<T>(args: string[]): Promise<T> {
   const { stdout } = await execute(
     process.execPath,
-    [cli, ...args, '--project', workspace, '--app', 'apps/mobile', '--json'],
+    [cli, ...args, '--project', workspace, '--app', 'apps/harness', '--json'],
     {
       env: { ...process.env, XPLAT_PERMISSIONS: 'runtime-actions' },
       maxBuffer: 4 * 1024 * 1024,

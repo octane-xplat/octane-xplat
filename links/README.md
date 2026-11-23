@@ -52,7 +52,7 @@ and select it explicitly:
 ```sh
 ln -s /path/to/nativescript-mason links/nativescript-mason
 bun run dev:masonkit --core
-realpath apps/mobile/node_modules/@octane-xplat/nativescript-mason-core
+realpath apps/harness/node_modules/@octane-xplat/nativescript-mason-core
 ```
 
 The resolved path must end in `dist/packages/nativescript-mason-core` in that

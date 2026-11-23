@@ -44,7 +44,7 @@ class WorkshopActions extends NSObject {
 
 /**
  * Minimal window service standing in for the consumer's AppKit window layer
- * (see apps/mobile/macos appkit.ts). Requires an explicit compiled component; the
+ * (see apps/harness/macos appkit.ts). Requires an explicit compiled component; the
  * stage host wraps story windows so providers/fixture reach the second root.
  */
 function installWindowService({ parent, offscreen }) {

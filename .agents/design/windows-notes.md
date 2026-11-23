@@ -88,7 +88,7 @@ run below:
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
   otherwise resolve a second core copy from inside `packages/*`), tsconfig
   `paths` pinning the app core for the same reason, the harness entry from
-  `apps/mobile`, and `App_Resources/Windows` from upstream's starter.
+  `apps/harness`, and `App_Resources/Windows` from upstream's starter.
 - `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
   builds; `@nativescript/windows` exact `1.0.0-beta.24`; dev-tag CLI
   `nativescript@9.1.2-dev.2026-09-24-*`. Preview-version patch twins carry

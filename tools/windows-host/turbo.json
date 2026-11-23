@@ -42,7 +42,7 @@
 			"passThroughEnv": ["NODE_OPTIONS"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../apps/mobile/windows/**",
+				"../../apps/harness/windows/**",
 				"../../packages/**/*.ts",
 				"../../packages/**/*.tsx",
 				"../../packages/**/*.tsrx",

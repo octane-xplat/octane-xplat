@@ -12,7 +12,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
 import { storage, router } from '@octane-xplat/app'
 import 'octane/signals'
-// Per-file css module imports — same shape as apps/mobile/web/src/main.tsrx. Each
+// Per-file css module imports — same shape as apps/harness/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
 // the slider's web-only translate() leaked onto native views.

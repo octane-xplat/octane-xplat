@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { createMacOSConfig } from '../../../apps/mobile/macos/vite.shared.mjs'
+import { createMacOSConfig } from '../../../apps/harness/macos/vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
   macOSHostArch,

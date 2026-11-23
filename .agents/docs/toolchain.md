@@ -404,7 +404,7 @@ experience of agents writing Octane-xplat code effectively.
   Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
-  hashes their files through the no-op task node. `apps/mobile` includes
+  hashes their files through the no-op task node. `apps/harness` includes
   `../../packages/**/*` as roots; `tools/windows-host` checks app roots and their
   imported Windows/native package graph. Both apps' `turbo.json` files hash
   all package sources directly so path-mapped imports outside the workspace
@@ -523,7 +523,7 @@ experience of agents writing Octane-xplat code effectively.
   `collectTopLevelImportRecords` implementations and in the dev link-check's
   static-import scan (`collectStaticImportDefaultIntents`), falling back to the
   same Babel parse when Oxc rejects. With it, the iOS simulator completed the
-  cold-server HMR cycle on `apps/mobile` (initial launch, in-place JS edit,
+  cold-server HMR cycle on `apps/harness` (initial launch, in-place JS edit,
   native rebuild) with the Go engine; loader `-1001` retries still occur but
   recover. Upstream: NativeScript#11634. The Windows `pkg.pr.new` abae298
   preview keeps its own unchanged patch file because the regenerated 8.0.21
@@ -676,7 +676,7 @@ experience of agents writing Octane-xplat code effectively.
   isolated layout.** The device loader requests
   `/ns/m/node_modules/source-map-js/lib/source-map-generator.js`, whose URL
   has lost the importing core package's location. The HTTP route returns
-  404 in both `apps/mobile` and a small linked fixture, and an actual Android
+  404 in both `apps/harness` and a small linked fixture, and an actual Android
   app fails before its entry runs. The file exists and resolves from core's
   canonical package path. `native` narrowly aliases this SDK-emitted
   HTTP prefix to core's installed dependency; ordinary bare app imports are
@@ -905,7 +905,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   package root — `ns prepare` needs them there.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
-- `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR
+- `apps/harness` needs `@valor/nativescript-websockets` — the on-device HMR
   transport that `virtual:entry-with-polyfills` imports in dev.
 - iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
   (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the

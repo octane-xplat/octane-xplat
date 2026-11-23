@@ -191,7 +191,7 @@ test('Bun catalogs, native channel choices, patch bytes and excluded packages ag
       scripts: { custom: 'leave-me' },
     },
     {
-      'apps/mobile/package.json': {
+      'apps/harness/package.json': {
         private: true,
         dependencies: {
           '@octane-xplat/nativescript-octane': '0.0.1',
@@ -207,7 +207,7 @@ test('Bun catalogs, native channel choices, patch bytes and excluded packages ag
     },
   )
 
-  const manifest = join(dir, 'apps/mobile/package.json')
+  const manifest = join(dir, 'apps/harness/package.json')
 
   if (process.platform !== 'win32') {
     chmodSync(manifest, 0o640)
@@ -307,7 +307,7 @@ test('pnpm projects without the patches config dependency keep local patch files
         join(root, 'packages/cli/patches/octane@0.17.0.patch'),
         'utf8',
       ),
-      'apps/mobile/package.json': {
+      'apps/harness/package.json': {
         private: true,
         dependencies: { octane: '0.0.1' },
         devDependencies: { '@octane-xplat/cli': build.cliVersion },

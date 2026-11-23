@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import type { NativeScriptConfig } from '@nativescript/core'
 
-// App tsconfigs (e.g. apps/mobile/types/globals.d.ts) shadow the `process`
+// App tsconfigs (e.g. apps/harness/types/globals.d.ts) shadow the `process`
 // global with a narrow stub, and `node:process` re-exports that shadowed
 // global. The config still runs under Node, which provides the full object.
 const node = process as NodeJS.Process

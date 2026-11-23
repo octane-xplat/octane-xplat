@@ -11,9 +11,9 @@ const xplatCli = join(
   '../../bin/xplat.exe',
 )
 
-const appSource = join(appRoot, '../../apps/mobile/macos/src/App.tsx')
+const appSource = join(appRoot, '../../apps/harness/macos/src/App.tsx')
 const host = spawn(xplatCli, ['dev', 'macos'], {
-  cwd: resolve(appRoot, '../../apps/mobile'),
+  cwd: resolve(appRoot, '../../apps/harness'),
   env: { ...process.env, OCTANE_MACOS_AUTOMATION: '0' },
   stdio: ['ignore', 'pipe', 'pipe'],
 })

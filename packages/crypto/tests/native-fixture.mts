@@ -16,7 +16,7 @@ export async function linkDependencies(root, repo) {
   }
 
   for (const [name, source] of [
-    ['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
+    ['@nativescript/core', join(repo, 'apps/harness/node_modules/@nativescript/core')],
     ['@octane-xplat/lib', lib],
     ['@octane-xplat/platform', platform],
   ]) {

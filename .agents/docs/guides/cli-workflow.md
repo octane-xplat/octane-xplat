@@ -38,10 +38,10 @@ already-running app. Missing discovery reports no running dev server and never
 starts one. Do not start apps or browsers implicitly to satisfy an observation.
 
 ```sh
-/absolute/path/to/xplat-go dev --project /work/repo --app apps/mobile --targets web
+/absolute/path/to/xplat-go dev --project /work/repo --app apps/harness --targets web
 # In a separate invocation, after explicit startup:
-/absolute/path/to/xplat-go targets --project /work/repo --app apps/mobile --json
-/absolute/path/to/xplat-go session list --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go targets --project /work/repo --app apps/harness --json
+/absolute/path/to/xplat-go session list --project /work/repo --app apps/harness --json
 ```
 
 Go uses one foreground dev server per canonical app directory, with private

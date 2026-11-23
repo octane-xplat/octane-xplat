@@ -26,7 +26,7 @@ bun run turbo run build:windows --filter=@octane-xplat/mobile --concurrency=1
 ```
 
 The shared app selects its isolated Windows toolchain. The environment flag
-selects `apps/mobile/windows/qualification/index.ts` and package identity
+selects `apps/harness/windows/qualification/index.ts` and package identity
 `org.octanexplat.windows61`. The bundle embeds its Git commit and whether the
 source worktree was dirty when Vite loaded the configuration. NativeScript's
 application-directory output must then be packaged, signed and installed as an

@@ -29,7 +29,7 @@ for (const [file, hash] of Object.entries(build.inputs)) {
 }
 
 for (const [name, directory] of [
-  ['shared-app', 'apps/mobile'],
+  ['shared-app', 'apps/harness'],
   ['lightbox', 'packages/lightbox'],
   ['shared-app-routes', 'packages/app'],
 ]) {

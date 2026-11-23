@@ -62,7 +62,7 @@ test(
           : name === 'vite'
             ? join(repo, 'packages/cli/node_modules', name)
             : ['@nativescript/unit-test-runner', '@valor/nativescript-websockets'].includes(name)
-              ? join(repo, 'apps/mobile/node_modules', name)
+              ? join(repo, 'apps/harness/node_modules', name)
               : join(repo, 'packages/ui/node_modules', name))
 
       const dest = join(dir, 'node_modules', name)

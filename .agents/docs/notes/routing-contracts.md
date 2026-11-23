@@ -680,7 +680,7 @@ Pages. This is release-triggered Back, without an interactive preview; rendered
 panes and modal-dismissal gestures are outside this adapter.
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
 # Owned iOS 26+ simulator and idb; the fixture captures no images.
 ```
 
@@ -746,8 +746,8 @@ dispatcher or qualify predictive gestures. Source evidence:
 [Android View](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/core/view/index.android.ts).
 
 ```sh
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 ```
 
 One initial qualification run missed its first edge swipe after earlier fullscreen
@@ -809,8 +809,8 @@ cleanup releases their held work. Document unload and OS exit remain separate.
 
 ```sh
 node tools/web-verification/scripts/routing-contract.mts
-python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py ios DEVICE_ID
+python3 apps/harness/scripts/check-navigation.py android DEVICE_ID
 node tools/macos-verification/test/verify-routing.mts
 ```
 

@@ -27,7 +27,7 @@ if (!Number.isSafeInteger(eventCount) || eventCount < 30 || eventCount > 1000) {
 
 const result = await new Promise((resolveSample, rejectSample) => {
   const child = spawn(xplatCli, ['dev', 'macos'], {
-    cwd: resolve(appRoot, '../../apps/mobile'),
+    cwd: resolve(appRoot, '../../apps/harness'),
     env: {
       ...process.env,
       OCTANE_MACOS_AUTOMATION: '1',

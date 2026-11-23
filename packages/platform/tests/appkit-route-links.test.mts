@@ -278,7 +278,7 @@ test('AppKit reentrant root replacement releases a late producer handle without 
 })
 
 test('AppKit entry binds in the root effect, forwards props and returns the binding cleanup', async () => {
-  const source = await readFile(new URL('../../../apps/mobile/macos/src/App.tsx', import.meta.url), 'utf8')
+  const source = await readFile(new URL('../../../apps/harness/macos/src/App.tsx', import.meta.url), 'utf8')
   const compiled = ts.transpileModule(source, {
     fileName: 'App.tsx',
     compilerOptions: {
