@@ -355,7 +355,12 @@ export { View, Style }`,
       writeFileSync(base, 'export const value = "shared"')
       const config = await native('production')
       const plugin = config.plugins.find(({ name }) => name === 'xplat-native-relative-resolution')
-      assert.equal(plugin.resolveId.handler('./barrel', leaf), base.replaceAll('\\', '/'))
+      const importer = leaf.replaceAll('\\', '/')
+      const expected = base.replaceAll('\\', '/')
+      assert.equal(plugin.resolveId.handler('./barrel', importer), expected)
+      if (process.platform === 'win32') {
+        assert.equal(plugin.resolveId.handler('./barrel', '/@fs/' + importer), expected)
+      }
     })
 
     await t.test(

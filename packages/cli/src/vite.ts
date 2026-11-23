@@ -509,9 +509,13 @@ export function nativeRelativeResolution() {
           return null
         }
 
-        const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
+        const importerFile = importer
+          .split(/[?#]/, 1)[0]
+          .replace(/^\/@fs\/(?=[a-z]:[/\\])/i, '')
+          .replace(/^\/@fs\//, '/')
+          .replaceAll('\\', '/')
         const request = source.split(/[?#]/, 1)[0]
-        const base = resolve(dirname(importerFile), request)
+        const base = resolve(dirname(importerFile), request).replaceAll('\\', '/')
         const stem = PLATFORM_TAG.test(base)
           ? base
           : base.replace(/\.(tsrx|tsx|ts|mts|jsx|js|json)$/, '')
@@ -526,14 +530,14 @@ export function nativeRelativeResolution() {
           unsuffixedImporter !== importerFile &&
           (base === unsuffixedImporter || base + extname(unsuffixedImporter) === unsuffixedImporter)
         ) {
-          return existsSync(unsuffixedImporter) ? unsuffixedImporter.replaceAll('\\', '/') : null
+          return existsSync(unsuffixedImporter) ? unsuffixedImporter : null
         }
 
         for (const ext of exts) {
           if (existsSync(stem + ext)) {
             // Vite module IDs use forward slashes, including on Windows.
             // Mixed separators create two instances of core style registries.
-            return (stem + ext).replaceAll('\\', '/')
+            return stem + ext
           }
         }
 
