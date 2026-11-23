@@ -5,5 +5,6 @@ export { syncNativeScriptProjection as setLayoutProjectionScale } from './native
 export { registerNativeScriptStylesheet as registerStylesheet } from './nativescript-css.macos'
 export { registerFontFamily } from './fonts'
 export { installNativeScriptDevModules as __installDevelopmentModules } from './nativescript-dev.macos'
+export { __PortalTabItem } from './portal-components.macos'
 export const __rendererId = 'nativescript'
 export * from 'octane/universal/native'

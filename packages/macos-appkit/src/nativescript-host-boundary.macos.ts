@@ -1,4 +1,4 @@
-import { SegmentedBar, TextView, type ViewBase } from '@nativescript/core'
+import { SegmentedBar, TabView, TabViewItem, TextView, type ViewBase } from '@nativescript/core'
 import type { NativeScriptHostBoundary, NativeScriptTextNode } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 import { appKitFormattedText } from './nativescript-formatted-text.macos'
@@ -36,6 +36,11 @@ function nativeHandle(view: ViewBase): NSView | undefined {
 
 export const appKitHostBoundary: NativeScriptHostBoundary = {
   formattedText: appKitFormattedText,
+  tabItems: {
+    release(view) {
+      Reflect.get(view, '_releaseTabItem').call(view)
+    },
+  },
 
   publicInstance(node) {
     const { view, type, id } = node
@@ -72,6 +77,17 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
             return node.props
           },
         }
+        if (view instanceof TabViewItem) {
+          Object.defineProperties(instance, {
+            tabNativeItem: { get: () => Reflect.get(view, 'macos') },
+            contentRoot: {
+              get: () => null,
+              set: () => {
+                throw new TypeError('AppKit tabviewitem content root cannot be reassigned')
+              },
+            },
+          })
+        }
         logicalInstances.set(view, instance)
         coreOwners.set(instance, view)
       }
@@ -104,7 +120,10 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
         configurable: original?.configurable ?? true,
       }
     }
-    if (view instanceof SegmentedBar && data.eventName === 'selectedIndexChange') {
+    if (
+      (view instanceof SegmentedBar || view instanceof TabView) &&
+      data.eventName === 'selectedIndexChange'
+    ) {
       descriptors.oldIndex = { value: Reflect.get(data, 'oldValue'), enumerable: true }
       descriptors.newIndex = { value: Reflect.get(data, 'value'), enumerable: true }
     }
@@ -115,7 +134,8 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
     return (
       (type === 'searchbar' && property === 'text') ||
       (type === 'datepicker' && property === 'date') ||
-      ((type === 'listpicker' || type === 'segmentedbar') && property === 'selectedIndex')
+      ((type === 'listpicker' || type === 'segmentedbar' || type === 'tabview') &&
+        property === 'selectedIndex')
     )
   },
 

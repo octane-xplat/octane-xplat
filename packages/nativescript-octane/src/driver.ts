@@ -109,6 +109,8 @@ export interface NativeScriptHostBoundary {
   eventData(data: EventData, publicInstance: object | null, view: ViewBase): unknown
   coreView(target: object): ViewBase | undefined
   emitProgrammaticChange?(type: string, property: string): boolean
+  /** Hosts with standalone logical tab items can assign their handles through items. */
+  tabItems?: { release(view: TabViewItem): void }
   formattedText?: {
     validateChild(parent: string | undefined, child: string): void
     validateProps(type: string, props: Readonly<Record<string, unknown>>): void
@@ -291,6 +293,9 @@ function updateProps(node: HostNode, next: Readonly<Record<string, unknown>>): v
   }
   applyProps(node, next)
   node.props = next
+  if (node.view instanceof TabView && viewOwners.get(node.view)?.container.hostBoundary?.tabItems) {
+    markTabView(node)
+  }
   if (node.view !== null && viewOwners.get(node.view)?.container.hostBoundary?.formattedText) {
     syncText(node)
   }
@@ -365,10 +370,35 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
       value = isRegisteredProperty(view, name) ? unsetValue : node.propDefaults.get(name)
     }
   }
+  const owner = viewOwners.get(view)?.container
+  if (
+    name === 'items' && view instanceof TabView && owner?.hostBoundary?.tabItems &&
+    value !== unsetValue
+  ) {
+    if (!Array.isArray(value)) {
+      throw new TypeError('TabView items must be an array of live tabviewitem handles')
+    }
+    const boundary = owner.hostBoundary
+    const items = value.map((handle: unknown) => {
+      const item = handle && typeof handle === 'object' ? boundary.coreView(handle) : undefined
+      const registration = item && viewOwners.get(item)
+      if (
+        !(item instanceof TabViewItem) || registration?.container !== owner ||
+        !owner.nodes.has(registration.node.id)
+      ) {
+        throw new TypeError('TabView items must be live tabviewitem handles from this root')
+      }
+      return item
+    })
+    if (new Set(items).size !== items.length) {
+      throw new TypeError('TabView items must not contain duplicate handles')
+    }
+    value = items
+  }
   // Core raises `<name>Change` for a script write exactly as for a user
   // edit; a controlled input must not see its own value come back as one.
   const echo = `${name}Change`
-  const boundary = viewOwners.get(view)?.container.hostBoundary
+  const boundary = owner?.hostBoundary
   const muteEcho = node.listeners.has(echo) && !boundary?.emitProgrammaticChange?.(node.type, name)
   const textValue = name === 'text' || name === 'formattedText'
   const previousText = textValue ? Reflect.get(target, name) : undefined
@@ -1137,8 +1167,14 @@ function syncLogicalTextChild(parentView: ViewBase, view: ViewBase): boolean {
   return true
 }
 
+function isStandaloneTabItem(view: ViewBase): boolean {
+  return (
+    view instanceof TabViewItem && Boolean(viewOwners.get(view)?.container.hostBoundary?.tabItems)
+  )
+}
+
 function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void {
-  if (syncLogicalTextChild(parentView, view)) {
+  if (isStandaloneTabItem(view) || syncLogicalTextChild(parentView, view)) {
     return
   }
   // Slot-hosted children (e.g. ui-drawer's mainContent/leftDrawer): the host
@@ -1220,7 +1256,7 @@ function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void
 const CLEARED = null as never
 
 function removeViewChild(parentView: ViewBase | null, view: ViewBase): void {
-  if (parentView === null || syncLogicalTextChild(parentView, view)) {
+  if (parentView === null || isStandaloneTabItem(view) || syncLogicalTextChild(parentView, view)) {
     return
   }
   const slot: unknown = Reflect.get(view, 'hostSlot')
@@ -1304,9 +1340,13 @@ function syncTabViewItems(node: HostNode): void {
   if (!(tabView instanceof TabView)) {
     return
   }
+  const standalone = viewOwners.get(tabView)?.container.hostBoundary?.tabItems
+  if (standalone && node.props.items != null) {
+    return
+  }
   const items: TabViewItem[] = []
   for (const child of node.children) {
-    if (child.view instanceof TabViewItem && child.view.view) {
+    if (child.view instanceof TabViewItem && (standalone || child.view.view)) {
       items.push(child.view)
     }
   }
@@ -1612,6 +1652,9 @@ function destroyNode(container: NativeScriptContainer, node: HostNode): void {
   const retainedRun = container.hostBoundary?.formattedText && isFormattedNode(node.type)
   if ((retainedRun && node.parent !== null) || subtreeAttached(container, node)) {
     detach(container, node)
+  }
+  if (node.view instanceof TabViewItem) {
+    container.hostBoundary?.tabItems?.release(node.view)
   }
   if (container.hostBoundary) {
     node.parent = null

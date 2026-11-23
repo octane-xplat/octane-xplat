@@ -15,6 +15,8 @@ const { createBackgroundPaint } = await import('../src/background-paint.ts')
 const { createCssCascade } = await import('../src/css-cascade.ts')
 const { observeLayoutCommits } = await import('../src/layout-observers.ts')
 const { releaseTabItem } = await import('../src/tab-view.ts')
+const { updateTabIcon } = await import('../src/tab-item-native.ts')
+const { NSURL, NSURLSession } = await import('@octane-xplat/platform/macos')
 
 hooks.deregister()
 
@@ -351,8 +353,23 @@ test('tab nested-root failure retires root once and continues native/resource di
     },
   }
 
-  fx.node.tabIconTask = { cancel: () => fx.run('cancel') }
   fx.node.tabNativeItem = { view: {}, image: {} }
+  Object.defineProperty(NSURL, 'URLWithString', { value: (value: string) => value })
+  Object.defineProperty(NSURLSession, 'sharedSession', {
+    value: {
+      dataTaskWithURLCompletionHandler: () => ({
+        resume() {},
+        cancel: () => fx.run('cancel'),
+      }),
+    },
+  })
+  updateTabIcon(
+    fx.node.tabNativeItem,
+    'https://example.test/icon.png',
+    {},
+    () => { throw new Error('Unused for remote icons') },
+    () => {},
+  )
   fx.node.childHost = { removeFromSuperview: () => fx.run('child host') }
   assert.throws(
     () => releaseTabItem(fx.node),

@@ -7,6 +7,7 @@ import { boundary, css, nodeEnvDefine } from '../vite.ts'
 import { nativeDevSocketPlugin } from '../mcp/dev-socket.ts'
 import type { XplatMacOSOptions } from './vite-options.ts'
 import { coreMacOSUI } from './core-ui.ts'
+import { tabItemContentRoots } from './tab-item.ts'
 
 interface CoreMacOSOptions extends XplatMacOSOptions {
   fileName?: string
@@ -59,6 +60,7 @@ export async function createCoreMacOSConfig(
       ...provider.plugins,
       ...ui.plugins,
       ...(devSocket ? [devSocket] : []),
+      tabItemContentRoots({ listView: false }),
       css('macos'),
       inlineStylesheets('nativescript'),
       boundary('macos', new Set<string>([...reusedCoreFiles, ...ui.reusedFiles])),

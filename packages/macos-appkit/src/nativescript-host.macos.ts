@@ -3,7 +3,8 @@ import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { startNativeScriptApplication } from '../platforms/nativescript/core/application/application.macos.js'
 import { runWindowedApp, type MacOSAppMount, type MacOSAppOptions } from './host-runner'
 import { installNativeScriptAutomation } from './nativescript-automation.macos'
-import { installNativeScriptWindowRoots } from './nativescript-window.macos'
+import { appKitHostBoundary } from './nativescript-host-boundary.macos'
+import { installNativeScriptWindowRoots, resolveAppKitPortalHost } from './nativescript-window.macos'
 
 export * from './host-window-exports'
 
@@ -19,7 +20,7 @@ export function runMacOSApp(
       host.style.fontFamily = options.rootOptions.fontFamily
     }
     const appKit = startNativeScriptApplication(() => host, createWindow)
-    const root = createNativeScriptRoot(host)
+    const root = createNativeScriptRoot(host, resolveAppKitPortalHost, appKitHostBoundary)
     installNativeScriptAutomation(root)
     return { appKit, root }
   })

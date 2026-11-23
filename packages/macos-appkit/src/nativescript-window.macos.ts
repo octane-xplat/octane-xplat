@@ -138,7 +138,7 @@ function mountNativeScriptContent(content: NSView, fontFamily?: string) {
   }
 }
 
-function resolveAppKitPortalHost(target: object): NativeScriptPortalHost | undefined {
+export function resolveAppKitPortalHost(target: object): NativeScriptPortalHost | undefined {
   if (!(target instanceof NSView)) {
     return
   }
