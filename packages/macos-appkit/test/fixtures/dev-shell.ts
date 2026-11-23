@@ -1,4 +1,5 @@
 import '@nativescript/macos-node-api'
+import { Label } from '@nativescript/core'
 import * as renderer from '@octane-xplat/macos-appkit'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
@@ -63,6 +64,10 @@ let retainedGlassBackdrop: any
 let reloaded = false
 function reload() {
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
+  if (loaded.coreLabelConstructor !== Label) {
+    console.error('PACKED_HMR_FAIL: app bundle did not use the shell’s Core instance')
+    return
+  }
 
   if (!liveComponent) {
     liveComponent = native.hmrUniversalComponent(renderer.__rendererId, loaded.default ?? loaded)

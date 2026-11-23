@@ -3,6 +3,8 @@ import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 import { NSTextField } from '@octane-xplat/platform/macos'
 
+export { Label as coreLabelConstructor } from '@nativescript/core'
+
 export const stackRefs: any[] = []
 export const childRefs: Record<string, { current: any }> = {
   a: { current: null },

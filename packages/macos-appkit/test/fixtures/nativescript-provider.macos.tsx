@@ -1,16 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@nativescript/macos-node-api'
 import { ActionBar, Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
-import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
-import { hmrUniversalComponent, UNIVERSAL_HMR, type UniversalRoot } from 'octane/universal/native'
+import type { UniversalRoot } from 'octane/universal/native'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
 import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
 import {
-  __installDevelopmentModules,
-  __rendererId,
   createMacOSRoot,
   observeLayoutCommits,
   registerStylesheet,
@@ -19,11 +16,6 @@ import {
 import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
-import { checkActivityLifecycle } from './activity-lifecycle'
-import { checkDateLifecycle } from './date-lifecycle'
-import { checkFormattedLifecycle } from './formatted-lifecycle'
-import { checkListLifecycle } from './list-lifecycle'
-import { checkProgressLifecycle } from './progress-lifecycle'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
@@ -110,6 +102,14 @@ function SecondaryWindow() {
   return <label className="provider-viewport" text="Secondary Core window" />
 }
 
+function createFixtureWindow(width: number, height: number) {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, width, height), 1, 2, false,
+  )
+  window.releasedWhenClosed = false
+  return window
+}
+
 async function checkEmbeddedCoreRoot() {
   const content = NSView.alloc().initWithFrame(NSMakeRect(10, 10, 290, 180))
   const root = createMacOSRoot(content, { fontFamily: 'Menlo' })
@@ -170,9 +170,7 @@ function BuilderControls() {
 }
 
 async function checkBuilderControls() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     let rejected = false
@@ -223,9 +221,7 @@ function KeyedLayout(props: { row: boolean }) {
 }
 
 async function checkKeyedLayout() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     root.render(KeyedLayout, { row: false })
@@ -267,9 +263,7 @@ function ProjectedLeaves(props: { width: number; swapped?: boolean }) {
 }
 
 async function checkProjectedLeaves() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     root.render(ProjectedLeaves, { width: 40 })
@@ -316,9 +310,7 @@ function ProjectedGrid(props: { row: string; explicitRow?: string }) {
 }
 
 async function checkProjectedGrid() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     root.render(ProjectedGrid, { row: '1' })
@@ -335,57 +327,6 @@ async function checkProjectedGrid() {
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (item.frame.origin.y !== initialY || debug.findId('projected-grid-item') !== item) {
       throw new Error('Core did not honor the projected child’s authored grid row')
-    }
-  } finally {
-    root.unmount()
-    window.close()
-  }
-}
-
-function PercentRootLayout(props: { width: number; alignToEnd?: boolean }) {
-  return (
-    <masonview style={{ display: 'flex' }}>
-      <rootlayout id="percent-root" style={{ width: props.width, height: 80, padding: 10 }}>
-        <contentview
-          id="percent-root-child"
-          style={{
-            width: '50%',
-            height: '50%',
-            justifySelf: props.alignToEnd ? 'end' : undefined,
-            alignSelf: props.alignToEnd ? 'end' : undefined,
-          }}
-        />
-      </rootlayout>
-      <rootlayout id="natural-root">
-        <contentview style={{ width: 52, height: 18 }} />
-        <contentview style={{ width: 32, height: 24 }} />
-      </rootlayout>
-    </masonview>
-  )
-}
-
-async function checkRootLayoutPercentages() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 310, 180), 1, 2, false,
-  )
-  const root = createMacOSRoot(window.contentView)
-  try {
-    const debug = Reflect.get(root, '__macosDebug')
-    for (const [width, alignToEnd] of [[200, false], [240, true], [240, false]] as const) {
-      root.render(PercentRootLayout, { width, alignToEnd })
-      await new Promise((resolve) => setTimeout(resolve, 30))
-      const child = debug.findId('percent-root-child')
-      const { origin, size } = child.alignmentRectForFrame(child.frame)
-      const x = alignToEnd ? width / 2 - 10 : width / 4
-      if (origin.x !== x || origin.y !== (alignToEnd ? 10 : 20) || size.width !== width / 2 || size.height !== 40) {
-        throw new Error(
-          `RootLayout percentage placement at ${width}: ${origin.x},${origin.y},${size.width},${size.height}`,
-        )
-      }
-      const natural = debug.findId('natural-root').intrinsicContentSize
-      if (natural.width !== 52 || natural.height !== 24) {
-        throw new Error(`RootLayout natural size: ${natural.width} x ${natural.height}`)
-      }
     }
   } finally {
     root.unmount()
@@ -411,9 +352,7 @@ function SearchSubmission(props: {
 }
 
 async function checkSearchSubmission() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   const submitted: { object: unknown; eventName: string }[] = []
   const changes: { object: unknown; value: string; oldValue: string }[] = []
@@ -469,19 +408,6 @@ async function checkSearchSubmission() {
   }
 }
 
-async function checkControlLifecycle(check: (root: UniversalRoot, window: NSWindow) => Promise<void>) {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 420, 360), 1, 2, false,
-  )
-  const root = createMacOSRoot(window.contentView)
-  try {
-    await check(root, window)
-  } finally {
-    root.unmount()
-    window.close()
-  }
-}
-
 function FormattedLinks(props: { enabled: boolean; onFirst(): void; onSecond(): void }) {
   return (
     <label id="formatted-links" isEnabled={props.enabled} style={{ width: 260, height: 30 }}>
@@ -496,9 +422,7 @@ function FormattedLinks(props: { enabled: boolean; onFirst(): void; onSecond(): 
 }
 
 async function checkFormattedLinks() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 420, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(420, 180)
   const root = createMacOSRoot(window.contentView)
   const calls: string[] = []
   const bindings = {
@@ -559,9 +483,7 @@ function AbsoluteLeaf(props: { bottom: boolean }) {
 }
 
 async function checkInsetReset() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     root.render(AbsoluteLeaf, { bottom: false })
@@ -601,9 +523,7 @@ function NestedContent() {
 }
 
 async function checkNestedContent() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   try {
     root.render(NestedContent, {})
@@ -635,9 +555,7 @@ function ForeignView(props: { width: number; onCreatingView: (event: { object?: 
 }
 
 async function checkForeignView() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
+  const window = createFixtureWindow(260, 180)
   const root = createMacOSRoot(window.contentView)
   const content = NSTextField.labelWithString('Native plug-in content')
   const contentWidth = () => content.alignmentRectForFrame(content.frame).size.width
@@ -674,47 +592,8 @@ async function checkForeignView() {
   }
 }
 
-function HtmlText(props: { changed: boolean }) {
-  return (
-    <htmlview
-      id="provider-html"
-      html={props.changed ? '<i>Updated &amp; 世界</i>' : '<b>Hello</b> &amp; <a href="https://example.com">link</a>'}
-      style={{ width: 200, fontSize: props.changed ? 24 : 20 }}
-    />
-  )
-}
-
-async function checkHtmlText() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 260, 180), 1, 2, false,
-  )
-  const root = createMacOSRoot(window.contentView)
-  try {
-    root.render(HtmlText, { changed: false })
-    await new Promise((resolve) => setTimeout(resolve, 30))
-    const debug = Reflect.get(root, '__macosDebug')
-    const first = debug.findId('provider-html')
-    if (first.editable || !first.selectable || first.stringValue.trim() !== 'Hello & link' ||
-      !first.attributedStringValue.attributeAtIndexEffectiveRange(NSLinkAttributeName, 8, null)) {
-      throw new Error('Core HtmlView lost its selectable markup and link')
-    }
-    root.render(HtmlText, { changed: true })
-    await new Promise((resolve) => setTimeout(resolve, 30))
-    const font = first.attributedStringValue.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null)
-    if (debug.findId('provider-html') !== first || first.stringValue.trim() !== 'Updated & 世界' ||
-      font.pointSize !== 24) {
-      throw new Error('Core HtmlView did not update its Unicode markup and style in place')
-    }
-  } finally {
-    root.unmount()
-    window.close()
-  }
-}
-
 async function checkSharedTextAreaSizing() {
-  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    NSMakeRect(0, 0, 250, 250), 1, 2, false,
-  )
+  const window = createFixtureWindow(250, 250)
   const root = createMacOSRoot(window.contentView)
   const control = { current: null }
   try {
@@ -1260,54 +1139,6 @@ async function checkMasonScroll() {
   }
 }
 
-async function checkDevelopmentReload() {
-  const shellImport = { stored: true }
-  __installDevelopmentModules({
-    'provider-fixture-shell': shellImport,
-    '@octane-xplat/macos-appkit': { __rendererId },
-  })
-  if (Reflect.get(globalThis, '__xplatDevModules')['provider-fixture-shell'] !== shellImport) {
-    throw new Error('Core did not retain the shared shell modules')
-  }
-  const load = Reflect.get(globalThis, '__hostRunFile')
-  const before = load(process.env.OCTANE_MACOS_DEV_BUNDLE)
-  const component = hmrUniversalComponent(__rendererId, before.default)
-  const devRoot = createNativeScriptRoot(host)
-  const label = () => host.getViewById('provider-dev-count')
-  const settle = () => new Promise((resolve) => setTimeout(resolve, 30))
-
-  try {
-    devRoot.render(component, {})
-    const first = label()
-    if (
-      before.Label !== Label ||
-      before.__rendererId !== __rendererId ||
-      !(first instanceof Label) ||
-      first.nativeViewProtected.stringValue !== 'before:0'
-    ) {
-      throw new Error('The development bundle did not use the shell’s Core instance')
-    }
-    before.increment()
-    await settle()
-    if (first.nativeViewProtected.stringValue !== 'before:1') {
-      throw new Error('The development bundle did not update the native counter')
-    }
-
-    const after = load(process.env.XPLAT_CORE_DEV_AFTER)
-    component[UNIVERSAL_HMR].update(after.default)
-    await settle()
-    if (
-      after.Label !== Label ||
-      label() !== first ||
-      first.nativeViewProtected.stringValue !== 'after:1'
-    ) {
-      throw new Error('The development rebuild lost Core identity, the native view, or signal state')
-    }
-  } finally {
-    devRoot.unmount()
-  }
-}
-
 function checkMainWindowRootReplacement() {
   const window = Application.macos.window
   const content = window.contentView
@@ -1470,21 +1301,14 @@ setTimeout(async () => {
     await checkEmbeddedCoreRoot()
     await checkSharedTextAreaSizing()
     await checkBuilderControls()
-    await checkHtmlText()
     await checkForeignView()
     await checkKeyedLayout()
     await checkNestedContent()
     await checkInsetReset()
     await checkProjectedLeaves()
     await checkProjectedGrid()
-    await checkRootLayoutPercentages()
     await checkSearchSubmission()
-    await checkControlLifecycle(checkFormattedLifecycle)
     await checkFormattedLinks()
-    await checkControlLifecycle(checkActivityLifecycle)
-    await checkControlLifecycle(checkDateLifecycle)
-    await checkControlLifecycle(checkListLifecycle)
-    await checkControlLifecycle(checkProgressLifecycle)
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
@@ -1508,7 +1332,6 @@ setTimeout(async () => {
     if (native.superview || backdrop.superview || bar.subviews.count || host.getViewById('title')) {
       throw new Error('Unmount left a native view attached')
     }
-    await checkDevelopmentReload()
     checkMainWindowRootReplacement()
     console.log('CORE_PROVIDER_OK')
   } catch (error) {

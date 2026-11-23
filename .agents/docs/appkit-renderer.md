@@ -122,15 +122,16 @@ the modules in `nativescript-dev-imports.ts` external in app rebuilds and
 install the shell's module table before evaluating the first app bundle.
 
 ```sh
-bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
+bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
 ```
 
-The fixture checks Core layout, teardown, native accessibility names, menu
-actions, tray lifecycle, shortcut dispatch and secondary windows. It drives
-AppKit objects directly. Native input and assistive-technology behavior need
-their own checks. `test:packed` installs the public package exports in an
-independent app and exercises the signed production bundle and development
-hot reload.
+The packed suite installs the public package exports in an independent app
+and exercises the signed production bundle and development hot reload. On
+macOS, it also builds the workspace provider fixture to check that the bundle
+loads one Core instance and exercise per-window CSS, layout, accessibility
+properties, menu actions, tray lifecycle, shortcut dispatch, and teardown.
+The fixture drives AppKit directly and posts synthetic events to its own
+process. Physical input and assistive technology need separate checks.
 
 ## Keep lifecycle and initialization explicit
 

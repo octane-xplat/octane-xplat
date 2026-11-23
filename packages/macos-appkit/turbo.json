@@ -1,12 +1,8 @@
 {
 	"extends": ["//"],
 	"tasks": {
-		"test:packed": { "dependsOn": ["typegen", "build", "build:assets", "@octane-xplat/cli#build", "@octane-xplat/cli#build:go"] },
+		"test:packed": { "dependsOn": ["typegen", "build", "build:assets", "@octane-xplat/cli#build", "@octane-xplat/cli#build:go", "@octane-xplat/nativescript-octane#build"] },
 		"test:mason": { "dependsOn": [], "outputs": [] },
-		"test:keyboard": { "dependsOn": [], "outputs": [] },
-		"test:nativescript": {
-			"dependsOn": ["@octane-xplat/cli#build", "@octane-xplat/nativescript-octane#build"],
-			"cache": false
-		}
+		"test:keyboard": { "dependsOn": [], "outputs": [] }
 	}
 }

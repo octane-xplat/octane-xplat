@@ -99,9 +99,11 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   expectRect('root-a', [185, 65, 40, 20])
   expectRect('root-moving', [100, 40, 40, 20])
+  expectRect('root-percent-child', [110, 30, 120, 40])
   await advance()
   expectRect('root-a', [0, 0, 200, 80])
   expectRect('root-moving', [80, 30, 40, 20])
+  expectRect('root-percent-child', [60, 20, 120, 40])
   await advance()
   check(
     host.subviews.objectAtIndex(0) === b &&

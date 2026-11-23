@@ -481,6 +481,11 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   }
 
   console.log('[packed renderer] HMR preserves native view identity and signal state')
+
+  if (!actionBarOnly && !liquidGlassOnly) {
+    const { verifyProviderRegressions } = await import('./provider-regressions.mts')
+    await verifyProviderRegressions(packageRoot, directory)
+  }
 }
 
 console.log(`Packed renderer consumer passed: ${directory}`)
