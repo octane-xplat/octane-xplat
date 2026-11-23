@@ -37,10 +37,6 @@ import 'octane/signals'
 import { android } from '@octane-xplat/platform/android'
 import { CGPointMake, UIBezierPath } from '@octane-xplat/platform/ios'
 
-if (!VIRTUAL_LIST_BENCH_MODE) {
-  void import('./lottie-probe')
-}
-
 installGestureHandler()
 
 installParityDump()
