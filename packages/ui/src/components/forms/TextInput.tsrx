@@ -66,7 +66,14 @@ function TextInputControl(inputProps: TextInputProps) @{
   )
 
   <masonview
-    className={['vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup']}
+    className={[
+      'vx-input-shell',
+      'vx-input-shell--sized',
+      `vx-input-shell--size-${props.size}`,
+      props.inInputGroup && 'vx-input-shell--ingroup',
+      props.status && `vx-input-shell--status-${props.status.type}`,
+      props.isDisabled && 'vx-input-shell--disabled',
+    ]}
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
     {props.startIcon != null ? (

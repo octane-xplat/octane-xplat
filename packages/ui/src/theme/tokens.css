@@ -565,6 +565,28 @@
 		flex-grow: 1;
 		min-width: 0;
 	}
+	/* The shell owns the control height. A shared editor height leaves the
+	   native widgets in charge of their text metrics. */
+	@platform web, ios, android {
+		.vx-input-shell--sized {
+			height: 32px;
+			padding: 0 8px;
+			border-width: 1px;
+			border-style: solid;
+			border-color: var(--color-border-strong, transparent);
+			border-radius: var(--radius-md);
+			background-color: var(--color-surface);
+		}
+		.vx-input-shell--size-sm {
+			height: 28px;
+		}
+		.vx-input-shell--size-lg {
+			height: 36px;
+		}
+		.vx-input-shell--sized > .vx-input {
+			height: 20px;
+		}
+	}
 	.vx-input-clear {
 		min-width: 24px;
 		min-height: 24px;
@@ -606,23 +628,11 @@
 	}
 	.vx-input {
 		min-width: 0;
-		height: 20px;
 		line-height: 1.4286;
 	}
-	/* Astryx: the bordered box is the shell (h 28/32/36 per size); the
-	   <input> inside is a transparent text line. */
-	.vx-input-shell {
-		height: 32px;
-		padding: 0 8px;
-		border: 1px solid var(--color-border-strong);
-		border-radius: var(--radius-md);
-		background-color: var(--color-surface);
-	}
-	.vx-input-shell:has(.vx-input--size-sm) {
-		height: 28px;
-	}
-	.vx-input-shell:has(.vx-input--size-lg) {
-		height: 36px;
+	.vx-select-search,
+	.vx-cmdk-search {
+		height: 20px;
 	}
 	.vx-input-clear {
 		display: flex;

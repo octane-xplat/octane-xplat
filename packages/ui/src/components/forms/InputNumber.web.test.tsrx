@@ -2,6 +2,7 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { FormField } from './FormField.web.tsrx'
 import { InputNumber } from './InputNumber.web.tsrx'
 
 const roots: ReturnType<typeof createRoot>[] = []
@@ -20,6 +21,24 @@ function mount(node: any) {
 afterEach(() => {
   act(() => roots.splice(0).forEach((root) => root.unmount()))
   document.body.replaceChildren()
+})
+
+it('sizes numeric editor shells from inherited and explicit field sizes', () => {
+  const host = mount(
+    <>
+      <FormField label="Quantity" size="sm">
+        <InputNumber />
+      </FormField>
+      <FormField label="Maximum quantity" size="sm">
+        <InputNumber size="lg" />
+      </FormField>
+    </>,
+  )
+
+  const [inherited, explicit] = host.querySelectorAll('.vx-input-shell')
+
+  expect(inherited.classList.contains('vx-input-shell--size-sm')).toBe(true)
+  expect(explicit.classList.contains('vx-input-shell--size-lg')).toBe(true)
 })
 
 describe('InputNumber empty value', () => {

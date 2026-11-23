@@ -187,6 +187,25 @@ describe('native FormLayout + InputGroup', () => {
     expect(findByClass(container.children[0], 'vx-inputgroup')).not.toBeNull()
     root.unmount()
   })
+
+  it('puts TextInput sizing and state on the native shell', () => {
+    const { container, root } = mount(TextInput, {
+      size: 'lg',
+      isDisabled: true,
+      status: { type: 'warning', message: 'Check the value' },
+    })
+    const shell = findByClass(container.children[0], 'vx-input-shell')
+
+    expect(classTokens(shell.props.className)).toEqual(
+      expect.arrayContaining([
+        'vx-input-shell--sized',
+        'vx-input-shell--size-lg',
+        'vx-input-shell--disabled',
+        'vx-input-shell--status-warning',
+      ]),
+    )
+    root.unmount()
+  })
 })
 
 describe('native indicators + list', () => {

@@ -137,6 +137,11 @@ export function Example() {
 }
 ```
 
+On web, iOS, and Android, `size="sm"` makes the `TextInput` box 28 units tall,
+as in the example above. The default `"md"` is 32 and `"lg"` is 36, in CSS
+pixels on web and device-independent units on mobile. The box keeps its height
+as you switch between placeholder text and a value.
+
 When you give a control an explicit `id` inside `Field`, set `inputID` on `Field`
 to the same value. This connects label activation to the intended control.
 

@@ -103,6 +103,8 @@ export function TextInput(props: TextInputProps): JSX.Element @{
     <div
       className={[
         'vx-input-shell',
+        'vx-input-shell--sized',
+        `vx-input-shell--size-${fieldProps.size}`,
         fieldProps.inInputGroup && 'vx-input-shell--ingroup',
         fieldProps.status && `vx-input-shell--status-${fieldProps.status.type}`,
         fieldProps.isDisabled && 'vx-input-shell--disabled',

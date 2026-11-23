@@ -1,6 +1,16 @@
 # Text entry and editing
 
-Use for AppKit editing, submission, composition, multiline sizing, number fields, and PIN ownership. Apply [native interaction prerequisites](accessibility.md); experimental Windows controls have a [separate page](windows.md).
+Use for text input sizing, AppKit editing, submission, composition, multiline sizing, number fields, and PIN ownership. Apply [native interaction prerequisites](accessibility.md). Experimental Windows controls have a [separate page](windows.md).
+
+## TextInput box sizing
+
+On web, iOS, and Android, place the resolved size class on the shell. The shell
+owns the 28/32/36-unit border box and the editor defaults to 20 units. Keep
+unitless line-height in web CSS and leave mobile block padding at zero to fit
+the 24-unit clear control in the small shell. In an InputGroup the group owns
+the border, so check the outer group height separately from the editor shell.
+Resolve NumberInput size through the same field context before forwarding it
+to TextInput. See the [text entry guide](../../../../docs/app/text-entry.md#control-a-field).
 
 ## AppKit multiline submission
 
