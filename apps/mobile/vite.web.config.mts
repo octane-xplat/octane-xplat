@@ -28,9 +28,10 @@ export default defineConfig(({ mode }) => ({
   // web port needs pinning to keep the topology deterministic.
   server: { port: 5200 },
   resolve: {
-    // The pinned tsconfig suppresses rolldown's tsconfigFilename discovery,
-    // so opt back into paths resolution for the styled-system mapping.
-    tsconfigPaths: true,
+    // Resolve workspace packages through their web exports. The native app's
+    // tsconfig paths can otherwise redirect imports to native contract files.
+    alias: { 'styled-system': `${bambooRoot}src/styled-system` },
+    tsconfigPaths: false,
     conditions: ['web'],
     // Suffix chain (first match wins): .web → shared → fallback.
     extensions: [
