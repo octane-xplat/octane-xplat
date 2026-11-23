@@ -40,7 +40,9 @@ export default function App() {
       <listview
         id="hmr-listview"
         items={['First revision' + count$.get()]}
-        renderItem={(item) => <label text={String(item)} style={{ height: 24 }} />}
+        renderItem={(item) => (
+          <label id="hmr-listview-row" text={String(item)} style={{ height: 24 }} />
+        )}
         style={{ width: 200, height: 40 }}
       />
       <segmentedbar id="hmr-item-bar" selectedIndex={count$.get()}>

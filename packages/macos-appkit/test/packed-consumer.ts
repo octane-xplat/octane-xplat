@@ -425,6 +425,9 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
         verified = true
         dev.kill('SIGTERM')
       }
+      if (devOutput.includes('[macos] PACKED_HMR_FAIL:')) {
+        dev.kill('SIGTERM')
+      }
     })
   }
 
