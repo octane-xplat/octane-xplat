@@ -72,8 +72,9 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
   const resizeHost = debug.findId('wrap-resize'),
     resizeLast = debug.findId('wrap-resize-last')
 
+  const originalSize = nativeWindow.contentView.bounds.size
   expectRect('wrap-resize-last', [240, 0, 80, 30])
-  nativeWindow.setContentSize({ width: 260, height: 200 })
+  nativeWindow.setContentSize({ width: 260, height: originalSize.height })
   await settle()
   check(
     debug.findId('wrap-resize') === resizeHost && debug.findId('wrap-resize-last') === resizeLast,
@@ -97,7 +98,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
     'Window resize did not update natural wrapped height',
   )
 
-  nativeWindow.setContentSize({ width: 400, height: 200 })
+  nativeWindow.setContentSize(originalSize)
   await settle()
   expectRect('wrap-resize-last', [240, 0, 80, 30])
 
@@ -115,7 +116,12 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
   check(
     debug.findId('wrap-natural-label') === naturalLabel &&
       rect(naturalLabel)[2] > initialNaturalWidth,
-    'Natural child text update failed',
+    'Natural child text update failed: ' +
+      JSON.stringify({
+        text: naturalLabel.stringValue,
+        initialNaturalWidth,
+        width: rect(naturalLabel)[2],
+      }),
   )
 
   expectRect('wrap-a', [20, 5, 40, 20])
