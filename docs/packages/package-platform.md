@@ -1,9 +1,18 @@
 # @octane-xplat/platform
 
-> Save the user's work, share content, attach photos, and handle device
-> permissions through shared TypeScript services.
+> Save preferences, use the clipboard, and read device and app state through
+> shared TypeScript services.
 >
 > Status: `0.x` — the API surface is still moving.
+
+## Which package should I use?
+
+Use `@octane-xplat/platform` for shared app capabilities such as storage,
+clipboard access, and observing the app's foreground or background state. Use
+[`@octane-xplat/desktop`](package-desktop.md#which-package-should-i-use) to manage
+native windows, handle quit requests, or install a menu or tray icon. A desktop
+app can use both. See [save and restore a window's bounds](package-desktop.md#save-and-restore-a-windows-bounds)
+for an example that saves native window geometry in app preferences.
 
 ```sh
 bun add @octane-xplat/platform octane

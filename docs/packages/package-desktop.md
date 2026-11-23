@@ -4,6 +4,19 @@
 
 Use `@octane-xplat/desktop` in an existing native macOS, Linux GTK, or Windows app. A **tray icon** is the small app icon beside the system clock. A **global shortcut** runs even when your app does not have keyboard focus. Desktop hosts remain experimental; each feature guide describes its host requirements and verified limits.
 
+## Which package should I use?
+
+Use `@octane-xplat/desktop` to control native desktop windows and app behavior.
+Use [`@octane-xplat/platform`](package-platform.md#which-package-should-i-use) for
+shared capabilities such as storage, clipboard access, and app state.
+
+| If you want to… | Use |
+| --- | --- |
+| Adapt a view to its current window size | `platform` → `useWindowSize$()` |
+| Restore a native window's position on a monitor | `desktop` → `windows` and `screen` |
+| Respond when the app goes into the background | `platform` → `useAppState()` |
+| Ask about unsaved work before a native window closes | `desktop` → the window's `close` event |
+
 ```sh
 bun add @octane-xplat/desktop
 ```
@@ -197,12 +210,50 @@ export function watchBounds(window: DesktopWindow, save: () => void) {
 
 Use `getBounds()` and `setBounds()` to read or request the outer frame, including the title bar. Omitted fields in `setBounds()` keep their current values. Check `window.supportsBounds` first. AppKit uses logical units and Windows uses whole physical pixels, matching `screen.coordinateSpace`. The window manager can constrain the resulting frame. To restore Electron-style window state, save the normal bounds whenever `move` or `resize` fires while the window is neither maximized nor minimized, save the maximized flag separately, then restore the bounds first and re-maximize.
 
+Install [`@octane-xplat/platform`](package-platform.md) to store the geometry
+between launches. After the main window mounts, call `restoreWindowState(window)`.
+If it returns a state, call `trackWindowState(window, state)` once for that window.
+Call `saveWindowState(window, state)` from a Save Window Layout command. On a host
+that confirms the write, move the window, save its layout, and reopen the app to
+see the saved position. Native Windows storage writes asynchronously and
+returns `false` from `flush()` because it cannot confirm the write synchronously.
+
 ```ts
 import { type DesktopRectangle, type DesktopWindow } from '@octane-xplat/desktop'
+import { storage } from '@octane-xplat/platform'
+
+const windowStateKey = 'main-window-layout'
 
 export interface SavedWindowState {
   bounds: DesktopRectangle
   maximized: boolean
+}
+
+function readWindowState(): SavedWindowState | undefined {
+  const saved = storage.getString(windowStateKey)
+  if (saved === null) return
+
+  let state: unknown
+  try {
+    state = JSON.parse(saved)
+  } catch {
+    return
+  }
+
+  if (typeof state !== 'object' || state === null || !('bounds' in state)) return
+  const { bounds } = state
+  if (typeof bounds !== 'object' || bounds === null) return
+  if (!('x' in bounds) || !('y' in bounds) || !('width' in bounds) || !('height' in bounds)) return
+
+  const { x, y, width, height } = bounds
+  if (typeof x !== 'number' || typeof y !== 'number') return
+  if (typeof width !== 'number' || typeof height !== 'number') return
+  if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) return
+
+  return {
+    bounds: { x, y, width, height },
+    maximized: 'maximized' in state && state.maximized === true,
+  }
 }
 
 export function trackWindowState(window: DesktopWindow, state: SavedWindowState) {
@@ -219,14 +270,21 @@ export function trackWindowState(window: DesktopWindow, state: SavedWindowState)
 }
 
 export function saveWindowState(window: DesktopWindow, state: SavedWindowState) {
+  if (!window.supportsBounds || !window.supportsMinimizedState) return false
+
   state.maximized = window.isMaximized()
+  storage.setString(windowStateKey, JSON.stringify(state))
+  return storage.flush()
 }
 
-export function restoreWindowState(window: DesktopWindow, state: SavedWindowState) {
-  if (!window.supportsBounds) return
+export function restoreWindowState(window: DesktopWindow): SavedWindowState | undefined {
+  if (!window.supportsBounds || !window.supportsMinimizedState) return
 
+  const state = readWindowState()
+  if (!state) return { bounds: window.getBounds(), maximized: false }
   window.setBounds(state.bounds)
   if (state.maximized) window.maximize()
+  return state
 }
 ```
 
