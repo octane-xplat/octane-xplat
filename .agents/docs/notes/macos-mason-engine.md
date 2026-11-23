@@ -135,8 +135,9 @@ engines.
 
 ## Keyed children on NativeScript Core
 
-The Core driver uses the Mac Mason layout's in-place move capability for a keyed
-child that stays in the same container. Core's normal remove-and-insert path
+The Core driver uses AppKit's in-place layout move for a keyed child that
+stays in the same container, including a child projected through a viewless
+proxy. Core's normal remove-and-insert path
 tears down that child's native view. In-place moves update the Core child list
 and AppKit stacking order, invalidate affected sibling selectors, and request
 Mason layout while keeping the existing view and subscriptions.

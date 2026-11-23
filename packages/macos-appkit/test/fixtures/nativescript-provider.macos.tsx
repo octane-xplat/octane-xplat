@@ -242,12 +242,19 @@ async function checkKeyedLayout() {
   }
 }
 
-function ProjectedLeaves(props: { width: number }) {
+function ProjectedLeaves(props: { width: number; swapped?: boolean }) {
   return (
     <masonview id="projection-layout" style={{ width: 200, height: 55, display: 'flex' }}>
       <proxyviewcontainer>
         <proxyviewcontainer>
-          <label id="projected-leaf" text="A" style={{ width: props.width, height: 20 }} />
+          {(props.swapped ? ['B', 'A'] : ['A', 'B']).map((item) => (
+            <label
+              key={item}
+              id={'projected-leaf-' + item}
+              text={item}
+              style={{ width: item === 'A' ? props.width : 25, height: 20 }}
+            />
+          ))}
         </proxyviewcontainer>
       </proxyviewcontainer>
     </masonview>
@@ -264,15 +271,26 @@ async function checkProjectedLeaves() {
     await new Promise((resolve) => setTimeout(resolve, 30))
     const debug = Reflect.get(root, '__macosDebug')
     const parent = debug.findId('projection-layout')
-    const label = debug.findId('projected-leaf')
+    const label = debug.findId('projected-leaf-A')
+    const sibling = debug.findId('projected-leaf-B')
     const width = () => label.alignmentRectForFrame(label.frame).size.width
     if (label.superview !== parent || width() !== 40) {
       throw new Error('Core omitted initial geometry on an AppKit view projected through proxies')
     }
     root.render(ProjectedLeaves, { width: 75 })
     await new Promise((resolve) => setTimeout(resolve, 30))
-    if (debug.findId('projected-leaf') !== label || width() !== 75) {
+    if (debug.findId('projected-leaf-A') !== label || width() !== 75) {
       throw new Error('Core lost reactive geometry on an AppKit view projected through proxies')
+    }
+    root.render(ProjectedLeaves, { width: 75, swapped: true })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (
+      debug.findId('projected-leaf-A') !== label ||
+      debug.findId('projected-leaf-B') !== sibling ||
+      label.frame.origin.x <= sibling.frame.origin.x ||
+      parent.subviews.objectAtIndex(0) !== sibling
+    ) {
+      throw new Error('The keyed proxy reorder did not preserve AppKit views and order')
     }
   } finally {
     root.unmount()
