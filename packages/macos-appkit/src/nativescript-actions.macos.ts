@@ -3,8 +3,18 @@ import { GestureTypes } from '@nativescript/core/ui/gestures'
 import { interop, NSButton, NSEvent, NSView, type NSRect, type NSSize } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
 
+function canDispatchAction(view: View): boolean {
+  const state = view.accessibilityState
+  return Boolean(
+    view.isEnabled &&
+    view.isUserInteractionEnabled &&
+    !state?.disabled &&
+    !state?.readonly,
+  )
+}
+
 export function activateNativeScriptView(view: View): boolean {
-  if (!view.isEnabled || !view.isUserInteractionEnabled) {
+  if (!canDispatchAction(view)) {
     return false
   }
 
@@ -49,6 +59,8 @@ function actionRole(role: unknown) {
       return 'AXButton'
     case 'link':
       return 'AXLink'
+    case 'adjustable':
+      return 'AXSlider'
   }
 }
 
@@ -65,6 +77,8 @@ export function setNativeScriptActionRole(native: NSView, role: unknown) {
 class CoreActionView extends NSView {
   static ObjCExposedMethods = {
     accessibilityPerformPress: { params: [], returns: interop.types.bool },
+    accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
+    accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
   }
 
   static {
@@ -83,8 +97,7 @@ class CoreActionView extends NSView {
     return Boolean(
       owner &&
       (owner.hasListeners('tap') || owner.getGestureObservers(GestureTypes.tap)?.length) &&
-      owner.isEnabled &&
-      owner.isUserInteractionEnabled,
+      canDispatchAction(owner),
     )
   }
 
@@ -96,6 +109,28 @@ class CoreActionView extends NSView {
   accessibilityPerformPress() {
     const owner = owners.get(this)
     return Boolean(owner && this.acceptsFirstResponder() && activateNativeScriptView(owner))
+  }
+
+  private adjustAccessibility(eventName: 'accessibilityIncrement' | 'accessibilityDecrement') {
+    const owner = owners.get(this)
+    if (
+      !owner ||
+      this.accessibilityRole !== 'AXSlider' ||
+      !canDispatchAction(owner) ||
+      !owner.hasListeners(eventName)
+    ) {
+      return false
+    }
+    owner.notify({ eventName, object: owner })
+    return true
+  }
+
+  accessibilityPerformIncrement() {
+    return this.adjustAccessibility('accessibilityIncrement')
+  }
+
+  accessibilityPerformDecrement() {
+    return this.adjustAccessibility('accessibilityDecrement')
   }
 
   keyDown(event: NSEvent) {

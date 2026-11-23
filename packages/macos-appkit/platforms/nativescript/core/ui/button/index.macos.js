@@ -2,8 +2,10 @@
 // target/action tap delivery. Modeled on ui/button/index.ios.js (Core
 // TapHandlerImpl/ObjCExposedMethods pattern); iOS-only chrome (content
 // edge insets, visual states) dropped.
+import { accessibilityLabelProperty } from '@nativescript/core/accessibility/accessibility-properties';
 import { ButtonBase } from '@nativescript/core/ui/button/button-common';
-import { View, CSSType } from '@nativescript/core/ui/core/view';
+import { View, CSSType, isEnabledProperty } from '@nativescript/core/ui/core/view';
+import { getTransformedText } from '@nativescript/core/ui/text-base';
 import { layout } from '@nativescript/core/utils';
 export * from '@nativescript/core/ui/button/button-common';
 class TapHandlerImpl extends NSObject {
@@ -16,12 +18,10 @@ class TapHandlerImpl extends NSObject {
     // macos-node-api's ClassBuilder uses ObjCExposedMethods keys verbatim as
     // selectors, and the JS method must use the same colon spelling
     // (packages/macos-appkit convention — e.g. actions.ts).
-    ['tap:'](_args) {
-        if (this._owner) {
-            const owner = this._owner.deref();
-            if (owner) {
-                owner._emit(ButtonBase.tapEvent);
-            }
+    ['tap:'](sender) {
+        const owner = this._owner?.deref();
+        if (owner?.isEnabled && sender === owner.nativeViewProtected && sender.enabled) {
+            owner._emit(ButtonBase.tapEvent);
         }
     }
     static ObjCExposedMethods = {
@@ -56,8 +56,32 @@ export class Button extends ButtonBase {
             this.nativeViewProtected.target = null;
             this.nativeViewProtected.action = null;
         }
-        this._tapHandler = null;
+        if (this._tapHandler) {
+            this._tapHandler._owner = undefined;
+            this._tapHandler = null;
+        }
         super.disposeNativeView();
+    }
+    _setNativeText(reset = false) {
+        const button = this.nativeViewProtected;
+        if (!button) {
+            return;
+        }
+        if (!reset && this.formattedText) {
+            button.attributedTitle = this.createAttributedString(this.formattedText);
+        } else {
+            button.title = reset ? '' : getTransformedText(String(this.text ?? ''), this.textTransform);
+        }
+    }
+    [accessibilityLabelProperty.getDefault]() {
+        // AppKit derives its default label from the current title.
+        return null;
+    }
+    [isEnabledProperty.getDefault]() {
+        return this.nativeViewProtected.enabled;
+    }
+    [isEnabledProperty.setNative](enabled) {
+        this.nativeViewProtected.enabled = enabled;
     }
     get ios() {
         return undefined;

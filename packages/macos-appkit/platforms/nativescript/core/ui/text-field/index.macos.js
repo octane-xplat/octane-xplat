@@ -54,9 +54,13 @@ class NSTextFieldDelegateImpl extends NSObject {
     }
     ['xplatCoreTextFieldSubmitted:'](field) {
         const owner = this._owner?.deref();
+        if (!owner || field !== owner.nativeViewProtected || owner._swappingCell ||
+            !owner.isEnabled || !owner.editable || !field.enabled || !field.editable) {
+            return;
+        }
         const editor = field.currentEditor();
         const marked = editor?.hasMarkedText;
-        if (owner && !owner._swappingCell && !(typeof marked === 'function' ? marked.call(editor) : marked)) {
+        if (!(typeof marked === 'function' ? marked.call(editor) : marked)) {
             owner.notify({ eventName: TextFieldBase.returnPressEvent, object: owner });
         }
     }
@@ -97,7 +101,10 @@ export class TextField extends TextFieldBase {
             this.nativeViewProtected.target = null;
             this.nativeViewProtected.action = null;
         }
-        this._delegate = null;
+        if (this._delegate) {
+            this._delegate._owner = undefined;
+            this._delegate = null;
+        }
         this._editing = false;
         super.disposeNativeView();
     }

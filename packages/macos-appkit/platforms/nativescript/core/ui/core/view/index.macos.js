@@ -30,6 +30,7 @@ import {
     accessibilityIdentifierProperty,
     accessibilityLabelProperty,
     accessibilityRoleProperty,
+    accessibilityValueProperty,
 } from '@nativescript/core/accessibility/accessibility-properties';
 export * from '@nativescript/core/ui/core/view/view-common';
 export * from '@nativescript/core/ui/core/view/view-helper';
@@ -180,6 +181,12 @@ export class View extends ViewCommon {
     }
     [accessibilityRoleProperty.setNative](role) {
         setNativeScriptActionRole(this.nativeViewProtected, role);
+    }
+    [accessibilityValueProperty.getDefault]() {
+        return this.nativeViewProtected.accessibilityValue;
+    }
+    [accessibilityValueProperty.setNative](value) {
+        this.nativeViewProtected.accessibilityValue = value ?? null;
     }
     [visibilityProperty.getDefault]() {
         return this.nativeViewProtected.hidden ? 'hidden' : 'visible';
