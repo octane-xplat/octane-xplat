@@ -568,6 +568,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   const stableDevtools = release.jobs['stable-devtools']
   assert.deepEqual(dependencies(stableDevtools), ['gate', 'qualify'])
   assert.match(stableDevtools.if, /needs\.qualify\.result == 'success'/)
+  assert.equal(stableDevtools.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
   assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'stable-devtools'])
   assert.match(release.jobs.lockstep.if, /needs\.stable-devtools\.result == 'success'/)
   assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'ci'")
