@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/global-shortcuts",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "System-wide global keyboard shortcuts for desktop apps",
 	"license": "MIT",
 	"repository": {

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/form",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Typed form state and validation for Octane Xplat, powered by TanStack Form",
 	"keywords": [
 		"octane",
