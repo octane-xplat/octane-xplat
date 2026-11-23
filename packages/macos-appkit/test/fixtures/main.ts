@@ -42,7 +42,8 @@ app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
 const windowStyle = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-  { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
+  // Fixed-size fixtures share a column with their action controls.
+  { origin: { x: 0, y: 0 }, size: { width: 400, height: 520 } },
   windowStyle,
   2,
   false,
@@ -152,7 +153,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
       check(
         near(stack.frame.size.width, 240) && near(stack.frame.size.height, 80),
-        'Explicit layout size failed',
+        'Explicit layout size failed: ' + JSON.stringify(stack.frame.size),
       )
 
       check(near(left(a), 100), 'Centered column child failed')

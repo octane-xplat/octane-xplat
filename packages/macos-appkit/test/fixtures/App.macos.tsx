@@ -148,7 +148,7 @@ export default function App() {
         ref={stackRef}
         style={mergeStyle(
           { flexDirection: count$.get() === 1 ? 'row' : 'column' },
-          { display: 'flex', width: 240, height: 80, padding: 8 },
+          { display: 'flex', width: 240, height: 80, padding: 8, flexShrink: 0 },
         )}
       >
         {(count$.get() >= 2 ? [] : count$.get() === 1 ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map(
