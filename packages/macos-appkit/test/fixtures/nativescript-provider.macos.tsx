@@ -842,11 +842,17 @@ function checkActionBar() {
     throw new Error('ActionBar did not update its title and shadow in place')
   }
 
+  const nativeChild = child.nativeViewProtected
+  const childAlignment = nativeChild.alignmentRectForFrame(nativeChild.frame)
   if (
-    child.nativeViewProtected.superview !== childBar.nativeViewProtected ||
-    Math.abs(child.nativeViewProtected.frame.origin.x - 50) > 1
+    nativeChild.superview !== childBar.nativeViewProtected ||
+    Math.abs(childAlignment.origin.x - 50) > 1 ||
+    Math.abs(childAlignment.origin.y - 12) > 1
   ) {
-    throw new Error(`ActionBar JSX title location: ${JSON.stringify(child.nativeViewProtected.frame)}`)
+    throw new Error(
+      `ActionBar JSX title location: ${childAlignment.origin.x},${childAlignment.origin.y}; ` +
+        `bar height ${childBar.nativeViewProtected.bounds.size.height}, title height ${childAlignment.size.height}`,
+    )
   }
 
   const external = NSTextField.labelWithString('External')
