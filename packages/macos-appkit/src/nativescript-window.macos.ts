@@ -12,6 +12,7 @@ import {
 import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
 import { installWindowRootFactory } from './host-windowing'
+import { appKitHostBoundary } from './nativescript-host-boundary.macos'
 import { installNativeScriptAutomation } from './nativescript-automation.macos'
 import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
 import {
@@ -165,7 +166,7 @@ export function createNativeScriptWindowRoot(
   const mounted = mountNativeScriptContent(content, options?.fontFamily)
   let root: UniversalRoot
   try {
-    root = createNativeScriptRoot(mounted.host, resolveAppKitPortalHost)
+    root = createNativeScriptRoot(mounted.host, resolveAppKitPortalHost, appKitHostBoundary)
     installNativeScriptAutomation(root)
   } catch (error) {
     const failures = new FailureCollector()

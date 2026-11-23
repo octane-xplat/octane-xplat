@@ -94,6 +94,14 @@ export type NativeScriptPortalHost = {
 
 type ResolvePortalHost = (target: object) => NativeScriptPortalHost | undefined
 
+/** A host can expose native handles while the driver still owns Core views. */
+export interface NativeScriptHostBoundary {
+  publicInstance(view: ViewBase, type: string, id: number): object | null
+  eventData(data: EventData, publicInstance: object | null, view: ViewBase): unknown
+  coreView(target: object): ViewBase | undefined
+  emitProgrammaticChange?(type: string, property: string): boolean
+}
+
 export interface NativeScriptContainer {
   readonly host: ViewBase
   readonly nodes: Map<number, HostNode>
@@ -101,6 +109,7 @@ export interface NativeScriptContainer {
   /** Active portal targets by handle id, emptied as registrations release. */
   readonly portalTargets: Map<string | number, PortalTarget>
   readonly resolvePortalHost?: ResolvePortalHost
+  readonly hostBoundary?: NativeScriptHostBoundary
   root: UniversalRoot | null
 }
 
@@ -300,7 +309,10 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
     if (value != null && typeof value !== 'function') {
       throw new TypeError('renderItem must be a function')
     }
-    setRenderItem(view, (value ?? null) as RenderItem | null, createNativeScriptRoot)
+    const owner = viewOwners.get(view)?.container
+    setRenderItem(view, (value ?? null) as RenderItem | null, (host) =>
+      createNativeScriptRoot(host, owner?.resolvePortalHost, owner?.hostBoundary),
+    )
     return
   }
   // Mason cutover — all layout props are style-only: warn when a former
@@ -335,10 +347,11 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
   // Core raises `<name>Change` for a script write exactly as for a user
   // edit; a controlled input must not see its own value come back as one.
   const echo = `${name}Change`
-  const listening = node.listeners.has(echo)
+  const boundary = viewOwners.get(view)?.container.hostBoundary
+  const muteEcho = node.listeners.has(echo) && !boundary?.emitProgrammaticChange?.(node.type, name)
   const textValue = name === 'text' || name === 'formattedText'
   const previousText = textValue ? Reflect.get(target, name) : undefined
-  if (listening) {
+  if (muteEcho) {
     node.muted.add(echo)
   }
   try {
@@ -350,7 +363,7 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
       refreshCss(view)
     }
   } finally {
-    if (listening) {
+    if (muteEcho) {
       node.muted.delete(echo)
     }
   }
@@ -1448,7 +1461,12 @@ function setEvent(
     }
     const fire = () => {
       try {
-        root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, data))
+        const boundary = container.hostBoundary
+        const current = node.view
+        const payload = boundary && current
+          ? boundary.eventData(data, boundary.publicInstance(current, node.type, node.id), current)
+          : data
+        root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
       } catch (error) {
         console.warn(`NativeScript driver: dropped ${type} event:`, error)
       }
@@ -1865,7 +1883,8 @@ function preparePortalTarget(
   if (!suppliedTarget || typeof suppliedTarget !== 'object') {
     throw new TypeError('NativeScript driver: a portal target must be a NativeScript view.')
   }
-  const nativeTarget = suppliedTarget instanceof View ? suppliedTarget : undefined
+  const recoveredTarget = container.hostBoundary?.coreView(suppliedTarget) ?? suppliedTarget
+  const nativeTarget = recoveredTarget instanceof View ? recoveredTarget : undefined
   const owner = nativeTarget && viewOwners.get(nativeTarget)
   if (owner !== undefined && owner.container !== container) {
     throw new Error('NativeScript driver: a portal target must not belong to another Octane root.')
@@ -2079,6 +2098,7 @@ export function renderNativeScriptApp<P extends object>(
 export function createNativeScriptContainer(
   host: ViewBase,
   resolvePortalHost?: ResolvePortalHost,
+  hostBoundary?: NativeScriptHostBoundary,
 ): NativeScriptContainer {
   const container: NativeScriptContainer = {
     host,
@@ -2086,6 +2106,7 @@ export function createNativeScriptContainer(
     children: [],
     portalTargets: new Map(),
     resolvePortalHost,
+    hostBoundary,
     root: null,
   }
   containers.add(container)
@@ -2100,9 +2121,19 @@ export function releaseNativeScriptContainer(container: NativeScriptContainer): 
 export function createNativeScriptRoot(
   host: ViewBase,
   resolvePortalHost?: ResolvePortalHost,
+  hostBoundary?: NativeScriptHostBoundary,
 ): UniversalRoot {
-  const container = createNativeScriptContainer(host, resolvePortalHost)
-  const root = createUniversalRoot(container, nativeScriptDriver, {
+  const container = createNativeScriptContainer(host, resolvePortalHost, hostBoundary)
+  const driver: UniversalHostDriver<NativeScriptContainer, object | null> = hostBoundary
+    ? {
+        ...nativeScriptDriver,
+        getPublicInstance(active, id) {
+          const node = active.nodes.get(id)
+          return node?.view ? hostBoundary.publicInstance(node.view, node.type, id) : null
+        },
+      }
+    : nativeScriptDriver
+  const root = createUniversalRoot(container, driver, {
     scheduleMicrotask: (callback) => {
       Promise.resolve().then(callback)
     },

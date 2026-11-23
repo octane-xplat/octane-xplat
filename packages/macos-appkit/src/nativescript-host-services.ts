@@ -10,6 +10,7 @@ import { createActionStore } from './action-store'
 import { createAppMenu } from './app-menu'
 import { announceAppKit } from './host-announce'
 import { createHostBridge } from './host-bridge'
+import { appKitHostBoundary } from './nativescript-host-boundary.macos'
 import { appKitGestureSurface } from './gesture-input'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import { registerGestureClass } from './gestures'
@@ -80,6 +81,7 @@ export function installNativeScriptHostServices() {
     }
   }
 
+  appKitBridge.coreViewForHost ??= appKitHostBoundary.coreView
   appKitBridge.announce ??= (text) => announceAppKit(text, NSApplication.sharedApplication)
   appKitBridge.gestureSurface ??= appKitGestureSurface
   if (!appKitBridge.observeViewKeys) {

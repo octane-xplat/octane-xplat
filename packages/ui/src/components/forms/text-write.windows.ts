@@ -1,8 +1,8 @@
 const writing = new WeakSet<object>()
 
 /** Whether a textChange is the synchronous echo of our controlled write. */
-export function isWritingText(view: object): boolean {
-  return writing.has(view)
+export function isWritingText(view: unknown): boolean {
+  return view !== null && typeof view === 'object' && writing.has(view)
 }
 
 function selection(view: any): { native: any; start: number; length: number } | null {

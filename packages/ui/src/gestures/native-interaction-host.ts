@@ -1,4 +1,5 @@
 import { createInputCallbackGuard, guardInteractionCallbacks } from './callback-guard'
+import { coreViewForHost } from '../internal/platform/core-view-for-host'
 import type { NativeGestureView } from './input.native'
 import { isNativeGestureView } from './native-host-lifecycle'
 import {
@@ -150,7 +151,7 @@ export function createNativeInteractionHost(
 
   return {
     /** Host callback ref. */
-    bind: lifecycle.bind,
+    bind: (host: object | null) => lifecycle.bind(coreViewForHost(host)),
     /** Layout-phase commit of one render's options and enclosing scopes. */
     commit(options: InteractionHostOptions, enclosing: readonly InteractionScope[]) {
       if (enclosing !== membershipScopes) {

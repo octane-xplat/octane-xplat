@@ -388,8 +388,21 @@ async function checkRootLayoutPercentages() {
   }
 }
 
-function SearchSubmission(props: { onSubmit: () => void }) {
-  return <searchbar id="return-search" text="Needle" onSubmit={props.onSubmit} />
+function SearchSubmission(props: {
+  text: string
+  fieldRef: (host: unknown) => void
+  onTextChange: (event: { object: unknown; value: string; oldValue: string }) => void
+  onSubmit: (event: { object: unknown; eventName: string }) => void
+}) {
+  return (
+    <searchbar
+      id="return-search"
+      text={props.text}
+      ref={props.fieldRef}
+      onTextChange={props.onTextChange}
+      onSubmit={props.onSubmit}
+    />
+  )
 }
 
 async function checkSearchSubmission() {
@@ -397,22 +410,53 @@ async function checkSearchSubmission() {
     NSMakeRect(0, 0, 260, 180), 1, 2, false,
   )
   const root = createMacOSRoot(window.contentView)
-  const callCount = { value: 0 }
+  const submitted: { object: unknown; eventName: string }[] = []
+  const changes: { object: unknown; value: string; oldValue: string }[] = []
+  const fieldRef = { current: null as unknown }
+  const bindings = {
+    fieldRef(host: unknown) {
+      fieldRef.current = host
+    },
+    onSubmit(event: (typeof submitted)[number]) {
+      submitted.push(event)
+    },
+    onTextChange(event: (typeof changes)[number]) {
+      changes.push(event)
+    },
+  }
   try {
-    root.render(SearchSubmission, { onSubmit: () => callCount.value++ })
+    root.render(SearchSubmission, { ...bindings, text: 'Needle' })
     await new Promise((resolve) => setTimeout(resolve, 30))
     const field = Reflect.get(root, '__macosDebug').findId('return-search')
+    if (!(field instanceof NSSearchField) || fieldRef.current !== field) {
+      throw new Error('SearchBar JSX ref did not contain its native AppKit field')
+    }
     if (!window.makeFirstResponder(field) || !field.currentEditor()) {
       throw new Error('Core SearchBar did not accept the AppKit field editor')
     }
     field.currentEditor().doCommandBySelector('insertNewline:')
-    if (callCount.value !== 1) {
+    if (
+      submitted.length !== 1 ||
+      submitted[0].object !== field ||
+      submitted[0].eventName !== 'submit'
+    ) {
       throw new Error('AppKit SearchBar Return did not submit once')
     }
     field.stringValue = ''
     field.delegate.controlTextDidChange({ object: field })
-    if (callCount.value !== 1 || field.cell.sendsActionOnEndEditing) {
+    if (submitted.length !== 1 || field.cell.sendsActionOnEndEditing) {
       throw new Error('AppKit SearchBar clear or end-editing could submit')
+    }
+    changes.length = 0
+    root.render(SearchSubmission, { ...bindings, text: 'Updated search' })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (
+      changes.length !== 1 ||
+      changes[0].object !== field ||
+      changes[0].oldValue !== '' ||
+      changes[0].value !== 'Updated search'
+    ) {
+      throw new Error('AppKit SearchBar did not dispatch the programmatic text change')
     }
   } finally {
     root.unmount()
