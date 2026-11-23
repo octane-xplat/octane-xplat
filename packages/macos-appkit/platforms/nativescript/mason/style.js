@@ -291,7 +291,16 @@ export class Style {
         });
         // Core composites with a plain AppKit host can supply intrinsic
         // dimensions without registering a native getter that re-enters JS.
-        const intrinsic = this.leafView?.getMasonIntrinsicSize?.();
+        const leaf = this.leafView;
+        let intrinsic = leaf?.getMasonIntrinsicSize?.();
+        if (!intrinsic && (!dict.width || !dict.height) && leaf?.layoutView) {
+            // A Core ContentView native wrapper has no AppKit intrinsic size.
+            leaf.measure(layout.UNSPECIFIED, layout.UNSPECIFIED);
+            intrinsic = {
+                width: layout.toDeviceIndependentPixels(leaf.getMeasuredWidth()),
+                height: layout.toDeviceIndependentPixels(leaf.getMeasuredHeight()),
+            };
+        }
         if (intrinsic) {
             if (!dict.width && (!dict.minWidth || dict.minWidth[0] === 1 && dict.minWidth[1] === 0)) {
                 dict.minWidth = [1, intrinsic.width];

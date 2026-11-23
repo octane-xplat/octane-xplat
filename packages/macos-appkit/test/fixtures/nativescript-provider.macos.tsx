@@ -242,6 +242,48 @@ async function checkKeyedLayout() {
   }
 }
 
+function NestedContent() {
+  return (
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
+      <contentview id="fixed-content" style={{ width: 200, height: 80 }}>
+        <masonview id="nested-grid" style={{ display: 'grid', width: 200, height: 80 }}>
+          <label
+            id="centered-label"
+            text="Centered"
+            style={{ width: 60, height: 20, justifySelf: 'center', alignSelf: 'center' }}
+          />
+        </masonview>
+      </contentview>
+      <contentview id="natural-content">
+        <label text="Natural" style={{ width: 52, height: 18 }} />
+      </contentview>
+    </masonview>
+  )
+}
+
+async function checkNestedContent() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(NestedContent, {})
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const grid = debug.findId('nested-grid')
+    const label = debug.findId('centered-label')
+    const origin = label.alignmentRectForFrame(label.frame).origin
+    if (grid.frame.size.width !== 200 || grid.frame.size.height !== 80 ||
+      Math.abs(origin.x - 70) >= 1 || Math.abs(origin.y - 30) >= 1 ||
+      debug.findId('natural-content').frame.size.height !== 18) {
+      throw new Error('Core ContentView did not measure and lay out its content inside Mason')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function ForeignView(props: { width: number; onCreatingView: (event: { object?: unknown; view?: unknown }) => void }) {
   return (
     <placeholder
@@ -1084,6 +1126,7 @@ setTimeout(async () => {
     await checkHtmlText()
     await checkForeignView()
     await checkKeyedLayout()
+    await checkNestedContent()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

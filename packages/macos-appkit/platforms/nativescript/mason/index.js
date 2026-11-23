@@ -277,11 +277,22 @@ function masonMeasureChildren(view) {
     for (const child of view.__masonOrder) {
         const box = view._childBoxes.get(child);
         if (box) {
-            // The mason record is authoritative — running Core `measure` on the
-            // child would re-enter onMeasure, which can leave native measuring
-            // state behind (e.g. Label sets preferredMaxLayoutWidth + wrapping,
-            // poisoning the engine's next intrinsicContentSize read).
-            child.setMeasuredDimension(px(box.w), px(box.h));
+            const width = px(box.w);
+            const height = px(box.h);
+            if (!isMasonry(child) && child._childrenCount > 0) {
+                // Core containers need to measure their own children. Mason
+                // owns the container's box and delegates what is inside it.
+                child.measure(
+                    layout.makeMeasureSpec(width, layout.EXACTLY),
+                    layout.makeMeasureSpec(height, layout.EXACTLY),
+                );
+            }
+            else {
+                // Simple native leaves already measured through AppKit. A Core
+                // measure would change native wrapping and poison the next
+                // intrinsicContentSize read.
+                child.setMeasuredDimension(width, height);
+            }
         }
         if (isMasonry(child) && child.__masonOrder?.length) {
             // Boxes cascade down the subtree — measured dims should too.
