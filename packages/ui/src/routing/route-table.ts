@@ -514,7 +514,7 @@ export function deriveRouteManifest(
  *  which outranks an optional param (1), which outranks a catch-all (0).
  *  Equal sums rank a route without a catch-all segment first — a splat may
  *  match an empty remainder, but never ahead of a literal — then break
- *  alphabetically so ordering is total and stable across merges. */
+ *  by route name so ordering is total and stable across runtimes and merges. */
 function bySpecificity(a: RouteMeta, b: RouteMeta): number {
   const weight = (s: string) =>
     s.startsWith('*') ? 0 : s.startsWith(':') ? (s.endsWith('?') ? 1 : 2) : 3
@@ -524,7 +524,7 @@ function bySpecificity(a: RouteMeta, b: RouteMeta): number {
   return (
     b.segments.reduce((n, s) => n + weight(s), 0) - a.segments.reduce((n, s) => n + weight(s), 0) ||
     catchAll(b) - catchAll(a) ||
-    a.name.localeCompare(b.name)
+    (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
   )
 }
 

@@ -308,10 +308,116 @@ index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 51ad398cefe75c918e887bd9506d9152259b957e..1d978e4875b7e102e5aed8fa51438c1d8f0a3d93 100644
+index 82275377e64e41e0bd873716594057736202f418..02d3a6806ca3b92b20e7e3eda2a6532b600cdb88 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
-@@ -256,11 +256,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -12,8 +12,94 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
+ import { isNativeScriptCoreModule, isNativeScriptPluginModule, normalizeNativeScriptCoreSpecifier, normalizeNodeModulesSpecifier, resolveNodeModulesPackageBoundary, resolveVendorRouting, rewriteFsAbsoluteToNsM, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+ import { ensureDynamicHmrImportHelper } from './websocket-served-module-helpers.js';
+ import { collectMixedRuntimePluginHttpRootPackages, findDependencyFileName, getProjectRelativeImportPath, isApplicationImport, normalizeImportPath, stripToProjectRelative, toAppModuleBaseId, toNodeModulesHttpModuleId } from './device-transform-helpers.js';
++import { resolvePlatform } from '../../helpers/cli-flags.js';
+ import { stripViteFsPrefix } from '../../helpers/normalize-id.js';
+ const APP_ROOT_DIR = getProjectAppPath();
++// ── Package `imports` field (`#specifier`) resolution ─────────────────────
++// A `#`-prefixed specifier resolves through the `imports` field of the
++// importer's own package.json (Node "package imports" — e.g. octane's
++// `#octane/dist/signal-actions/graph`). Served node_modules files are raw-read
++// by the /ns/m route without Vite import analysis, and the bare-npm fallback
++// below rejects `#` outright (bareNpmRe requires an alphanumeric first char),
++// so the literal specifier reached the device loader as "Cannot find module".
++// Device-visible conditions: `import` (ESM), `native`, the active platform —
++// `node`, `require`, and build-time conditions like `octane-islands` are
++// intentionally absent.
++function resolveImportsConditionalTarget(value, conditions) {
++    while (value !== null && typeof value === 'object' && !Array.isArray(value)) {
++        let next;
++        for (const condition of Object.keys(value)) {
++            if (condition === 'default' || conditions.has(condition)) {
++                next = value[condition];
++                break;
++            }
++        }
++        value = next;
++    }
++    return typeof value === 'string' ? value : null;
++}
++function resolvePackageImportsSpecifier(spec, importerPath, projectRoot, verbose) {
++    let importerAbs;
++    if (importerPath.startsWith('/@fs/')) {
++        importerAbs = stripViteFsPrefix(importerPath);
++    }
++    else if (importerPath.startsWith('/')) {
++        importerAbs = path.join(projectRoot, `.${importerPath}`);
++    }
++    else {
++        return null;
++    }
++    try {
++        importerAbs = importerAbs.replace(PAT.QUERY_PATTERN, '');
++        let dir = path.dirname(importerAbs);
++        // The `imports` field is scoped to the importer's nearest enclosing
++        // package.json — the same lookup Node performs.
++        for (;;) {
++            const packageJsonPath = path.join(dir, 'package.json');
++            if (existsSync(packageJsonPath)) {
++                const pkgJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
++                const importsField = pkgJson.imports;
++                if (!importsField || typeof importsField !== 'object' || Array.isArray(importsField) || !pkgJson.name)
++                    return null;
++                const conditions = new Set(['default', 'import', 'native', resolvePlatform()].filter(Boolean));
++                const exactMatch = Object.hasOwn(importsField, spec);
++                let target = exactMatch
++                    ? resolveImportsConditionalTarget(importsField[spec], conditions)
++                    : null;
++                if (!exactMatch && target === null) {
++                    for (const key of Object.keys(importsField)) {
++                        const star = key.indexOf('*');
++                        if (star === -1)
++                            continue;
++                        const pre = key.slice(0, star);
++                        const post = key.slice(star + 1);
++                        if (spec.length < pre.length + post.length || !spec.startsWith(pre) || !spec.endsWith(post))
++                            continue;
++                        const matched = spec.slice(pre.length, spec.length - post.length);
++                        const patternTarget = resolveImportsConditionalTarget(importsField[key], conditions);
++                        target = typeof patternTarget === 'string' ? patternTarget.replaceAll('*', matched) : null;
++                        break;
++                    }
++                }
++                // Only `./`-relative targets can be expressed as a device URL
++                // (bare-specifier targets are rare and keep falling through).
++                if (typeof target !== 'string' || !target.startsWith('./'))
++                    return null;
++                const out = `/ns/m/node_modules/${pkgJson.name}/${target.slice(2)}`;
++                if (verbose)
++                    console.log(`[rewrite] imports-field specifier: ${spec} → ${out}`);
++                return out;
++            }
++            const parent = path.dirname(dir);
++            if (parent === dir)
++                return null;
++            dir = parent;
++        }
++    }
++    catch {
++        return null;
++    }
++}
+ export function prepareAngularEntryForDevice(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose = false, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp = false) {
+     const rewrittenCode = rewriteImports(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp);
+     return rewriteAngularEntryRegisterOnly(rewrittenCode, resolveAngularCoreHmrImportSource(rewrittenCode, httpOrigin));
+@@ -240,6 +326,10 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+             }
+             return `${prefix}${stub}${suffix}`;
+         }
++        if (spec.startsWith('#')) {
++            const resolved = resolvePackageImportsSpecifier(spec, importerPath, projectRoot, verbose);
++            return resolved ? `${prefix}${httpOriginSafe || ''}${resolved}${suffix}` : `${prefix}${spec}${suffix}`;
++        }
+         spec = normalizeNativeScriptCoreSpecifier(spec);
+         // Pull `/@fs/<abs-path>` URLs back into the `/ns/m/` pipeline so they
+         // hit our CJS/UMD-wrapping handler. Vite emits `/@fs/...` for any
+@@ -257,11 +347,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
                  }
                  return `${prefix}${rewritten}${suffix}`;
              }
@@ -488,6 +594,30 @@ index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e
          }
          else {
              i++;
+diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
+index 3e5ba80fc2ce95d1a12991fed6c61a978c16dc5c..ca4668ddbcb6d79b55ea6add94680376b23265a0 100644
+--- a/hmr/server/websocket-ns-m-request.js
++++ b/hmr/server/websocket-ns-m-request.js
+@@ -19,7 +19,7 @@
+     }
+     return relative;
+ }
+-const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'vue'];
++const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'tsrx', 'jsx', 'mjs', 'mts', 'cts', 'vue'];
+ /**
+  * Extension/index variants of an extensionless spec, active-platform files
+  * first: plugins often ship only `index.ios.js`/`index.android.js` behind a
+@@ -99,8 +99,8 @@
+         if (!spec.startsWith('/')) {
+             spec = `/${spec}`;
+         }
+-        const hasExt = /\.(ts|tsx|js|jsx|mjs|mts|cts|vue)$/i.test(spec);
+-        const baseNoExt = hasExt ? spec.replace(/\.(ts|tsx|js|jsx|mjs|mts|cts)$/i, '') : spec;
++        const hasExt = /\.(ts|tsx|tsrx|js|jsx|mjs|mts|cts|vue)$/i.test(spec);
++        const baseNoExt = hasExt ? spec.replace(/\.(ts|tsx|tsrx|js|jsx|mjs|mts|cts)$/i, '') : spec;
+         const candidates = expandModuleCandidates(spec, hasExt, baseNoExt);
+         const transformCandidates = filterExistingNodeModulesTransformCandidates(spec, candidates, serverRoot, workspaceRoot);
+         return {
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
 index 6004d307bcbcc48da887fb2177642c83e9eb89b7..9798d184bf6cb4762ed801ebf658c575d34f669e 100644
 --- a/hmr/server/websocket-served-module-helpers.js

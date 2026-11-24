@@ -544,6 +544,15 @@ describe('layoutChain', () => {
 })
 
 describe('defineRoutes', () => {
+  it('breaks specificity ties in code-unit order', () => {
+    const m = defineRoutes([
+      { path: 'alpha', screen: C('Alpha') },
+      { path: 'Zeta', screen: C('Zeta') },
+    ])
+
+    expect(m.routes.map((route) => route.name)).toEqual(['Zeta', 'alpha'])
+  })
+
   it('turns path specs into metas + screens, sorted by specificity', () => {
     const m = defineRoutes({
       routes: [

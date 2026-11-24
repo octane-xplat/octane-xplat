@@ -32,6 +32,7 @@ import { nativeUnicodeRegex } from './native-regex.ts'
 import { resolveTsrxLeaf } from './tsrx-leaf.ts'
 import { transformTsconfig } from './tsconfig-pin.ts'
 import { buildTarget, invocationTarget } from './vite-target.ts'
+import { loadWindowsCoreProvider } from './windows/core-provider.ts'
 
 export { transformTsconfig }
 
@@ -508,32 +509,35 @@ export function nativeRelativeResolution() {
           return null
         }
 
-        const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
+        const importerFile = importer
+          .split(/[?#]/, 1)[0]
+          .replace(/^\/@fs\/(?=[a-z]:[/\\])/i, '')
+          .replace(/^\/@fs\//, '/')
+          .replaceAll('\\', '/')
         const request = source.split(/[?#]/, 1)[0]
-        const base = resolve(dirname(importerFile), request)
+        const base = resolve(dirname(importerFile), request).replaceAll('\\', '/')
         const stem = PLATFORM_TAG.test(base)
           ? base
           : base.replace(/\.(tsrx|tsx|ts|mts|jsx|js|json)$/, '')
 
-        // A platform leaf may delegate to its own unsuffixed base —
-        // `VirtualList.ios.tsrx` re-exporting `./VirtualList.tsrx` names the
-        // literal file. Probing the chain on that specifier selects the
-        // importer itself (self re-export) or a foreign-platform sibling.
-        // Same delegation rule as resolveTsrxLeaf's delegatesToBase.
+        // A platform leaf can re-export its unsuffixed module with or without
+        // an extension. Applying the platform chain here would select itself.
+        const unsuffixedImporter = importerFile.replace(
+          /\.(web|mobile|ios|android|macos|windows|linux|gtk)(\.[^./\\]+)$/,
+          '$2',
+        )
         if (
-          importerFile.replace(
-            /\.(web|mobile|ios|android|macos|windows|linux|gtk)(\.[^./\\]+)$/,
-            '$2',
-          ) === base
+          unsuffixedImporter !== importerFile &&
+          (base === unsuffixedImporter || base + extname(unsuffixedImporter) === unsuffixedImporter)
         ) {
-          return existsSync(base) ? base.replaceAll('\\', '/') : null
+          return existsSync(unsuffixedImporter) ? unsuffixedImporter : null
         }
 
         for (const ext of exts) {
           if (existsSync(stem + ext)) {
             // Vite module IDs use forward slashes, including on Windows.
             // Mixed separators create two instances of core style registries.
-            return (stem + ext).replaceAll('\\', '/')
+            return stem + ext
           }
         }
 
@@ -1160,6 +1164,7 @@ export const nodeEnvDefine = (mode) => ({
  */
 export async function native(env, opts = {}) {
   const mode = typeof env === 'string' ? env : env.mode
+  const platform = nativePlatform()
   const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
   const declared = Object.assign(
     {},
@@ -1171,7 +1176,7 @@ export async function native(env, opts = {}) {
 
   const engine = masonEngine(
     declared,
-    nativePlatform() === 'windows' ||
+    platform === 'windows' ||
       Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
   )
 
@@ -1200,24 +1205,30 @@ export async function native(env, opts = {}) {
 
   const appRequire = createRequire(join(process.cwd(), 'package.json'))
 
-  const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, { nativeScriptRenderer }] =
+  const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, renderer, framework] =
     await Promise.all([
       importApp('vite'),
       importApp('@octane-xplat/vite-octane'),
-      importApp('@octane-xplat/nativescript-octane/config'),
+      platform === 'windows'
+        ? importApp('@octane-xplat/nativescript-octane/config', [
+            dirname(appRequire.resolve('@octane-xplat/vite-octane')),
+          ])
+        : importApp('@octane-xplat/nativescript-octane/config'),
+      platform === 'windows' ? loadWindowsCoreProvider(appRequire) : undefined,
     ])
 
   const config = mergeConfig(
     octaneConfig(
       { mode },
       {
+        framework,
         octane: {
           renderers: {
             // The stock renderer ships validation.forbiddenGlobals/Imports
             // by default since 0.2.1 (upstream #6).
             registry: {
               nativescript: {
-                ...nativeScriptRenderer,
+                ...renderer.nativeScriptRenderer,
                 intrinsics:
                   '@octane-xplat/jsx' /* upstream hardcodes @octane-xplat/nativescript-octane; the facade is the single JSX type source now */,
               },
@@ -1238,7 +1249,7 @@ export async function native(env, opts = {}) {
         // scope; upstream's vite define set covers __IOS__/__ANDROID__/
         // __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
         // throws during bundle eval on iOS/Android.
-        __WINDOWS__: JSON.stringify(nativePlatform() === 'windows'),
+        __WINDOWS__: JSON.stringify(platform === 'windows'),
       },
       oxc: {
         // NativeScript modules use TypeScript's legacy decorators. Oxc's
@@ -1252,10 +1263,10 @@ export async function native(env, opts = {}) {
         // dev-server esbuild passes (core/deps/vendor bundles); production
         // rolldown chunks and per-module /ns/m serving are ours.
         nativeUnicodeRegex(),
-        css(nativePlatform() ?? 'native'),
+        css(platform ?? 'native'),
         pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
         nsHmrClientWatchdog(),
-        boundary(nativePlatform() ?? 'native'),
+        boundary(platform ?? 'native'),
         nativeExtensionOrder(),
         nativeRelativeResolution(),
         nativeCanonicalPackageIds(),
@@ -1313,7 +1324,7 @@ export async function native(env, opts = {}) {
         exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
       },
       resolve: {
-        conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
+        conditions: platform === 'windows' ? ['windows', 'native'] : ['native'],
         // Linked UI/platform sources must share the app's renderer element registry.
         dedupe: ['octane', '@octane-xplat/nativescript-octane'],
         // The compiler retargets hook imports to @nativescript-community/

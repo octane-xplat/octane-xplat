@@ -1,27 +1,26 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useEffect } from 'octane'
-import type { CanvasContextKind, CanvasProps } from './props'
+import { NativeCanvas } from './native/NativeCanvas.tsrx'
+import { getGPU } from './gpu.windows'
+import type { CanvasReady, CanvasProps } from './props'
 
-/** Windows mounts a neutral frame. No drawing surface or GPU is created. */
+function layoutStyle({ width, height, style }: CanvasProps): CanvasProps['style'] {
+  if (typeof style !== 'string') {
+    return { width, height, ...style }
+  }
+
+  const declaration = (property: string, value: number | string | undefined) =>
+    value === undefined ? '' : `${property}: ${typeof value === 'number' ? `${value}dip` : value};`
+
+  return declaration('width', width) + declaration('height', height) + style
+}
+
 export function Canvas(props: CanvasProps): unknown @{
-  useEffect(() => {
-    // Preserve deferred acquisition without pretending this is a native view.
-    const canvas = Object.freeze({
-      getContext: (_kind: CanvasContextKind, _options?: any): null => null,
-    })
+  const ready = ({ canvas }: CanvasReady) => {
+    // The NAPI canvas reads navigator.gpu when a caller requests WebGPU,
+    // including when onReady defers context acquisition to the caller.
+    getGPU()
+    props.onReady?.({ canvas, context: props.context ? canvas.getContext(props.context) : null })
+  }
 
-    props.onReady?.({ canvas, context: null })
-  }, [])
-
-  return (
-    <masonview
-      id={props.id}
-      className={props.className}
-      style={
-        typeof props.style === 'string'
-          ? props.style
-          : { display: 'grid', width: props.width, height: props.height, ...props.style }
-      }
-    />
-  )
+  <NativeCanvas {...props} context={undefined} style={layoutStyle(props)} onReady={ready} />
 }

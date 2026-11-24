@@ -189,7 +189,7 @@
         "@nativescript-community/gesturehandler": "2.1.0",
         "@nativescript-community/observable": "2.0.11",
         "@nativescript-community/perms": "3.0.12",
-        "@nativescript/canvas": "3.0.1",
+        "@nativescript/canvas": "3.0.17",
         "@nativescript/core": "catalog:",
         "@nativescript/font-manager": "1.0.20",
         "@octane-xplat/app": "workspace:*",
@@ -303,9 +303,9 @@
       "dependencies": {
         "@nativescript-community/observable": "2.0.11",
         "@nativescript-community/perms": "3.0.12",
-        "@nativescript/canvas": "3.0.1",
+        "@nativescript/canvas": "3.0.17",
         "@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
-        "@nativescript/font-manager": "1.0.18",
+        "@nativescript/font-manager": "1.0.22",
         "@octane-xplat/ads": "workspace:*",
         "@octane-xplat/app": "workspace:*",
         "@octane-xplat/app-menu": "workspace:*",
@@ -371,7 +371,8 @@
       "devDependencies": {
         "@nativescript/types": "catalog:",
         "@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
-        "@nativescript/windows": "1.0.0-beta.24",
+        "@nativescript/windows": "1.0.0-beta.28",
+        "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
@@ -788,7 +789,7 @@
       "name": "@octane-xplat/canvas",
       "version": "0.21.0",
       "dependencies": {
-        "@nativescript/canvas": "3.0.1",
+        "@nativescript/canvas": "3.0.17",
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
@@ -3553,6 +3554,7 @@
     "@octane-xplat/nativescript-mason-core@1.0.0-beta.13": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.13.patch",
     "@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
     "@octanejs/tiptap@0.0.63": "packages/cli/patches/@octanejs__tiptap@0.0.63.patch",
+    "@nativescript/canvas@3.0.17": "packages/cli/patches/@nativescript__canvas@3.0.17.patch",
     "@octanejs/lexical@0.2.13": "packages/cli/patches/@octanejs__lexical@0.2.13.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
@@ -4365,7 +4367,7 @@
 
     "@nativescript/camera": ["@nativescript/camera@7.0.0", "", { "dependencies": { "@nativescript-community/perms": "2.3.6" } }, "sha512-QyKvRqLnchWPV1T+s1Qx0rscnj03G7AK0kSLWW8dwDKXzFdc/EJUmp3nVaLuTxnphiaoUxqWp+o1FCV1TW64vQ=="],
 
-    "@nativescript/canvas": ["@nativescript/canvas@3.0.1", "", { "dependencies": { "@nativescript/font-manager": "*" } }, "sha512-pbLsbCRroxpZl1/M3UGFXwwmOIzBgu7p2xUb+5QhQetg/m9wrRXCRDJZVVDJM3i8VRJx3Dqfd2Lw4uxQFMwEYg=="],
+    "@nativescript/canvas": ["@nativescript/canvas@3.0.17", "", { "dependencies": { "@nativescript/font-manager": "*" } }, "sha512-IJPB7xQXG2Q6dEaur9akHDWNCfVIBciPqupvL7mo1wS0uhiZhmbuoKPSdK+rPO6BPr/DfktQVWA1a172Sj5VPA=="],
 
     "@nativescript/contacts": ["@nativescript/contacts@3.0.0", "", { "dependencies": { "@nativescript-community/perms": "2.3.6" } }, "sha512-gBOx3db0gJYaQnc4H/hwLxApEA0w5rsGz/nWk9aqmNnxfkyXUNNpWNaxqiplnPrIo9MCOEVVnbhXwm4GohvVLA=="],
 
@@ -4433,7 +4435,7 @@
 
     "@nativescript/vite": ["@nativescript/vite@8.0.20", "", { "dependencies": { "@babel/core": "7.29.7", "@babel/generator": "7.29.8", "@babel/parser": "7.29.9", "@babel/plugin-transform-typescript": "7.29.9", "@babel/plugin-transform-unicode-property-regex": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@rollup/plugin-alias": "6.0.0", "@rollup/plugin-commonjs": "29.0.3", "@rollup/plugin-replace": "6.0.3", "css": "3.0.0", "esbuild": "0.27.7", "minimist": "1.2.8", "sass": "1.104.1", "vite": "8.3.0", "vite-plugin-static-copy": "4.1.1", "ws": "8.21.3" }, "peerDependencies": { "@analogjs/vite-plugin-angular": "^2.0.0", "@angular/build": "^21.0.0 || ^22.0.0", "@vitejs/plugin-vue": "^6.0.5", "@vitejs/plugin-vue-jsx": "^5.1.5", "@vue/compiler-sfc": "^3.5.0", "react-reconciler": "^0.32.0", "typescript": "*", "vite-plugin-solid": "^2.11.11", "vue-tsc": "^3.2.0" }, "optionalPeers": ["@analogjs/vite-plugin-angular", "@angular/build", "@vitejs/plugin-vue", "@vitejs/plugin-vue-jsx", "@vue/compiler-sfc", "react-reconciler", "typescript", "vite-plugin-solid", "vue-tsc"], "bin": { "nativescript-vite": "bin/cli.cjs" } }, "sha512-/7zVu2t/F3zF5l8UxZOOd+n5ylgDOoUSUJWMKVQpSecCWw5FE1CqDuslxsWKKTVLJVTHKRcxzAdePrRJ5w+6Hw=="],
 
-    "@nativescript/windows": ["@nativescript/windows@1.0.0-beta.24", "", {}, "sha512-J42Xp4S8DJ3sxohCSu79O0npWIzgaN0Hv9n/iNXsQ7Y+8ujmkpXsPkn6dfN1yGSDtzMi4P2TSedaJUy2YUTJ1Q=="],
+    "@nativescript/windows": ["@nativescript/windows@1.0.0-beta.28", "", {}, "sha512-TrwYXnS1oYxVdHvP0PbzaNVqMR7IhN03eiLH6Ur8h8uUtQsYZqPZRbN7BZ2pwNvkpD2OVFWgVd5xMQEDGxPULQ=="],
 
     "@noble/hashes": ["@noble/hashes@2.4.0", "", {}, "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA=="],
 
@@ -7387,6 +7389,8 @@
 
     "@nativescript/camera/@nativescript-community/perms": ["@nativescript-community/perms@2.3.6", "", {}, "sha512-KtAyY2fCjKL19HQ3AslQKH4h+Sao0u4G4AgoF+SkRcAMGxqQd8covjpJ2hN3AFm8TDkqbSm3o0NDMR1dYVr/3A=="],
 
+    "@nativescript/canvas/@nativescript/font-manager": ["@nativescript/font-manager@1.0.22", "", {}, "sha512-1g7guVH7b7sogRVznK4U5rySu2a10b6tU3SmmRVRihXHBATBVtJc7bERqz3fXMgYNanvLJXuDUfHL6f7CT7Dqg=="],
+
     "@nativescript/contacts/@nativescript-community/perms": ["@nativescript-community/perms@2.3.6", "", {}, "sha512-KtAyY2fCjKL19HQ3AslQKH4h+Sao0u4G4AgoF+SkRcAMGxqQd8covjpJ2hN3AFm8TDkqbSm3o0NDMR1dYVr/3A=="],
 
     "@nativescript/core/@csstools/css-calc": ["@csstools/css-calc@2.1.4", "", { "peerDependencies": { "@csstools/css-parser-algorithms": "^3.0.5", "@csstools/css-tokenizer": "^3.0.4" } }, "sha512-3N8oaj+0juUw/1H3YwmDDJXCgTB1gKU6Hc/bB502u9zR0q2vd786XJH9QfrKIEgFlZmhZiq6epXl4rHqhzsIgQ=="],
@@ -7463,7 +7467,7 @@
 
     "@octane-xplat/windows/@nativescript/core": ["@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298", { "dependencies": { "@csstools/css-calc": "2.1.4", "@csstools/css-color-parser": "3.1.0", "@csstools/css-parser-algorithms": "3.0.5", "@csstools/css-tokenizer": "3.0.4", "@nativescript/hook": "3.0.5", "acorn": "8.19.0", "css-tree": "3.2.1", "css-what": "7.0.0", "emoji-regex": "10.6.0", "semver": "7.8.5", "source-map": "0.7.6", "source-map-js": "1.2.1", "tslib": "2.8.1" } }, "sha512-y+yYu/shQ7C9u1l9ydHcshZ4SQNywotJhbOx4hx7JP6j2hgAckyU9FsYeOPyds7Zeey5+Yw7CsvgLe9L4c7Kgw=="],
 
-    "@octane-xplat/windows/@nativescript/font-manager": ["@nativescript/font-manager@1.0.18", "", {}, "sha512-bPWqsE6oYRwdb4JVe60aSeAIgnjbpgObDGO3HEI2ghNFIOxI3+qXR7VkTRY3AFHyIljT9DCVWy3mcde9k5LO3A=="],
+    "@octane-xplat/windows/@nativescript/font-manager": ["@nativescript/font-manager@1.0.22", "", {}, "sha512-1g7guVH7b7sogRVznK4U5rySu2a10b6tU3SmmRVRihXHBATBVtJc7bERqz3fXMgYNanvLJXuDUfHL6f7CT7Dqg=="],
 
     "@octane-xplat/windows/@nativescript/vite": ["@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298", { "dependencies": { "@babel/core": "7.29.7", "@babel/generator": "7.29.8", "@babel/parser": "7.29.9", "@babel/plugin-transform-typescript": "7.29.9", "@babel/plugin-transform-unicode-property-regex": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@rollup/plugin-alias": "6.0.0", "@rollup/plugin-commonjs": "29.0.3", "@rollup/plugin-replace": "6.0.3", "css": "3.0.0", "esbuild": "0.27.7", "minimist": "1.2.8", "sass": "1.104.1", "vite": "8.3.0", "vite-plugin-static-copy": "4.1.1", "ws": "8.21.3" }, "peerDependencies": { "@analogjs/vite-plugin-angular": "^2.0.0", "@angular/build": "^21.0.0 || ^22.0.0", "@vitejs/plugin-vue": "^6.0.5", "@vitejs/plugin-vue-jsx": "^5.1.5", "@vue/compiler-sfc": "^3.5.0", "react-reconciler": "^0.32.0", "typescript": "*", "vite-plugin-solid": "^2.11.11", "vue-tsc": "^3.2.0" }, "optionalPeers": ["@analogjs/vite-plugin-angular", "@angular/build", "@vitejs/plugin-vue", "@vitejs/plugin-vue-jsx", "@vue/compiler-sfc", "react-reconciler", "typescript", "vite-plugin-solid", "vue-tsc"] }, "sha512-b4lW9meFZ3UIMDjp4Q2Agj0h9BteaTCp4bPx7antgtPaYDwrwM638mOnDJMd2u6BnDEGpqM4cnBqdM9YDEmbtw=="],
 

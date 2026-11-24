@@ -64,6 +64,68 @@ The workspace pins the matching NativeScript Windows packages. Do not upgrade
 `@nativescript/windows`, core, or Vite independently while testing this
 experimental target.
 
+## Core provider and packed consumer
+
+Windows already used the same Octane universal renderer and NativeScript driver
+as iOS and Android. The Windows preview supplies the Core implementation files,
+and the NativeScript Windows runtime owns the WinUI process, WinRT projection,
+app lifecycle, and MSIX packaging. macOS gets its provider files and host from
+`@octane-xplat/macos-appkit`. Both presets resolve Core and the shared renderer
+from the installation that owns the platform provider.
+
+The Windows preset loads the app's pinned `@nativescript/vite/framework` and
+registers the Octane flavor with that copy. Its bundle and HTTP development
+graphs use the same preview Core package. The preset tries `.windows` before
+unsuffixed modules. The harness maps its gesture port to the
+Windows source explicitly because its workspace UI path wildcard shadows the
+package export. The harness VirtualList profiling page reports that the
+profiling adapter is unavailable on Windows.
+Windows uses the full MasonKit pin because the mobile Mason Core package
+does not supply Windows native artifacts. Keep the matching x64 Widgets
+artifact paired with the patched preview, as described below.
+
+Windows Canvas pairs the `3.0.17` add-on with runtime `beta.28` and FontManager
+`1.0.22`. Canvas `3.0.1` failed at Node-API lookup with `0xc0000409`.
+Updating only Canvas to `3.0.17` while keeping runtime `beta.24` failed in
+`nativescript.dll` with `0x80000003`. FontManager `1.0.22` ships managed-host
+packaging and deduplicates WinRT manifest classes. The Windows adapter separates
+layout from buffer size and supplies the GPU shim expected by Canvas.
+The CLI Canvas patch recreates the WinUI panel when Core reattaches the same
+view after disposal. It clears cached layout dimensions and scale so the new
+surface receives its first size even when the layout stays the same.
+See the upstream [Node-API lookup fix](https://github.com/NativeScript/canvas/pull/201)
+and [FontManager registration fix](https://github.com/NativeScript/font-manager/pull/8).
+
+The Vite preview carries the existing NativeScript Vite package-import
+rewrite. Without it, the device receives unresolved `#octane/...` imports
+from raw dependency files and Windows development stops before mounting.
+The preview also recognizes exact `.tsrx` requests in the device server.
+This keeps the unsuffixed implementation reachable when a Windows wrapper
+imports it, as the dropdown menu and tab list do.
+The workspace harness uses the same native Bamboo Vite adapter as mobile to
+compile styles from the shared app package during builds and device sessions.
+Route specificity ties use code-unit ordering. The pinned Windows runtime
+throws `RangeError: Internal error. Icu error.` when the route catalog tries
+to sort identifiers using `String.localeCompare`. Locale-aware formatting
+still requires separate runtime support.
+
+The packed suite stages a separate Bun installation from package tarballs. The
+first command checks the production bundle and the device module server on any
+supported build host. The second builds and launches the fixture from a signed-in
+Windows desktop, checks the Core/WinUI peers and Mason geometry, dispatches a
+Core button event, edits a live component, and checks unmount cleanup.
+
+```sh
+bun run turbo run test:core --filter=@octane-xplat/windows
+bun run turbo run test:core --filter=@octane-xplat/windows -- --native
+```
+
+The device-server check establishes compilation and HTTP routing. The native
+fixture checks dispatched Core events. On x64, a text-only hot edit preserved
+Octane state, the Core Button, and the host Page, and recreated the button's
+WinUI peer. Peer-local state such as focus requires its own check. OS input,
+Narrator, ARM64, and visual parity also require separate checks.
+
 ## Run an owned desktop helper
 
 When an agent uses Task Scheduler to enter the signed-in desktop session,
@@ -164,7 +226,7 @@ fixtures, not WinUI hit testing or OS input.
 
 ## Windows runtime beta pin
 
-The Windows runtime pin is `@nativescript/windows@1.0.0-beta.24` while
+The Windows runtime pin is `@nativescript/windows@1.0.0-beta.28` while
 core and Vite stay on `abae298` and the `nativescript` CLI dev pin is
 unchanged, superseding the interim alpha.146 bump (a small maintenance delta
 over alpha.144: nullable annotations, a `SupportedOSPlatform` attribute,
