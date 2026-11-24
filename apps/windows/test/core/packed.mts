@@ -39,7 +39,7 @@ function run(command: string, args: string[], cwd = consumer) {
 mkdirSync(packs)
 mkdirSync(join(consumer, 'src'), { recursive: true })
 const packed: Record<string, string> = {}
-for (const name of ['build', 'lib', 'jsx', 'nativescript-octane', 'vite-octane']) {
+for (const name of ['build', 'canvas', 'lib', 'jsx', 'nativescript-octane', 'vite-octane']) {
   const dir = join(repo, 'packages', name)
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], dir)
@@ -51,9 +51,12 @@ const manifest = JSON.parse(readFileSync(join(app, 'package.json'), 'utf8'))
 const workspace = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8'))
 const pins = {
   ...Object.fromEntries(
-    ['@nativescript/core', '@nativescript/font-manager', '@octane-xplat/nativescript-masonkit'].map(
-      (name) => [name, manifest.dependencies[name]],
-    ),
+    [
+      '@nativescript/canvas',
+      '@nativescript/core',
+      '@nativescript/font-manager',
+      '@octane-xplat/nativescript-masonkit',
+    ].map((name) => [name, manifest.dependencies[name]]),
   ),
   ...Object.fromEntries(
     ['@nativescript/vite', '@nativescript/windows', 'nativescript'].map((name) => [
@@ -89,7 +92,9 @@ const id = 'org.octanexplat.core' + Date.now()
 const dependencies = Object.fromEntries(
   [
     '@nativescript/core',
+    '@nativescript/canvas',
     '@nativescript/font-manager',
+    '@octane-xplat/canvas',
     '@octane-xplat/nativescript-masonkit',
     '@octane-xplat/nativescript-octane',
     'octane',

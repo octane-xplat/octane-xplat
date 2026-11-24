@@ -5,6 +5,7 @@
 		"test:core": {
 			"dependsOn": [
 				"@octane-xplat/build#build",
+				"@octane-xplat/canvas#typegen",
 				"@octane-xplat/lib#typegen",
 				"@octane-xplat/vite-octane#build"
 			],

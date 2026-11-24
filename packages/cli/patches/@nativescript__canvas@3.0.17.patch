@@ -1,0 +1,43 @@
+diff --git a/Canvas/index.windows.js b/Canvas/index.windows.js
+index 85534877f14078c4b2423b913dbc5b4f1d11ac79..93636c250f2a2bb1421225de492ca4b9622509ad 100644
+--- a/Canvas/index.windows.js
++++ b/Canvas/index.windows.js
+@@ -173,11 +173,15 @@ export class Canvas extends NapiCanvas {
+         this._lockTimer = null;
+         this._imageSize = '';
+         this._imageFlipped = false;
++        this._usesSwapChainPanel = !nativeInstance;
+         if (nativeInstance) {
+             // An existing host (e.g. from a worker).
+             this._attachHost(nativeInstance);
+             return;
+         }
++        this._createSwapChainPanel();
++    }
++    _createSwapChainPanel() {
+         // (A SwapChainPanel rejects Background: its content is the swapchain.)
+         const panel = new Microsoft.UI.Xaml.Controls.SwapChainPanel();
+         this._panel = panel;
+@@ -189,6 +193,10 @@ export class Canvas extends NapiCanvas {
+         return this._panel;
+     }
+     createNativeView() {
++        // Core can reuse the Canvas object after disposing its native peer.
++        if (this._usesSwapChainPanel && !this._panel) {
++            this._createSwapChainPanel();
++        }
+         return this._panel;
+     }
+     initNativeView() {
+@@ -237,6 +245,11 @@ export class Canvas extends NapiCanvas {
+         this._down.clear();
+         this._mouseDown.clear();
+         this._panel = undefined;
++        // The next panel must receive its size and scale, even if both stayed the same.
++        this._viewWidth = 0;
++        this._viewHeight = 0;
++        this._viewScaleX = 0;
++        this._viewScaleY = 0;
+         super.disposeNativeView();
+     }
+     [ignoreTouchEventsProperty.setNative](value) {

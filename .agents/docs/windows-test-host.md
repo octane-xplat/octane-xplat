@@ -84,10 +84,17 @@ Windows uses the full MasonKit pin because the mobile Mason Core package
 does not supply Windows native artifacts. Keep the matching x64 Widgets
 artifact paired with the patched preview, as described below.
 
-Keep `@nativescript/canvas` out of the Windows harness's eager dev vendor
-bundle. On the pinned x64 host, starting that add-on from the vendor bundle
-terminated the process in `canvasnative.node` with `0xc0000409` before
-the app mounted. The Windows Canvas leaf provides a neutral frame.
+Windows Canvas pairs the `3.0.17` add-on with runtime `beta.28` and FontManager
+`1.0.22`. Canvas `3.0.1` failed at Node-API lookup with `0xc0000409`.
+Updating only Canvas to `3.0.17` while keeping runtime `beta.24` failed in
+`nativescript.dll` with `0x80000003`. FontManager `1.0.22` ships managed-host
+packaging and deduplicates WinRT manifest classes. The Windows adapter separates
+layout from buffer size and supplies the GPU shim expected by Canvas.
+The CLI Canvas patch recreates the WinUI panel when Core reattaches the same
+view after disposal. It clears cached layout dimensions and scale so the new
+surface receives its first size even when the layout stays the same.
+See the upstream [Node-API lookup fix](https://github.com/NativeScript/canvas/pull/201)
+and [FontManager registration fix](https://github.com/NativeScript/font-manager/pull/8).
 
 The Vite preview carries the existing NativeScript Vite package-import
 rewrite. Without it, the device receives unresolved `#octane/...` imports
@@ -219,7 +226,7 @@ fixtures, not WinUI hit testing or OS input.
 
 ## Windows runtime beta pin
 
-The Windows runtime pin is `@nativescript/windows@1.0.0-beta.24` while
+The Windows runtime pin is `@nativescript/windows@1.0.0-beta.28` while
 core and Vite stay on `abae298` and the `nativescript` CLI dev pin is
 unchanged, superseding the interim alpha.146 bump (a small maintenance delta
 over alpha.144: nullable annotations, a `SupportedOSPlatform` attribute,

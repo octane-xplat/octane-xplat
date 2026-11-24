@@ -1903,7 +1903,7 @@ function Check-ServiceActions{
     Assert ($result.pushConfigure -like '*not supported on windows*') 'push.configure rejects with the explicit unsupported error' $result
     Assert ($result.notificationsSupported -eq $false -and $result.notificationsPermissions -ceq 'unsupported') 'notifications report bounded unavailability' $result
     Assert ($result.soundSupported -eq $false -and $result.soundPlay -eq $false -and $result.soundMaxVoices -eq 0) 'sound banks report no voices' $result
-    Assert ($result.gpu -ceq 'null') 'getGPU returns null on windows' $result
+    Assert ($result.gpu -ceq 'present') 'getGPU exposes the native Windows GPU shim' $result
     Assert ($result.appleSupported -eq $false -and $result.appleSignIn -ceq 'error') 'appleAuth reports provider unsupported' $result
     Assert ($result.googleSupported -eq $false -and $result.googleSignIn -ceq 'error') 'googleAuth reports provider unsupported' $result
     Assert ($result.recorderError -ceq 'UnavailabilityError') 'createAudioRecorder rejects with UnavailabilityError' $result

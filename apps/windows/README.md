@@ -23,8 +23,10 @@ Pins, all deliberate:
   `pkg.pr.new/...@abae298` (the October 23 revision of PR #11272,
   including the percentage-size hook from PR #11468). Use the commit pin: the PR-number
   URL moves when upstream pushes, invalidating the lockfile checksums.
-- `@nativescript/windows` is exact `1.0.0-beta.24` — ranges match
+- `@nativescript/windows` is exact `1.0.0-beta.28` — ranges match
   incompatible other prereleases.
+- Canvas `3.0.17` and FontManager `1.0.22` supply the Windows drawing
+  surface and its WinRT font registration.
 - `nativescript` CLI is the dev tag `9.1.2-dev.2026-09-24-*`, which already
   carries the windows platform (`ns run windows`, `ns doctor windows`);
   released CLI waits on `nativescript-cli#6065`.

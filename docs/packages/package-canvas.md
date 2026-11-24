@@ -3,7 +3,7 @@
 > Canvas/GPU surface for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)
 
 A GPU/canvas surface for Octane xplat apps: the DOM `<canvas>` on web and
-`@nativescript/canvas` on iOS/Android — 2D, WebGL/WebGL2, and
+`@nativescript/canvas` on iOS, Android, and Windows — 2D, WebGL/WebGL2, and
 WebGPU/WGSL context kinds behind one `getContext` contract.
 
 ```sh
@@ -36,8 +36,13 @@ export function Drawing() {
 Pass `context` to have the leaf resolve it before `onReady`, or omit it and
 call `getContext` yourself — one kind per canvas, decided on first call.
 `onReady` fires after mount on web and on the plugin's `ready` event on
-iOS/Android (earlier `getContext` calls can return null). For WebGPU,
+iOS, Android, and Windows (earlier `getContext` calls can return null). For WebGPU,
 `getGPU()` normalizes adapter/device acquisition across targets.
+
+On Windows, start with positive `width` and `height` values, as in the example
+above. They size the drawing buffer and give the native view a layout size in
+device-independent pixels. Use `style.width` and `style.height` to override the
+layout size.
 
 ```tsx
 import { Canvas, getGPU } from '@octane-xplat/canvas'
@@ -57,6 +62,13 @@ const adapter = await gpu?.requestAdapter()
 const device = await adapter?.requestDevice()
 ```
 
+In an existing Windows app, apply the framework patches after installing Canvas.
+The Canvas patch lets NativeScript recreate the WinUI drawing surface during hot
+reload.
+
+```sh
+bun run xplat patches apply
+```
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-canvas).
 

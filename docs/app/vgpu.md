@@ -208,8 +208,10 @@ compatibility. Device creation, sizing, frame presentation, and disposal still
 need to be verified together before replacing the phone fallback. Do not move
 the browser file into shared code or install the Node backend in a phone app.
 
-Native AppKit and Windows Canvas implementations have no drawing backend.
-Other experimental desktop hosts are not qualified for this integration. An
+The [Canvas package](../packages/package-canvas.md) provides a native WinUI
+surface and GPU acquisition on experimental Windows. This vgpu example still
+requires its own Windows qualification. Native AppKit Canvas has no drawing
+backend. An
 app running in a browser or WebView depends on that engine's WebGPU support;
 desktop packaging by itself does not provide it. See [known limits](../testing/known-limits.md).
 

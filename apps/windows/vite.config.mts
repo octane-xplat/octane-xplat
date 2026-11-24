@@ -9,11 +9,6 @@ verifyWindowsLayoutRepair()
 
 const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url))
 
-// The Windows Canvas leaf supplies a neutral frame. Eagerly loading the
-// optional Canvas add-on from the dev vendor bundle crashes WinUI at launch.
-const vendorExclude = process.env.NS_VENDOR_EXCLUDE?.split(',').filter(Boolean) ?? []
-process.env.NS_VENDOR_EXCLUDE = [...new Set([...vendorExclude, '@nativescript/canvas'])].join(',')
-
 const qualificationEnabled = process.env.XPLAT_WINDOWS_QUALIFICATION === '1'
 const qualificationSource = qualificationEnabled
   ? {

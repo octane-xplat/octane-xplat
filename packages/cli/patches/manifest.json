@@ -58,6 +58,14 @@
 			]
 		},
 		{
+			"specifier": "@nativescript/canvas@3.0.17",
+			"file": "@nativescript__canvas@3.0.17.patch",
+			"scope": "runtime",
+			"why": "Windows Core can reuse a Canvas view after disposing its WinUI peer during hot reload. Recreate the owned SwapChainPanel and reset cached size and scale so the new peer initializes even when layout is unchanged.",
+			"dropWhen": "The adopted Canvas release recreates its Windows panel after native disposal and initializes the recreated surface at the same size.",
+			"template": false
+		},
+		{
 			"specifier": "@nativescript/core@9.1.4-next.0",
 			"bunSpecifiers": [
 				"@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298"
