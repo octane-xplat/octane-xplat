@@ -1030,7 +1030,7 @@ export async function writeNativeBootstrap(artifact, path, options) {
   await writeFile(
     path,
     nativeLoader(artifact, options) +
-      (await readFile(distUrl(import.meta.url, 'jsc-host/abort-globals.cjs'), 'utf8')) +
+      (await readFile(distUrl(import.meta.url, 'jsc-host/web-globals.cjs'), 'utf8')) +
       '\n' +
       (await readFile(join(hostRoot, 'shim.js'), 'utf8')),
   )

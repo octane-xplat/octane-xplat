@@ -4,7 +4,7 @@ import vm from 'node:vm'
 import { test } from 'node:test'
 
 const source = readFileSync(
-  new URL('../dist/macos/jsc-host/abort-globals.cjs', import.meta.url),
+  new URL('../dist/macos/jsc-host/web-globals.cjs', import.meta.url),
   'utf8',
 )
 
@@ -76,4 +76,21 @@ test('abort dispatch works with the minimal native console', () => {
   assert.equal(errors.length, 0)
   context.console.assert(false, 'fixture assertion')
   assert.deepEqual(errors[0], ['Assertion failed:', 'fixture assertion'])
+})
+
+test('AppKit bootstrap installs a URL constructor over the native metadata constant', () => {
+  const context = vm.createContext({ URL: 2 })
+
+  vm.runInContext(source, context)
+
+  const url = new context.URL('/sign-in', 'https://example.test')
+  url.searchParams.set('returnTo', '/?story=1')
+
+  assert.equal(url.origin, 'https://example.test')
+  assert.equal(url.href, 'https://example.test/sign-in?returnTo=%2F%3Fstory%3D1')
+  const callback = new context.URL('cooltabs-app://auth/callback?code=a&code=b')
+
+  assert.equal(callback.protocol, 'cooltabs-app:')
+  assert.deepEqual(Array.from(callback.searchParams.getAll('code')), ['a', 'b'])
+  assert.equal(new context.URLSearchParams('q=a+b').get('q'), 'a b')
 })

@@ -1,3 +1,4 @@
+import "core-js/modules/web.url.constructor.js"
 import { AbortController, AbortSignal } from 'abort-controller/dist/abort-controller.js'
 
 // Shared AppKit host capability. Preserve a provider installed by the runtime.

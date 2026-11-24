@@ -56,8 +56,8 @@ export default defineConfig({
 
         cpSync(resolve(source, 'macos/jsc-host/shim.js'), resolve(payload, 'shim.js'))
         cpSync(
-          resolve(root, '../cli/dist/macos/jsc-host/abort-globals.cjs'),
-          resolve(payload, 'abort-globals.cjs'),
+          resolve(root, '../cli/dist/macos/jsc-host/web-globals.cjs'),
+          resolve(payload, 'web-globals.cjs'),
         )
       },
     },
