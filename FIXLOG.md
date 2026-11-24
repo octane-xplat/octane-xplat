@@ -6,6 +6,14 @@ in the [changelog](CHANGELOG.md).
 Earlier fixes remain in the original [combined changelog](CHANGELOG.md) and
 [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [tsrx-typegen 0.6.2](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.6.2) - 2026-11-24
+
+### Check libraries packed with pnpm
+
+`tsrx-typegen --pack-check` now uses pnpm for projects that declare it in `package.json`. Library starters can check their exports and declarations during `pnpm pack`.
+
+See [publish checks](https://octane-xplat.goddardai.org/package-tsrx-typegen#publish-checks).
+
 ## [Octane Xplat 0.21.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.21.0) - 2026-11-22
 
 ### Clip SmoothCorners content with a CSS class
