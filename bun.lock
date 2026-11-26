@@ -2245,7 +2245,6 @@
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/linux-gtk": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "tsrx-typegen": "workspace:*",
@@ -2996,6 +2995,7 @@
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/pretext": "workspace:*",
       },
       "devDependencies": {
         "@nativescript/core": "catalog:",

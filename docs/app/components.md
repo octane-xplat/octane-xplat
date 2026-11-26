@@ -136,6 +136,7 @@ shared styling options.
 | `Text`                                              | Text block                                                |                                         |
 | `RichText`, `RichTextSpan`                          | Inline styled/linked spans inside one block               |                                         |
 | `Heading`                                           | Section heading (shared typography)                       |                                         |
+| [`BalancedText`](#balance-lines-in-a-short-heading)  | Heading or body text with balanced line wrapping          | `text`, `level`, `align`                |
 | `Kbd`                                               | Keyboard-key glyph (⌘K styling hook)                      |                                         |
 | `Link`, `NavLink`                                   | Route navigation as text                                  | `href`, `route`                         |
 | [`Markdown`](markdown.md) | Markdown doc — baked AST or runtime text, streaming-ready | `children`, `data`, `isStreaming`, `components`, `plugins` |
@@ -211,6 +212,32 @@ export function AccountTitle({ title }: { title: string }) {
   return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
 }
 ```
+
+### Balance lines in a short heading
+
+Use `BalancedText` when a title wraps and leaves a short last line. Place it in a
+container with a limited width, such as a card, and set `level` to give the title
+the same semantics as a `Heading`. Omit `level` to use body text.
+
+```tsx
+import { BalancedText } from '@octane-xplat/ui'
+
+export function CardTitle() {
+  return (
+    <BalancedText
+      level={2}
+      align="center"
+      style={{ maxWidth: 280 }}
+      text="Make room for the work that matters"
+    />
+  )
+}
+```
+
+Try [the title and caption example](../../examples/text/balanced-title.tsrx).
+Narrow the container to see the lines reflow. The component takes plain text,
+keeps explicit line breaks, and works best for a few lines at a time. The exact
+breaks depend on the platform's font metrics.
 
 ## Inputs
 

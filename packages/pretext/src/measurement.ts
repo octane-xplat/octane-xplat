@@ -7,6 +7,45 @@ export interface ParsedFont {
 
 export type NativeWidth = (text: string, font: string) => number
 
+const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+function decodeBase64(input: string): string {
+	const compact = input.replace(/[\t\n\f\r ]/g, '')
+	const encoded = compact.length % 4 === 0 ? compact.replace(/={1,2}$/, '') : compact
+	if (encoded.length % 4 === 1 || /[^A-Za-z0-9+/]/.test(encoded)) {
+		throw new TypeError('Invalid base64')
+	}
+
+	let result = ''
+	let bits = 0
+	let buffer = 0
+	for (const character of encoded) {
+		buffer = (buffer << 6) | BASE64.indexOf(character)
+		bits += 6
+		if (bits >= 8) {
+			bits -= 8
+			result += String.fromCharCode((buffer >> bits) & 0xff)
+		}
+	}
+	return result
+}
+
+function installBase64(): void {
+	const decode: unknown = Reflect.get(globalThis, 'atob')
+	if (typeof decode === 'function') {
+		try {
+			if (Reflect.apply(decode, globalThis, ['QQ==']) === 'A') return
+		} catch {
+			// Some native host builds expose a stub.
+		}
+	}
+	Object.defineProperty(globalThis, 'atob', {
+		configurable: true,
+		writable: true,
+		value: decodeBase64,
+	})
+}
+
 const FONT_SIZE = /(?:^|\s)(\d+(?:\.\d+)?)(px|pt)(?:\s*\/\s*[^\s]+)?(?:\s+|$)/i
 const WEIGHT_ALIASES = new Map([
 	['normal', 400],
@@ -62,6 +101,8 @@ export function parseFont(font: string): ParsedFont {
 
 /** Install Pretext's documented OffscreenCanvas hook around a native width provider. */
 export function installNativeMeasurement(width: NativeWidth): void {
+	// Pretext 1.0 decodes its packed Unicode line-breaking tables with atob.
+	installBase64()
 	// Read the DOM global through globalThis — non-web envs have no OffscreenCanvas type.
 	const OC = (globalThis as Record<string, any>).OffscreenCanvas
 	if (typeof OC !== 'undefined') {

@@ -11,7 +11,7 @@
 						"./dist/index.js",
 						"./dist/index.web.js",
 						"./dist/index.macos.js",
-						"./dist/index.linux.js",
+						"./dist/index.gtk.js",
 						"./dist/index.windows.js"
 					],
 					"types": ["./types/generated/index.d.ts"]
@@ -22,7 +22,7 @@
 						"./dist/rich-inline.js",
 						"./dist/rich-inline.web.js",
 						"./dist/rich-inline.macos.js",
-						"./dist/rich-inline.linux.js",
+						"./dist/rich-inline.gtk.js",
 						"./dist/rich-inline.windows.js"
 					],
 					"types": ["./types/generated/rich-inline.d.ts"]

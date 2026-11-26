@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot, createGtkContainer, gtkDriver } from '@octane-xplat/linux-gtk'
-import { Measurement } from './ui-measure.gtk.tsrx'
+import { BalancedMeasurement, Measurement, balancedTitle } from './ui-measure.gtk.tsrx'
 
 Gtk.init()
 
@@ -178,6 +178,25 @@ async function run() {
     { op: 'destroy', id: 1 },
     { op: 'destroy', id: 2 },
   ])
+
+  const balanced = createGtkRoot(host, {
+    onUncaughtError(error) {
+      throw error
+    },
+  })
+  const titleLabel = () =>
+    [...balanced.container.nodes.values()].find((n) => n.props.id === 'balanced-title')?.view
+
+  balanced.root.render(BalancedMeasurement, { width: 320 })
+  await pause(250)
+  const wrapped = titleLabel()?.get_label() ?? ''
+  check('GTK balances a title within its measured width', wrapped.includes('\n'))
+  check('balancing preserves the words', wrapped.replaceAll('\n', ' ') === balancedTitle)
+
+  balanced.root.render(BalancedMeasurement, { width: 520 })
+  await pause(250)
+  check('a wider allocation restores one line', titleLabel()?.get_label() === balancedTitle)
+  balanced.root.unmount()
 
   window.destroy()
   print(

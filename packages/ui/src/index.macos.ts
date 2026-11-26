@@ -312,6 +312,7 @@ export { useSafeAreaInsets } from './components/layout/safeAreaInsets.macos.tsrx
 export { useMeasure$ } from './components/layout/useMeasure.macos.tsrx'
 export { Meter } from './components/feedback/Meter.macos.tsrx'
 export { Heading } from './components/content/Heading.macos.tsrx'
+export { BalancedText } from './components/content/BalancedText.tsrx'
 export { Icon } from './components/media/Icon.macos.tsrx'
 export { IconRegistryProvider } from './components/media/IconRegistryProvider.macos.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'

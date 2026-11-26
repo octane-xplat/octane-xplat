@@ -895,6 +895,7 @@ export { ColorPicker } from './components/forms/ColorPicker.web.tsrx'
 export { Icon } from './components/media/Icon.web.tsrx'
 export { IconRegistryProvider } from './components/media/IconRegistryProvider.web.tsrx'
 export { Heading } from './components/content/Heading.web.tsrx'
+export { BalancedText } from './components/content/BalancedText.web.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'
 export type { IconGlyph, IconRegistry } from './components/media/icons'
 export type {
@@ -907,6 +908,7 @@ export type {
 export type {
   ActivityIndicatorProps,
   HeadingProps,
+  BalancedTextProps,
   IconProps,
   MeterProps,
   RefreshProps,

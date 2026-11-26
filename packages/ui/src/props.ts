@@ -3177,6 +3177,35 @@ export interface HeadingProps {
   web?: PlatformProps
 }
 
+/** Plain text that wraps into lines of similar length. Give it a bounded layout
+ * width, such as a card or a column. Set `level` to render a semantic heading.
+ *
+ * @example
+ * ```tsx
+ * import { BalancedText } from '@octane-xplat/ui'
+ *
+ * <BalancedText level={1} text="Make room for the work that matters" />
+ * ```
+ */
+export interface BalancedTextProps extends LayoutChildProps {
+  /** Text to balance. Explicit line breaks are preserved. */
+  text: string
+  /** Stable id for the rendered heading or body text. */
+  id?: string
+  /** Heading level. Omit to use body typography. */
+  level?: HeadingProps['level']
+  /** CSS classes on the outer layout container. */
+  className?: ClassValue
+  /** Styles on the outer layout container. */
+  style?: StyleProp
+  /** Alignment of the text within the container. */
+  align?: 'left' | 'center' | 'right'
+  /** Theme text color token. */
+  color?: TextColor
+  /** Font weight override. */
+  weight?: TextWeight
+}
+
 // ---------- overlays ----------
 
 /** Slide-over navigation panel from `@octane-xplat/ui`. Mobile uses

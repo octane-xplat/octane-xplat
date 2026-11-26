@@ -2,6 +2,9 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"typegen": {
+			"dependsOn": ["^typegen", "//#submodules", "@octane-xplat/pretext#build"]
+		},
 		"test:layout:web": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"cache": false,
@@ -57,7 +60,7 @@
 		},
 		"typecheck": {
 			"dependsOn": ["^typegen", "typecheck:scripts"],
-			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/accessibility/AccessibleTripForm.tsx", "../../examples/auth/AccountScreen.tsx", "../../examples/auth/session.ts", "../../examples/payments/PurchaseScreen.tsx", "../../examples/payments/purchases.ts", "../../examples/storage/**", "../../examples/motion/imperative.tsrx", "../../examples/clipboard/copy-text.tsrx", "../../examples/keyboard/hardware.web.tsrx", "../../examples/keyboard/keyboard-space.tsrx"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/accessibility/AccessibleTripForm.tsx", "../../examples/auth/AccountScreen.tsx", "../../examples/auth/session.ts", "../../examples/payments/PurchaseScreen.tsx", "../../examples/payments/purchases.ts", "../../examples/storage/**", "../../examples/text/balanced-title.tsrx", "../../examples/motion/imperative.tsrx", "../../examples/clipboard/copy-text.tsrx", "../../examples/keyboard/hardware.web.tsrx", "../../examples/keyboard/keyboard-space.tsrx"],
 			"outputs": []
 		},
 		"typecheck:scripts": {

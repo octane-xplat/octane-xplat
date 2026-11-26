@@ -43,7 +43,7 @@ with the code or runner they exercise; they are not instructional walkthroughs.
 | [`startup/`](startup/) | [Splash screen](../docs/packages/package-splash-screen.md) |
 | [`storage/`](storage/) | [Local storage](../docs/app/local-storage.md) |
 | [`tables/`](tables/) | [Interactive tables](../docs/packages/package-table.md) |
-| [`text/`](text/) | [Measure text with Pretext](../docs/packages/package-pretext.md) |
+| [`text/`](text/) | [Balance lines in a heading](../docs/app/components.md#balance-lines-in-a-short-heading) and [measure text with Pretext](../docs/packages/package-pretext.md) |
 | [`updates/`](updates/) | [App updates](../docs/app/updates.md) |
 | [`visibility/`](visibility/) | [Track visibility while scrolling](../docs/packages/package-intersection-observer.md) |
 | [`web-rendering/`](web-rendering/) | [Render a Web page on the server](../docs/platform/web-rendering.md) |

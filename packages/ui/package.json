@@ -184,7 +184,8 @@
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/pretext": "workspace:*"
 	},
 	"devDependencies": {
 		"@octane-xplat/nativescript-octane": "workspace:*",

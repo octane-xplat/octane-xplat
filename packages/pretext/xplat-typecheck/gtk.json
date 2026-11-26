@@ -4,14 +4,11 @@
 		"../../linux-gtk-renderer/src/host-globals.d.ts",
 		"../../../examples/text/measure.ts",
 		"../../linux-gtk-renderer/src/gi.d.ts",
-		"../src/index.linux.ts",
-		"../src/index.ts",
-		"../src/install.linux.ts",
-		"../src/install.ts",
+		"../src/index.gtk.ts",
+		"../src/install.gtk.ts",
 		"../src/intl.ts",
 		"../src/measurement.ts",
-		"../src/rich-inline.linux.ts",
-		"../src/rich-inline.ts",
+		"../src/rich-inline.gtk.ts",
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
@@ -24,9 +21,7 @@
 			]
 		},
 		"resolveJsonModule": true,
-		"types": [
-			"../node_modules/@octane-xplat/linux-gtk/dist/host-globals.d.ts"
-		],
+		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".gtk",

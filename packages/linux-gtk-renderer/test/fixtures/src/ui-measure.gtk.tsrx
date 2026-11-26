@@ -1,6 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
-import { AspectRatio, Text, View, useMeasure$ } from '@octane-xplat/ui'
+import { AspectRatio, BalancedText, Text, View, useMeasure$ } from '@octane-xplat/ui'
+
+export const balancedTitle = 'Make room for the work that matters'
+
+export function BalancedMeasurement(props: { width: number }) @{
+  <BalancedText id="balanced-title" level={2} text={balancedTitle} style={{ width: props.width }} />
+}
 
 export function Measurement(props: {
   width?: number

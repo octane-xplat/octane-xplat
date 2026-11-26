@@ -18,6 +18,7 @@
 		"../../examples/overlays/media-preview.tsx",
 		"../../examples/payments/PurchaseScreen.tsx",
 		"../../examples/storage/PackingScreen.tsx",
+		"../../examples/text/balanced-title.tsrx",
 		"../../examples/search/filter-books.tsx",
 		"../../examples/motion/imperative.tsrx",
 		"../../examples/clipboard/copy-text.tsrx",

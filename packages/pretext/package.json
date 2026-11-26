@@ -29,8 +29,8 @@
 		".": {
 			"types": "./types/generated/index.d.ts",
 			"macos": "./dist/index.macos.js",
-			"linux": "./dist/index.linux.js",
-			"gtk": "./dist/index.linux.js",
+			"linux": "./dist/index.gtk.js",
+			"gtk": "./dist/index.gtk.js",
 			"windows": "./dist/index.windows.js",
 			"web": "./dist/index.web.js",
 			"browser": "./dist/index.web.js",
@@ -40,8 +40,8 @@
 		"./rich-inline": {
 			"types": "./types/generated/rich-inline.d.ts",
 			"macos": "./dist/rich-inline.macos.js",
-			"linux": "./dist/rich-inline.linux.js",
-			"gtk": "./dist/rich-inline.linux.js",
+			"linux": "./dist/rich-inline.gtk.js",
+			"gtk": "./dist/rich-inline.gtk.js",
 			"windows": "./dist/rich-inline.windows.js",
 			"web": "./dist/rich-inline.web.js",
 			"browser": "./dist/rich-inline.web.js",
@@ -71,7 +71,6 @@
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/cli": "workspace:*",
-		"@octane-xplat/linux-gtk": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/nativescript-octane": "workspace:*",
 		"tsrx-typegen": "workspace:*",
@@ -83,11 +82,6 @@
 	"peerDependenciesMeta": {
 		"@nativescript/core": {
 			"optional": true
-		}
-	},
-	"xplat": {
-		"macos": {
-			"frameworks": ["AppKit"]
 		}
 	}
 }

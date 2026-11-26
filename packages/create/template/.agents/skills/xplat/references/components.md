@@ -21,7 +21,7 @@ export function Welcome() {
 | Need                  | Component(s)                                                                  |
 | --------------------- | ----------------------------------------------------------------------------- |
 | Layout                | `View`, `VStack`, `HStack`, `Grid`, `Stack`, `Absolute`, `Spacer`, `SafeArea` |
-| Text                  | `Text`, `Heading`, `RichText`, `RichTextSpan`                                 |
+| Text                  | `Text`, `Heading`, `BalancedText`, `RichText`, `RichTextSpan`                 |
 | Tap                   | `Pressable`, `Button`, `Link`, `NavLink`                                      |
 | Input                 | `TextInput`, `TextArea`, `Switch`, `Slider`                                   |
 | Scrolling             | `ScrollableArea`, `VirtualList`                                               |

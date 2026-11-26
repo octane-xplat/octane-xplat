@@ -10,6 +10,8 @@ import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+// Fold Pretext's guarded browser branches for the GTK host, which has no DOM.
+const define = { document: 'undefined' }
 
 test('measurement and aspect ratio follow real GTK allocation and scrolling', async (t) => {
   if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
@@ -17,7 +19,8 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
       stem: 'ui-measure',
       entry: 'src/ui-measure-main.ts',
       marker: 'GTK_UI_MEASURE',
-      minChecks: 19,
+      minChecks: 22,
+      define,
     })
   }
 
@@ -28,14 +31,12 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
     return
   }
 
-  await build({
-    logLevel: 'error',
-    ...(await linuxGtk('production', {
-      root: fixture,
-      entry: 'src/ui-measure-main.ts',
-      outDir,
-    })),
+  const preset = await linuxGtk('production', {
+    root: fixture,
+    entry: 'src/ui-measure-main.ts',
+    outDir,
   })
+  await build({ logLevel: 'error', ...preset, define: { ...preset.define, ...define } })
 
   const bundle = join(outDir, 'app.js')
 
@@ -62,7 +63,7 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
 
   const { checks, gtk } = JSON.parse(line.slice('GTK_UI_MEASURE '.length))
 
-  assert.ok(checks >= 19, `Expected measurement checks, got ${checks}`)
+  assert.ok(checks >= 22, `Expected measurement checks, got ${checks}`)
 
   t.diagnostic(
     `${process.platform}; GTK ${gtk}; ${checks} assertions; XplatMason; real GTK allocation and scroll adjustment; no OS input or visual evidence`,
