@@ -46,8 +46,10 @@ APIs such as `@octane-xplat/platform` for device capabilities.
 values that change while the app runs. Shared CSS must use the portable
 subset — the native build warns on declarations it drops
 (`position: fixed`, `margin: auto`, `box-shadow`, …).
-**Hooks and JSX live in `.tsrx` (or `.tsx`).** Keep plain `.ts` modules
-for non-component code. Keep component imports in component files.
+**Prefer `.tsrx` for components.** It supports template directives such as
+`@if` and `@for` directly in markup. Hooks and JSX can also live in `.tsx`.
+Keep plain `.ts` modules for non-component code and component imports in
+component files.
 **Keep signal names suffixed with `$`.** Use `useSignal$` for state owned
 by a component. Each module that reads signals on native needs a runtime
 signals import, even when it receives the signal from another module. Use
