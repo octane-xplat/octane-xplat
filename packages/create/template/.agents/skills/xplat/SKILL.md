@@ -21,6 +21,11 @@ before running on a phone.
 
 ## Non-negotiables
 
+**Render the app with each target’s renderer.** Never implement a non-web
+target by loading the web version of the app in a WebView, whether hosted
+remotely or bundled locally. Use shared Xplat components and target-specific
+implementations where needed.
+
 **One element vocabulary per file.** Use portable components such as
 `@octane-xplat/ui` in shared code. Put browser elements in a `.web` file and
 native elements in a native-only implementation. Keep platform-authentic
