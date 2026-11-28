@@ -80,6 +80,12 @@ carried on the package (#62).
 
 Drawer belongs to UI (#157): its mobile presentation uses UI’s common input owner and scalar animation, with no separate plugin or runtime dependency. Keep platform leaves inside UI; do not recreate a drawer package solely for platform-specific presentation.
 
+BorderBeam lives in UI and uses SVG on the web, Core Animation on iOS and
+macOS, and a drawable overlay on Android. Preserve the shared stroke geometry
+and timing in `border-beam.ts`. The `@octane-xplat/ui/border-beam` entry
+limits imports to targets with a painter. See the
+[BorderBeam guide](../../docs/app/components.md#highlight-a-working-surface-with-borderbeam).
+
 ## Layout defaults
 
 General-purpose containers use block flow (#159), including `View`, bare

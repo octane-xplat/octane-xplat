@@ -1,0 +1,29 @@
+.vx-border-beam {
+  position: relative;
+}
+
+.vx-border-beam-stroke {
+  position: absolute;
+  inset: var(--vx-border-beam-inset);
+  width: calc(100% - 2 * var(--vx-border-beam-inset));
+  height: calc(100% - 2 * var(--vx-border-beam-inset));
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vx-border-beam-stroke > rect {
+  stroke-dashoffset: var(--vx-border-beam-offset);
+  animation: vx-border-beam-perimeter var(--vx-border-beam-duration) linear infinite;
+}
+
+@keyframes vx-border-beam-perimeter {
+  to {
+    stroke-dashoffset: calc(var(--vx-border-beam-offset) - 100);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-border-beam-stroke > rect {
+    animation: none;
+  }
+}

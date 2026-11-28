@@ -104,6 +104,14 @@
 			"types": "./types/generated/macos/index.d.ts",
 			"macos": "./src/macos/index.ts"
 		},
+		"./border-beam": {
+			"gtk": null,
+			"windows": null,
+			"types": "./types/generated/components/feedback/BorderBeam.d.ts",
+			"web": "./src/components/feedback/BorderBeam.web.tsrx",
+			"macos": "./src/components/feedback/BorderBeam.macos.tsrx",
+			"native": "./src/components/feedback/border-beam-entry.ts"
+		},
 		"./theme/tokens.css": "./src/theme/tokens.css",
 		"./theme/chrome.css": "./src/theme/chrome.css",
 		"./theme/utilities.css": "./src/theme/utilities.css",

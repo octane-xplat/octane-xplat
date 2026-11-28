@@ -2762,6 +2762,22 @@ export type UISwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 /** Props accepted by `MaterialSwitch` (`@octane-xplat/ui/android`). */
 export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
 
+/** Decorative traveling highlight for web, iOS, Android, and macOS.
+ *
+ * @example
+ * ```tsx
+ * import { BorderBeam } from '@octane-xplat/ui/border-beam'
+ *
+ * <BorderBeam active={isWorking} radius={12}>{children}</BorderBeam>
+ * ```
+ */
+export interface BorderBeamProps extends Pick<ViewProps, 'children' | 'className' | 'id' | 'style'> {
+  /** Shows the highlight. @default true */
+  active?: boolean
+  /** Corner radius of the frame in logical pixels. @default 12 */
+  radius?: number
+}
+
 /** Loading spinner — self-drawn ring with a `busy` flag (exported as `ActivityIndicator`; `Spinner` on the macOS barrel). OS-authentic forms: `UIActivityIndicatorView` (iOS), `CircularProgressIndicator` (Android).
  *
  * @example

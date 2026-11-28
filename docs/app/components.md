@@ -379,6 +379,28 @@ export function Volume() {
 }
 ```
 
+### Highlight a working surface with BorderBeam
+
+Wrap a surface in `BorderBeam` to send a highlight around its border while work
+is underway. Pass the work state as `active` and keep a clear status label inside
+the surface. The highlight holds still when the system requests reduced motion.
+This import is available on web, iOS, Android, and macOS.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { BorderBeam } from '@octane-xplat/ui/border-beam'
+
+export function ExportStatus({ exporting }: { exporting: boolean }) {
+  return (
+    <BorderBeam active={exporting} radius={12} style={{ padding: 12 }}>
+      <Text accessibilityLiveRegion="polite">
+        {exporting ? 'Exporting report…' : 'Ready to export'}
+      </Text>
+    </BorderBeam>
+  )
+}
+```
+
 ### Busy feedback on AppKit
 
 AppKit Spinner now uses the shared named sizes, text/node labels and on-media
